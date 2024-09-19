@@ -1,0 +1,160 @@
+* {
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+:root {
+  --key: rgb(187, 229, 251);
+  --accent: rgb(251, 247, 2);
+  --secondary: rgb(15, 151, 219);
+}
+body {
+  margin: 0;
+  padding: 2vmax 4vw;
+  background: var(--key);
+}
+heading {
+  gap: 1vmin;
+  display: flex;
+  flex-flow: row nowrap;
+}
+h1,
+h2,
+h3,
+label {
+  margin-bottom: 0;
+  font-family: 'sans';
+}
+label,
+textarea {
+  border-radius: 0.5ch;
+}
+label {
+  border: none;
+  cursor: pointer;
+  transition: 0.5s;
+  font-size: clamp(0.6rem, 1vmin + 0.6rem, 2rem);
+}
+span {
+  border-radius: 0.15ch;
+}
+input[type="checkbox"] {
+  display: none;
+}
+h1,
+h2,
+h3,
+figure {
+  margin: 0;
+  padding: 0;
+  margin-block: 0;
+  font-weight: 400;
+  font-size: clamp(0.6rem, 1vmax + 0.6rem, 2rem);
+}
+figure {
+  margin: 1vmax 0;
+}
+section {
+  margin-bottom: 2vmax;
+}
+h3,
+code {
+  margin-bottom: 1vmin;
+  font-size: clamp(0.6rem, 1vmin + 0.6rem, 2rem);
+}
+h1 {
+  margin-left: -0.05em;
+  font-size: clamp(1rem, 1.2vmax + 1rem, 3rem);
+}
+p,
+code {
+  margin: 0;
+  padding: 0;
+  margin-block: 0;
+  margin-bottom: 1em;
+  font-family: 'serif';
+  font-size: clamp(0.85rem, 1.5vmax, 2rem);
+}
+main {
+  padding: 2vmax 0;
+}
+textarea {
+  width: 100%;
+  resize: none;
+  min-width: 50%;
+  min-height: 64px;
+  background: inherit;
+  font-family: inherit;
+  margin-bottom: 2vmax;
+  font-size-adjust: from-font;
+  border: 1px solid var(--secondary);
+  font-size: clamp(0.85rem, 1.5vmax, 2rem);
+}
+textarea:focus-within {
+  outline-color: var(--accent);
+}
+a {
+  color: inherit;
+  transition: 0.65s;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--secondary);
+}
+a:hover {
+  transition: 0;
+  text-decoration-color: var(--accent);
+}
+code {
+  font-family: 'monospace';
+}
+.unchecked {
+  opacity: 0.6;
+}
+.checked {
+  opacity: 1;
+}
+span.after,
+span.before {
+  background: var(--accent);
+}
+.example {
+  width: 100%;
+}
+textarea,
+.result {
+  height: 64px;
+}
+blockquote {
+  margin-inline: 0;
+  margin: 0 1.25em 2em 1.25em;
+}
+.rules,
+.examples {
+  display: flex;
+  gap: 1vmin 2.5vmax;
+  flex-flow: row nowrap;
+}
+.diff-wrapper {
+  margin-bottom: 1vmin;
+}
+#rules-container {
+  gap: 2vmax 4vmax;
+  display: flex;
+  max-width: 100%;
+  flex-flow: row wrap;
+}
+#rules-container > label {
+  flex: 2 2 280px;
+}
+.logo {
+  width: 12vmax;
+}
+.forget-me-not {
+  width: 4vmax;
+  margin-right: -1vmin;
+  margin-bottom: -1vmax;
+}
+@media screen and (max-width: 720px) {
+  .examples {
+    flex-flow: column nowrap;
+  }
+}

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="theme-color" content="rgb(187, 229, 251)">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
+  <link rel="icon" href="favicon.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="browser/alaska.js"></script>
+  <script src="script.js"></script>
+  <title>Alaska showcase</title>
+</head>
+
+<body>
+  <heading>
+    <img class="forget-me-not" src="favicon.png" /><img class="logo" src="logo.png" />
+  </heading>
+  <main class="alaska" data-remove-leading-spaces="false" data-remove-trailing-spaces="false">
+    <section>
+      <p>Alaska is a simple text formatter for web. It automatically formats the text content of a web page to have the right quotes, no-break spaces, em-dashes, and <a href="#rules">more</a>. Here's an example:</p>
+      <article id="examples" class="examples">
+        <div class="example">
+          <h3>Before</h3>
+          <p class="example-before alaska-skip">John's new book, 'The Adventure of the Invisible Hound' - a thrilling sequel to 'The Mystery of the Missing Diamond'--is a must-read for all mystery enthusiasts. Currently ranked at no.1 on the bestseller list, 'The Adventure of the Invisible Hound' has seen a %25 increase in sales since its release in june 2023. It's a must-read for all mystery enthusiasts, especially those who appreciate intricate plotlines and unexpected twists.</p>
+        </div>
+        <div class="example">
+          <h3>After</h3>
+          <p class="example-after">John's new book, 'The Adventure of the Invisible Hound' - a thrilling sequel to 'The Mystery of the Missing Diamond'--is a must-read for all mystery enthusiasts. Currently ranked at no.1 on the bestseller list, 'The Adventure of the Invisible Hound' has seen a 25% increase in sales since its release in june 2023. It's a must-read for all mystery enthusiasts, especially those who appreciate intricate plotlines and unexpected twists.</p>
+        </div>
+      </article>
+    </section>
+    <section>
+      <p>Try it out yourself:</p>
+      <article class="examples">
+        <div class="example">
+          <textarea id="user-before" placeholder="Before" maxlength="100"></textarea>
+        </div>
+        <div class="example result">
+          <p id="user-after" class="alaska-observe">After</p>
+        </div>
+      </article>
+    </section>
+    <section>
+      <h1>Setup and usage</h1>
+      <p>Include Alaska in the <code>&lt;head&gt;</code> of your page:</p>
+      <blockquote>
+        <code>&lt;head&gt;</br>
+          &nbsp;&nbsp;...</br>
+          &nbsp;&nbsp;&lt;script <span class="after">src="/path/to/alaska.js"</span>&gt;&lt;/script&gt;</br>
+          &nbsp;&nbsp;...</br>
+          &lt;/head&gt;
+        </code>
+      </blockquote>
+      <p>Now all nodes with text content and <code>class="alaska"</code> will be formated, including their child nodes:</p>
+      <blockquote>
+        <code>&lt;p <span class="after">class="alaska"</span>&gt; </br> &nbsp;&nbsp;This text will be formatted. </br> &nbsp;&nbsp;&lt;span&gt;This text will be formatted too.&lt;/span&gt; </br> &lt;/p&gt;</code>
+      </blockquote>
+      <p>If you want to avoid formatting text in certain child nodes, they should include <code>class="alaska-skip"</code>:</p>
+      <blockquote>
+        <code>&lt;p class="alaska"&gt; </br> &nbsp;&nbsp;This text will be formatted. </br> &nbsp;&nbsp;&lt;span <span class="after">class="alaska-skip"</span>&gt;And this won't.&lt;/span&gt; </br> &lt;/p&gt;</code>
+      </blockquote>
+      <p>If you plan on manipulating document and want added or modified elements to be formatted, you should include <code>class="alaska-observe"</code>:</p>
+      <blockquote>
+        <code>&lt;div <span class="after">class="alaska-observe"&gt;</span></br>
+          &nbsp;&nbsp;...</br>
+          &nbsp;&nbsp;&lt;!--Alask will format added or modified nodes in here--&gt;</br>
+          &nbsp;&nbsp;...</br>
+          &lt;/div&gt;
+        </code>
+      </blockquote>
+      <p>By default, all rules are applied. It is also possible to apply only specific rules to certain elements by specifying necessary attributes. If you want to turn off or on a certain rule, you have to add the corresponding attribute:</p>
+      <blockquote>
+        <code>&lt;p class="alaska"&gt; </br> &nbsp;&nbsp;All rules will be applied to this text </br> &nbsp;&nbsp;&lt;span <span class="after">data-place-emdash="false"</span>&gt;First rule is not applied to this span&lt;/span&gt; </br> &lt;/p&gt;</code>
+      </blockquote>
+    </section>
+    <section id="rules">
+      <p>Below is the list of all <span id="rules-count"></span> rules. Select necessary and unnecessary rules -- corresponding attributes will be generated automatically:</p>
+      <blockquote>
+        <code id="user-config">By default, all rules are applied</code>
+      </blockquote>
+      <div id="rules-container">
+        <label for="place-emdash">
+          <h2><input id="place-emdash" name="rules" type="checkbox" checked/><span></span>Place emdash</h2>
+          <h3>Replaces hyphen or two hyphens padded with spaces, and two hyphens without padding, with the emdash padded with the no-break space on the left and regular space on the right</h3>
+          <figure class="rules">
+            <div>
+              <h3>Before</h3>
+              <p class="alaska-skip">word - word, word--word, word -- word</p>
+            </div>
+            <div>
+              <h3>After</h3>
+              <p>word - word, word--word, word -- word</p>
+            </div>
+          </figure>
+        </label>
+        <label for="place-hyphen">
+          <h2><input id="place-hyphen" name="rules" type="checkbox" checked/><span></span>Place no-break hyphen</h2>
+          <h3>Pads hyphen with no-breaks on both sides</h3>
+          <figure class="rules"> 
+            <div>
+              <h3>Before</h3>
+              <p class="alaska-skip">She's so self-conscious</p>
+            </div>
+            <div>
+              <h3>After</h3>
+              <p>She's so self-conscious</p>
+            </div>
+          </figure>
+        </label>
+        <label for="place-nbsp">
+          <h2><input id="place-nbsp" name="rules" type="checkbox" checked/><span></span>Join short word with the following word</h2>
+          <h3>Word of three characters or less followed by another word is padded on the right with a no-break space</h3>
+          <figure class="rules"> 
+            <div>
+              <h3>Before</h3>
+              <p class="alaska-skip">Short words have a tendency to hang at the edges</p>
+            </div>
+            <div>
+              <h3>After</h3>
+              <p>Short words have a tendency to hang at the edges</p>
+            </div>
+          </figure>
+        </label>
+        <label for="place-three-stops">
+          <h2><input id="place-three-stops" name="rules" type="checkbox" checked/><span></span>Place three full stops</h2>
+          <h3>Replaces ellipsis and three consequitive full-stops with three full-stops padded with no-breaks</h3>
+          <figure class="rules"> 
+            <div>
+              <h3>Before</h3>
+              <p class="alaska-skip">She said…</p>
+            </div>
+            <div>
+              <h3>After</h3>
+              <p>She said…</p>
+            </div>
+          </figure>
+        </label>
+        <label for="place-numeric-range">
+          <h2><input id="place-numeric-range" name="rules" type="checkbox" checked/><span></span>Place numeric range</h2>
+          <h3>Replaces hyphen and minus in numeric range with two full-stops, and pads each full-stop with no-breaks on both sides</h3>
+          <figure class="rules"> 
+            <div>
+              <h3>Before</h3>
+              <p class="alaska-skip">2010-2012, 2-3, zero to one, 1 to 3</p>
+            </div>
+            <div>
+              <h3>After</h3>
+              <p>2010-2012, 2-3, zero to one, 1 to 3</p>
+            </div>
+          </figure>
+        </label>
+        <label for="place-numero-sign">
+          <h2><input id="place-numero-sign" name="rules" type="checkbox" checked/><span></span>Place numero sign</h2>
+          <h3>Replaces No. and its variations with the numero sign padded on the right with the hair-space and no-break</h3>
+          <figure class="rules">
+            <div>
+              <h3>Before</h3>
+              <p class="alaska-skip">No.1, no. 2, number 3</p>
+            </div>
+            <div>
+              <h3>After</h3>
+              <p>No.1, no. 2, number 3</p>
+            </div>
+          </figure>
+        </label>
+        <label for="place-minus-sign">
+          <h2><input id="place-minus-sign" name="rules" type="checkbox" checked/><span></span>Place minus sign</h2>
+          <h3>Replaces hyphen in basic equations and negative numbers with no-break space padded minus and no-break padded minus, respectively</h3>
+          <figure class="rules">
+            <div>
+              <h3>Before</h3>
+              <p class="alaska-skip">1-2=-1</p>
+            </div>
+            <div>
+              <h3>After</h3>
+              <p>1-2=-1</p>
+            </div>
+          </figure>
+        </label>
+        <label for="place-plus-sign">
+          <h2><input id="place-plus-sign" name="rules" type="checkbox" checked/><span></span>Place plus sign</h2>
+          <h3>Replaces plus sign in basic equations and positive numbers with no-break space padded plus and no-break padded plus, respectively</h3>
+          <figure class="rules">
+            <div>
+              <h3>Before</h3>
+              <p class="alaska-skip">1+2=3</p>
+            </div>
+            <div>
+              <h3>After</h3>
+              <p>1+2=3</p>
+            </div>
+          </figure>
+        </label>
+        <label for="place-currency-sign">
+          <h2><input id="place-currency-sign" name="rules" type="checkbox" checked/><span></span>Place currency sign</h2>
+          <h3>Replaces currency signs and three-letter currency codes with currency signs that go after value and are padded on the left with no-break hair-space</h3>
+          <figure class="rules"> 
+            <div>
+              <h3>Before</h3>
+              <p class="alaska-skip">$100, 9.99$, 25gbp, 1eur</p>
+            </div>
+            <div>
+              <h3>After</h3>
+              <p>$100, 9.99$, 25gbp, 1eur</p>
+            </div>
+          </figure>
+        </label>
+        <label for="place-percent-sign">
+          <h2><input id="place-percent-sign" name="rules" type="checkbox" checked/><span></span>Place percent sign</h2>
+          <h3>Replaces percent sign with percent sign that goes after value and is padded on the left with no-break hair-space</h3>
+          <figure class="rules"> 
+            <div>
+              <h3>Before</h3>
+              <p class="alaska-skip">%100, 25%</p>
+            </div>
+            <div>
+              <h3>After</h3>
+              <p>%100, 25%</p>
+            </div>
+          </figure>
+        </label>
+        <label for="place-typographic-apostrophe">
+          <h2><input id="place-typographic-apostrophe" name="rules" type="checkbox" checked/><span></span>Place typographic apostrophe</h2>
+          <figure class="rules">
+            <div>
+              <h3>Before</h3>
+              <p class="alaska-skip">Let's go</p>
+            </div>
+            <div>
+              <h3>After</h3>
+              <p>Let's go</p>
+            </div>
+          </figure>
+        </label>
+       <label for="place-typographic-quotes">
+          <h2><input id="place-typographic-quotes" name="rules" type="checkbox" checked/><span></span>Place typographic quotes</h2>
+          <h3>Replaces neutral quotes with english primary quotes</h3>
+          <figure class="rules">
+            <div>
+              <h3>Before</h3>
+              <p class="alaska-skip">He said: 'She said: "He said"'</p>
+            </div>
+            <div>
+              <h3>After</h3>
+              <p>He said: 'She said: "He said"'</p>
+            </div>
+          </figure>
+        </label>
+        <label for="place-number-nbsp-word">
+          <h2><input id="place-number-nbsp-word" name="rules" type="checkbox" checked/><span></span>Place no-break space between a number and a word</h2>
+          <figure class="rules">
+            <div>
+              <h3>Before</h3>
+              <p class="alaska-skip">100apples, 1.5 persons</p>
+            </div>
+            <div>
+              <h3>After</h3>
+              <p>100 apples, 1.5 persons</p>
+            </div>
+          </figure>
+        </label>
+        <label for="place-arrows">
+          <h2><input id="place-arrows" name="rules" type="checkbox" checked/><span></span>Place arrows</h2>
+          <figure class="rules">
+            <div>
+              <h3>Before</h3>
+              <p class="alaska-skip"><-, ->, <->, <=, =>, <=></p>
+            </div>
+            <div>
+              <h3>After</h3>
+              <p><-, ->, <->, <=, =>, <=></p>
+            </div>
+          </figure>
+        </label>
+        <label for="place-fractions">
+          <h2><input id="place-fractions" name="rules" type="checkbox" checked/><span></span>Place fractions</h2>
+          <figure class="rules">
+            <div>
+              <h3>Before</h3>
+              <p class="alaska-skip">1/2 cup of flour, 3/4 of the way around the circle, 1/16 of an apple</p>
+            </div>
+            <div>
+              <h3>After</h3>
+              <p>1/2 cup of flour, 3/4 of the way around the circle, 1/16 of an apple</p>
+            </div>
+          </figure>
+        </label>
+        <label for="place-copyright">
+          <h2><input id="place-copyright" name="rules" type="checkbox" checked/><span></span>Place copyright symbols</h2>
+          <figure class="rules">
+            <div>
+              <h3>Before</h3>
+              <p class="alaska-skip">(c), (C), (tm), (TM), (r), (R), (p), (P)</p>
+            </div>
+            <div>
+              <h3>After</h3>
+              <p>(c), (C), (tm), (TM), (r), (R), (p), (P)</p>
+            </div>
+          </figure>
+        </label>
+        <label for="place-mathematical-symbols">
+          <h2><input id="place-mathematical-symbols" name="rules" type="checkbox" checked/><span></span>Place mathematical symbols</h2>
+          <figure class="rules">
+            <div>
+              <h3>Before</h3>
+              <p class="alaska-skip">/dia, /deg, /pm, /mp, /loz, /prime, /dprime, /tprime, /qprime, /dot, /times, !=, /lq, /gq, ~=</p>
+            </div>
+            <div>
+              <h3>After</h3>
+              <p>/dia, /deg, /pm, /mp, /loz, /prime, /dprime, /tprime, /qprime, /dot, /times, !=, /lq, /gq, ~=</p>
+            </div>
+          </figure>
+        </label>
+        <label for="place-emoticons">
+          <h2><input id="place-emoticons" name="rules" type="checkbox" checked/><span></span>Place emoticons</h2>
+          <figure class="rules">
+            <div>
+              <h3>Before</h3>
+              <p class="alaska-skip">/shrug, /crying, /happy, /dying, /curious, /angry, /surprised</p>
+            </div>
+            <div>
+              <h3>After</h3>
+              <p>/shrug, /crying, /happy, /dying, /curious, /angry, /surprised</p>
+            </div>
+          </figure>
+        </label>
+        <label for="place-typography-ornamentation">
+          <h2><input id="place-typography-ornamentation" name="rules" type="checkbox" checked/><span></span>Place typographic ornamentation</h2>
+          <figure class="rules">
+            <div>
+              <h3>Before</h3>
+              <p class="alaska-skip">/dinkus, /asterism, /fleuron, /dingbat, /dagger, /section, /bullet, /tainome</p>
+            </div>
+            <div>
+              <h3>After</h3>
+              <p>/dinkus, /asterism, /fleuron, /dingbat, /dagger, /section, /bullet, /tainome</p>
+            </div>
+          </figure>
+        </label>
+        <label for="remove-leading-spaces">
+          <h2><input id="remove-leading-spaces" name="rules" type="checkbox" checked/><span></span>Remove leading spaces</h2>
+          <h3>Removes spaces at the start of a sentence</h3>
+        </label>
+        <label for="remove-trailing-spaces">
+          <h2><input id="remove-trailing-spaces" name="rules" type="checkbox" checked/><span></span>Remove trailing spaces</h2>
+          <h3>Removes spaces at the end of a sentence</h3>
+        </label>
+        <label for="remove-multiple-spaces">
+          <h2><input id="remove-multiple-spaces" name="rules" type="checkbox" checked/><span></span>Remove multiple consequitive spaces</h2>
+          <h3>Removes mutliple consequitive spaces</h3>
+        </label>
+        <label for="remove-nobreak-spaces">
+          <h2><input id="remove-nobreak-spaces" name="rules" type="checkbox" checked/><span></span>Remove no-break spaces</h2>
+          <h3>Removes no-break spaces before other rules are applied</h3>
+        </label>
+        <label for="remove-nobreaks">
+          <h2><input id="remove-nobreaks" name="rules" type="checkbox" checked/><span></span>Remove no-breaks</h2>
+          <h3>Removes no-breaks before other rules are applied</h3>
+        </label>
+        <label for="remove-punctuation-spaces">
+          <h2><input id="remove-punctuation-spaces" name="rules" type="checkbox" checked/><span></span>Remove spaces before punctuation</h2>
+        </label>
+        <label for="skip-blockquote">
+          <h2><input id="skip-blockquote" name="rules" type="checkbox" checked/><span></span>Skip blockquotes</h2>
+          <h3>Skips content in blockquote tags and their children</h3>
+        </label>
+        <label for="skip-code">
+          <h2><input id="skip-code" name="rules" type="checkbox" checked/><span></span>Skip code</h2>
+          <h3>Skips content inside code tags and their children</h3>
+        </label>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <h3>Designed and developed by Otaniyoz in 2024</h3>
+  </footer>
+</body>
+</html>
