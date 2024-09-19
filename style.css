@@ -151,7 +151,6 @@ blockquote {
 .forget-me-not {
   width: 4vmax;
   margin-right: -1vmin;
-  margin-bottom: -1vmax;
 }
 @media screen and (max-width: 720px) {
   .examples {
