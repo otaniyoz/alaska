@@ -5,14 +5,15 @@
 :root {
   --text: rgb(2, 20, 29);
   --key: rgb(187, 229, 251);
-  --accent: rgb(251, 247, 2);
   --secondary: rgb(15, 151, 219);
+  --accent: rgba(251, 247, 2, 0.5);
+  --background: rgba(187, 229, 251, 0.5);
 }
 body {
   margin: 0;
   color: var(--text);
-  padding: 2vmax 4vw;
-  background: var(--key);
+  padding: 2vh 4vw;
+  background: var(--background);
 }
 heading {
   gap: 1vmin;
@@ -37,7 +38,7 @@ label {
   font-size: clamp(0.6rem, 1vmin + 0.6rem, 2rem);
 }
 span {
-  border-radius: 0.15ch;
+  border-radius: 0.15em;
 }
 input[type="checkbox"] {
   display: none;
@@ -76,8 +77,10 @@ code {
   font-family: 'serif';
   font-size: clamp(0.85rem, 1.5vmax, 2rem);
 }
+footer,
 main {
-  padding: 2vmax 0;
+  margin: 0 auto;
+  max-width: 880px;
 }
 textarea {
   width: 100%;
