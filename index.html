@@ -16,9 +16,17 @@
 <body>
   <main class="alaska" data-remove-leading-spaces="false" data-remove-trailing-spaces="false">
     <section>
-        <h1>Alaska is a simple text formatter for web</h1>
-        <p>It automatically formats the text content of a web page to have the right quotes, no-break spaces, em-dashes, and <a href="#rules">more</a>. Here's an example:</p>
+      <article class="examples">
+        <div class="example">
+          <h1>Alaska is a simple text formatter for web.</h1>
+        </div>
+        <div class="example">
+          <p>It automatically formats the text content of a web page to have the right quotes, no-break spaces, em-dashes, and <a href="#rules">more</a>.</p>
+        </div>
       </article>
+      </article>
+    </section>
+    <section>
       <article id="examples" class="examples">
         <div class="example">
           <h3>Before</h3>
@@ -31,13 +39,12 @@
       </article>
     </section>
     <section>
-      <p>Try it out yourself:</p>
       <article class="examples">
         <div class="example">
-          <textarea id="user-before" placeholder="Before" maxlength="100"></textarea>
+          <textarea id="user-before" placeholder="Try it out yourself" maxlength="100"></textarea>
         </div>
         <div class="example result">
-          <p id="user-after" class="alaska-observe">After</p>
+          <p id="user-after" class="alaska-observe"></p>
         </div>
       </article>
     </section>
