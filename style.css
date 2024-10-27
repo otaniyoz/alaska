@@ -173,4 +173,7 @@ a:hover {
   .examples {
     grid-template-columns: repeat(1, 1fr);
   }
+  .cols-3 {
+    grid-column: -1 / 1;
+  }
 }
