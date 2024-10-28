@@ -27,7 +27,7 @@
     // MATHEMATICAL SYMBOLS
     'placeMathematicalSymbols': [['/dia', '\u2300'], ['/deg', '\u00B0'], ['/pm', '\u00B1'], ['/mp', '\u2213'], ['/loz', '\u25CA'], ['/prime', '\u2032'], ['/dprime', '\u2033'], ['/tprime', '\u2034'], ['/qprime', '\u2057'], ['/dot', '\u00B7'], ['/times', '\u00D7'], ['!=', '\u2260'], ['/lq', '\u2A7D'], ['/gq', '\u2A7E'], ['~=', '\u2245']],
     // ARROWS
-    'placeArrows': [['<->', '\u{1F858}'], ['<-', '\u{1F850}'], ['->', '\u{1F852}'], ['<=>', '\u21D4'], ['<=', '\u21D0'], ['=>', '\u21D2']],
+    // 'placeArrows': [['<->', '\u{1F858}'], ['<-', '\u{1F850}'], ['->', '\u{1F852}'], ['<=>', '\u21D4'], ['<=', '\u21D0'], ['=>', '\u21D2']],
     // TYPOGRAPHY ORNAMENTATION
     'placeTypographyOrnamentation': [['/dinkus', '\u2217\u2060\u2217\u2060\u2217'], ['/asterism', '\u2042'], ['/fleuron', '\u{1F658}'], ['/dingbat', '\u27BF'], ['/dagger', '\u2020'], ['/section', '\u00A7'], ['/bullet', '\u2022'], ['/tainome', '\u25C9']],
     // EMOTICONS
