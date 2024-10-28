@@ -75,10 +75,11 @@
   
   function skipNode(node, rules) {
     rules = rules || {};
-    const alaskaSkip = (node.classList && node.classList.contains('alaska-skip'));
+    const commentNodeOrWhitespace = node.nodeType === 8 || (node.nodeType === 3 && !/[^\t\n\r ]/.test(node.textContent));
+    const alaskaSkip = (node.classList !== undefined && node.classList.contains('alaska-skip'));
     const blockquotesSkip = ((rules['skipBlockquote'] === undefined || rules['skipBlockquote'] === 'true') && (node.nodeName === 'BLOCKQUOTE' || node.parentNode.nodeName === 'BLOCKQUOTE'));
     const codeSkip = ((rules['skipCode'] === undefined || rules['skipCode'] === 'true') && (node.nodeName === 'CODE' || node.parentNode.nodeName === 'CODE'));
-    return (node.nodeType !== 1 || !node.textContent.length || alaskaSkip || blockquotesSkip || codeSkip);
+    return (!node.textContent.length || commentNodeOrWhitespace || alaskaSkip || blockquotesSkip || codeSkip);
   }
 
   function formatNode(node, inheritedRules, lang) {
@@ -88,6 +89,7 @@
     if (node.hasChildNodes()) {
       for (let childNode of node.childNodes) {
         const ownRules = getRules(childNode, lang, inheritedRules);
+        if (skipNode(childNode, ownRules)) continue;
         formatNode(childNode, ownRules, lang);
         if (!childNode.childNodes.length) {
           childNode.textContent = formatString(childNode.textContent, ownRules);
@@ -113,7 +115,7 @@
   function init() {
     const nodes = document.getElementsByClassName('alaska');
     const lang = document.documentElement.getAttribute('lang');
-    for (const node of nodes) {   
+    for (const node of nodes) {
       const rules = getRules(node, lang);
       if (skipNode(node, rules)) continue;
       formatNode(node, rules, lang);
