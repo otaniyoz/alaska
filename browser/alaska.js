@@ -80,22 +80,6 @@
     return (!node.textContent.length || commentNodeOrWhitespace || alaskaSkip || blockquotesSkip || codeSkip);
   }
 
-  function formatNode(node, inheritedRules, lang) {
-    if (skipNode(node, inheritedRules)) return;
-    lang = lang || node.dataset.lang || document.documentElement.getAttribute('lang');
-
-    if (node.hasChildNodes()) {
-      for (let childNode of node.childNodes) {
-        const ownRules = getRules(childNode, lang, inheritedRules);
-        if (skipNode(childNode, ownRules)) continue;
-        formatNode(childNode, ownRules, lang);
-        if (!childNode.childNodes.length) {
-          childNode.textContent = formatString(childNode.textContent, ownRules);
-        }
-      }
-    }
-  }
-
   function getRules(node, lang, rules) {
     const allRules = RULES;
     const ownRules = (rules) ? { ...rules } : allRules;
@@ -110,14 +94,37 @@
     return ownRules;
   }
 
+  function formatNode(node, inheritedRules, lang) {
+    if (skipNode(node, inheritedRules)) return;
+    lang = lang || node.dataset.lang || document.documentElement.getAttribute('lang');
+
+    const stack = [{ node, inheritedRules, lang }];
+    while (stack.length > 0) {
+      const { node, inheritedRules, lang } = stack.pop();
+      if (node.hasChildNodes()) {
+        Array.from(node.childNodes).reverse().forEach((childNode) => {
+          const ownRules = getRules(childNode, lang, inheritedRules);
+          if (!skipNode(childNode, ownRules)) {
+            stack.push({ node: childNode, ownRules, lang });
+          }
+        });
+      }
+      else {
+        const ownRules = getRules(node, lang, inheritedRules);
+        node.textContent = formatString(node.textContent, ownRules);
+      }
+    }
+  }
   function init() {
     const nodes = document.getElementsByClassName('alaska');
     const lang = document.documentElement.getAttribute('lang');
+
     for (const node of nodes) {
       const rules = getRules(node, lang);
       if (skipNode(node, rules)) continue;
       formatNode(node, rules, lang);
     }
+
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.addedNodes && mutation.addedNodes.length) {
