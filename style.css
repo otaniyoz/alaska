@@ -72,6 +72,7 @@ p {
   font-family: 'Merriweather';
 }
 code {
+  transition: 0.5s;
   font-family: 'Fira Code';
   font-size: clamp(1rem, 0.6vmax + 0.65rem, 2rem);
 }
@@ -114,8 +115,8 @@ blockquote {
 label {
   border: none;
   cursor: pointer;
-  transition: 0.5s;
   margin-bottom: 0;
+  transition: 0.25s;
   font-family: 'Inter';
 }
 input[type="checkbox"] {

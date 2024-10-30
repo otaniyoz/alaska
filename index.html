@@ -17,7 +17,7 @@
   <main class="alaska" data-remove-leading-spaces="false" data-remove-trailing-spaces="false">
     <section>
       <article class="cols-3">
-        <h1>Alaska is a simple text formatter for web.</h1>
+        <h1>Alaska is a simple text formatter for web</h1>
         <p>It automatically formats the text content of a web page to have the right quotes, no-break spaces, em-dashes, and <a href="#rules">more</a>.</p>
         <img class="forgetmenot" src="logo.png" />
       </article>
@@ -56,9 +56,17 @@
       <blockquote>
         <code>&lt;div <span class="after">class="alaska-observe"</span>&gt;</br>&nbsp;&nbsp;...</br>&nbsp;&nbsp;&lt;!--Alaska will format added or modified nodes in here--&gt;</br>&nbsp;&nbsp;...</br>&lt;/div&gt;</code>
       </blockquote>
+      <p class="cols-3">Alaska supports english and russian languages. <span id="common-rules">24</span> rules are applied to all text, regardless of the language. Quotation marks depend on the language and apostrophe applies only to text in english. By default, the lang attribute of the <code>&lt;html&gt;</code> element is the primary language of the document:</p>
+      <blockquote>
+        <code>&lt;html <span class="after">lang="en"</span>&gt; </br> &nbsp;&nbsp;&lt;p&gt;‘Quotes’&lt;/p&gt;</br> &nbsp;&nbsp;&lt;p&gt;‘Кавычки’&lt;/p&gt; </br> &lt;/html&gt;</code>
+      </blockquote>
+      <p class="cols-3">If your document is a mix of english and russian and you want to have correct formmating in both languages, specify the lang attribute where needed:</p>
+      <blockquote>
+        <code>&lt;html lang="en"&gt; </br> &nbsp;&nbsp;&lt;p&gt;‘Quotes’&lt;/p&gt;</br> &nbsp;&nbsp;&lt;p <span class="after">lang="ru"</span>&gt;«Кавычки»&lt;/p&gt; </br> &lt;/html&gt;</code>
+      </blockquote>
       <p class="cols-3">By default, all rules are applied. It is also possible to apply only specific rules to certain elements by specifying necessary attributes. If you want to turn off or on a certain rule, you have to add the corresponding attribute:</p>
       <blockquote>
-        <code>&lt;p class="alaska"&gt; </br> &nbsp;&nbsp;All rules will be applied to this text </br> &nbsp;&nbsp;&lt;span <span class="after">data-place-emdash="false"</span>&gt;Em-dash will not be placed in this span&lt;/span&gt; </br> &lt;/p&gt;</code>
+        <code>&lt;p class="alaska"&gt; </br> &nbsp;&nbsp;All rules will be applied to this text </br> &nbsp;&nbsp;&lt;span <span class="after">data-place-emdash="false"</span>&gt;All rules will be applied to this text, except one -- the em-dash rule.&lt;/span&gt; </br> &lt;/p&gt;</code>
       </blockquote>
     </section>
 
@@ -76,11 +84,11 @@
           <figure class="rules">
             <div>
               <h3>Before</h3>
-              <p class="alaska-skip">word - word, word--word, word -- word</p>
+              <p class="alaska-skip">Knowledge - Unleashed! Knowledge--Unleashed! Knowledge -- Unleashed!</p>
             </div>
             <div>
               <h3>After</h3>
-              <p>word - word, word--word, word -- word</p>
+              <p>Knowledge - Unleashed! Knowledge--Unleashed! Knowledge -- Unleashed!</p>
             </div>
           </figure>
         </label>
@@ -212,28 +220,31 @@
         </label>
         <label for="place-typographic-apostrophe">
           <h2><input id="place-typographic-apostrophe" name="rules" type="checkbox" checked/><span></span>Place typographic apostrophe</h2>
+          <p>Replaces the typewriter apostrophe within a contracted word and genitive case with the typographic right single quotation mark. Applies only to content in english</p>
           <figure class="rules">
             <div>
               <h3>Before</h3>
-              <p class="alaska-skip">Let's go</p>
+              <p class="alaska-skip">Let's go to the Bernadettes' you're looking awfully hungry after working t'barn</p>
             </div>
             <div>
               <h3>After</h3>
-              <p>Let's go</p>
+              <p>Let's go to the Bernadettes' you're looking awfully hungry after working t'barn</p>
             </div>
           </figure>
         </label>
        <label for="place-typographic-quotes">
           <h2><input id="place-typographic-quotes" name="rules" type="checkbox" checked/><span></span>Place typographic quotes</h2>
-          <p>Replaces neutral quotes with english primary quotes</p>
+          <p>Replaces neutral quotes with standard ones</p>
           <figure class="rules">
             <div>
               <h3>Before</h3>
-              <p class="alaska-skip">He said: 'She said: "He said"'</p>
+              <p class="alaska-skip">He said: 'Noticing "Do it swiftly" on a wall, I heard, "Mind this, lad."'</p>
+              <p class="alaska-skip">Он сказал: 'Заметив "Делай быстро" на стене, я услышал: "Присмотрись, парень."'</p>
             </div>
             <div>
               <h3>After</h3>
-              <p>He said: 'She said: "He said"'</p>
+              <p>He said: 'Noticing "Do it swiftly" on a wall, I heard, "Mind this, lad."'</p>
+              <p lang="ru">Он сказал: 'Заметив "Делай быстро" на стене, я услышал: "Присмотрись, парень."'</p>
             </div>
           </figure>
         </label>
