@@ -18,7 +18,6 @@
 }
 :root {
   --text: rgb(1, 16, 24);
-  --key: rgb(167, 219, 250);
   --secondary: rgb(15, 151, 219);
   --accent: rgb(251, 247, 2, 0.75);
   --regular: clamp(1rem, 0.6vmax + 0.6rem, 2rem);
@@ -35,8 +34,8 @@ body {
   padding: 6vh 4vw 0;
   overflow-x: hidden;
   color: var(--text);
-  background: var(--key);
   font-family: 'Merriweather';
+  background: rgb(250, 250, 250);
 }
 p,
 h1,
@@ -144,11 +143,10 @@ a:hover {
   margin-bottom: 1vmax;
 }
 .forgetmenot {
+  top: -4vh;
   z-index: -1;
-  top: -28vmax;
-  width: 64vmax;
-  opacity: 0.75;
-  right: -24vmax;
+  width: 24vmax;
+  right: -2vmax;
   position: absolute;
 }
 .cols-3 {
