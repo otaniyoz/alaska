@@ -142,13 +142,6 @@ a:hover {
 .footer {
   margin-bottom: 1vmax;
 }
-.forgetmenot {
-  top: -4vh;
-  z-index: -1;
-  width: 24vmax;
-  right: -2vmax;
-  position: absolute;
-}
 .cols-3 {
   grid-column: span 3;
 }
