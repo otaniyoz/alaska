@@ -53,7 +53,7 @@ h3 {
   font-family: 'Inter';
 }
 h1 {
-  line-height: 0.9em;
+  line-height: 1em;
   margin-left: -0.025em;
   margin-bottom: 0.25em;
   font-size: clamp(1rem, 1.5vmax + 2rem, 4rem);
