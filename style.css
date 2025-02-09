@@ -53,7 +53,7 @@ h3 {
   font-family: 'Inter';
 }
 h1 {
-  line-height: 1em;
+  line-height: 1.2em;
   margin-left: -0.025em;
   margin-bottom: 0.25em;
   font-size: clamp(1rem, 1.5vmax + 2rem, 4rem);
@@ -66,7 +66,7 @@ h3 {
   letter-spacing: 0.025em;
 }
 p {
-  line-height: 1.25em;
+  line-height: 1.3em;
   font-size: var(--regular);
   font-family: 'Merriweather';
 }
@@ -138,6 +138,9 @@ a {
 a:hover {
   transition: 0;
   text-decoration-color: var(--accent);
+}
+.onsite {
+  text-decoration-style: dashed;
 }
 .footer {
   margin-bottom: 1vmax;
