@@ -139,7 +139,7 @@ a:hover {
   transition: 0;
   text-decoration-color: var(--accent);
 }
-.onsite {
+.onpage-link {
   text-decoration-style: dashed;
 }
 .footer {
