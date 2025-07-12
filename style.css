@@ -1,8 +1,9 @@
 @font-face {
-  src: url('fonts/InterDisplay-Bold.woff2') format('woff2');
-  font-family: 'Inter';
-  font-kerning: normal;
+  font-family: "InterDisplay";
+  font-style: normal;
+  font-weight: 700;
   font-display: swap;
+  src: url("fonts/InterDisplay-Bold.woff2") format("woff2");
 }
 @font-face {
   src: url('fonts/Merriweather-Regular.woff2') format('woff2');
@@ -50,7 +51,7 @@ h1,
 h2,
 h3 {
   font-weight: 700;
-  font-family: 'Inter';
+  font-family: 'InterDisplay';
 }
 h1 {
   line-height: 1.2em;
@@ -63,7 +64,7 @@ h2 {
 }
 h3 {
   font-size: 13px;
-  letter-spacing: 0.025em;
+  letter-spacing: 0.1em;
 }
 p {
   line-height: 1.3em;
@@ -116,7 +117,7 @@ label {
   cursor: pointer;
   margin-bottom: 0;
   transition: 0.25s;
-  font-family: 'Inter';
+  font-family: 'InterDisplay';
 }
 input[type="checkbox"] {
   display: none;
