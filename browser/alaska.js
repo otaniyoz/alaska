@@ -52,8 +52,6 @@
     'placeNbsp': [['([ \u0020\u00A0])([\u0430-\u044fa-z&]{1,3})(?=[ \u0020\u00A0]+)', '$1$2\u00A0'], ['[ \u0020]{2,}', '\u0020'], ['[ \u00A0]{2,}', '\u00A0']],
     // HYPHEN
     'placeHyphen': [['([0-9\u0430-\u044fa-z]+)(-)(?=[\u0430-\u044fa-z]+)', '$1\u2060\u2011\u2060']],
-    // ARROWS
-    // 'placeArrows': [['<->', '\u{1F858}'], ['<-', '\u{1F850}'], ['->', '\u{1F852}'], ['<=>', '\u21D4'], ['<=', '\u21D0'], ['=>', '\u21D2']],
   };
   const englishRules = {
     // APOSTROPHE: don’t, you’re, Jones’s, the Joneses’ house, t’barn, 

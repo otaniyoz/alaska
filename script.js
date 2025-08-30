@@ -22,7 +22,7 @@ window.onload = () => {
         newStr2 += str2[i];
       } else {
         const span2 = document.createElement('span');
-        span2.classList.add('after');
+        span2.classList.add('highlight');
         span2.textContent = str2[i];
         newStr2 += span2.outerHTML;
       }
@@ -42,7 +42,7 @@ window.onload = () => {
       for (let input of inputs) {
         if (!input.checked) unchecked.push(`data-${input.id}="false"`);
         if (unchecked.length) userConfig.textContent = unchecked.join(' ');
-        else userConfig.textContent = 'all rules are applied';
+        else userConfig.textContent = document.lang === 'en' ? 'all rules are applied' : 'все правила применяются';
       }
     }
   }

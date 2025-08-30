@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="theme-color" content="rgb(250, 250, 250)">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
+  <link rel="icon" href="logo.webp">
+  <link rel="stylesheet" href="style.css">
+  <script src="browser/alaska.js"></script>
+  <script src="script.js"></script>
+  <title>Демонстрация Аляски</title>
+</head>
+
+<body class="webpage">
+  <main class="alaska main container content" data-remove-leading-spaces="false" data-remove-trailing-spaces="false">
+    <section class="row narrative">
+      <h1 class="heading-1"><a href="http://github.com/otaniyoz/alaska" class="link">Аляска</a> -- простой типограф для веба</h1>
+      <p class="paragraph">Она автоматически форматирует текст страницы, чтобы были правильные кавычки, неразрывные пробелы, длинные тире и <a href="#rules" class="onpage-link link">прочее</a>.</p>
+      <figure id="examples" class="grid cols gap">
+        <div class="span8">
+          <span class="small-capitals caption">Было</span>
+          <p class="paragraph short example-before alaska-skip">Новая книга Джона 'Приключение невидимой гончей' - захватывающее продолжение 'Тайны пропавшего алмаза'--обязательна к прочтению для всех любителей детективов. В настоящее время 'Приключение невидимой гончей' занимает первое место в списке бестселлеров, а с момента выхода в июне 2023 года продажи книги выросли на %25. Это обязательное чтение для всех любителей детективов, особенно для тех, кто ценит запутанные сюжеты и неожиданные повороты.</p>
+        </div>
+        <div class="span8">
+          <span class="small-capitals caption">Стало</span>
+          <p class="paragraph short example-after">Новая книга Джона 'Приключение невидимой гончей' - захватывающее продолжение 'Тайны пропавшего алмаза'--обязательна к прочтению для всех любителей детективов. В настоящее время 'Приключение невидимой гончей' занимает первое место в списке бестселлеров, а с момента выхода в июне 2023 года продажи книги выросли на %25. Это обязательное чтение для всех любителей детективов, особенно для тех, кто ценит запутанные сюжеты и неожиданные повороты.</p>
+        </div>
+      </figure>
+    </section>
+    <section class="row narrative">
+      <h2 class="heading-2">Демка</h2>
+      <figure class="grid cols gap">
+        <textarea id="user-before" class="paragraph short span16" placeholder="Позвольте старанию сделать вас совершенными и цельными, имея недостаток ни в чем" maxlength="280"></textarea>
+        <p id="user-after" class="result alaska-observe paragraph short span16">Позвольте старанию сделать вас совершенными и цельными, имея недостаток ни в чем</p>
+      </figure>
+    </section>
+
+    <section class="row narrative">
+      <h2 class="heading-2">Настройка</h2>
+      <p class="paragraph">Добавьте Аляску в <code class="mono">&lt;head&gt;</code> страницы:</p>
+      <blockquote class="container module">
+        <code class="mono paragraph">&lt;head&gt;</br>&nbsp;&nbsp;...</br>&nbsp;&nbsp;&lt;script <span class="highlight">src="/путь/к/alaska.js"</span>&gt;&lt;/script&gt;</br>&nbsp;&nbsp;...</br>&lt;/head&gt;
+        </code>
+      </blockquote>
+      <p class="paragraph">Теперь все ноды с текстовым содержанием и <code class="mono">class="alaska"</code>будут отформатированы, включая их дочерние ноды:</p>
+      <blockquote class="container module">
+        <code class="mono paragraph">&lt;p <span class="highlight">class="alaska"</span>&gt; </br> &nbsp;&nbsp;Этот текст будет отформатирован. </br> &nbsp;&nbsp;&lt;span&gt;Этот тоже.&lt;/span&gt; </br> &lt;/p&gt;</code>
+      </blockquote>
+      <p class="paragraph">Чтобы не форматировать текст в определённых нодах, нужно добавить <code class="mono paragraph">class="alaska-skip"</code>:</p>
+      <blockquote class="container module">
+        <code class="mono paragraph">&lt;p class="alaska"&gt; </br> &nbsp;&nbsp;Этот текст будет отформатирован.</br> &nbsp;&nbsp;&lt;span <span class="highlight">class="alaska-skip"</span>&gt;А этот не будет.&lt;/span&gt; </br> &lt;/p&gt;</code>
+      </blockquote>
+      <p class="paragraph">Чтобы динамически добавленные или изменённые элементы были отформатированы, нужно добавить <code class="mono">class="alaska-observe"</code>:</p>
+      <blockquote class="container module">
+        <code class="mono paragraph">&lt;div <span class="highlight">class="alaska-observe"</span>&gt;</br>&nbsp;&nbsp;...</br>&nbsp;&nbsp;&lt;!--Аляска будет форматировать добавленные или изменённые ноды в этом элементе--&gt;</br>&nbsp;&nbsp;...</br>&lt;/div&gt;</code>
+      </blockquote>
+      <p class="paragraph">Аляска поддерживает английский и русский язык. <span id="common-rules">26</span> правил применяются к тексту. Кавычки зависят от языка, а апостроф применяется только к тексту на английском. По умолчанию атрибут <code class="mono">lang</code> элемента <code class="mono">&lt;html&gt;</code> является основным языком документа:</p>
+      <blockquote class="container module">
+        <code class="mono paragraph">&lt;html <span class="highlight">lang="en"</span>&gt; </br>&nbsp;&nbsp;...</br> &nbsp;&nbsp;&lt;p&gt;‘Quotes’&lt;/p&gt;</br> &nbsp;&nbsp;&lt;p&gt;‘Кавычки’&lt;/p&gt; </br>&nbsp;&nbsp;...</br> &lt;/html&gt;</code>
+      </blockquote>
+      <p class="paragraph">Если в документе есть тексты на английском и русском, нужно указывать язык элемента через <code class="mono">lang</code>, чтобы форматирование было правильным:</p>
+      <blockquote class="container module">
+        <code class="mono paragraph">&lt;html lang="en"&gt; </br>&nbsp;&nbsp;...</br>&nbsp;&nbsp;&lt;p&gt;‘Quotes’&lt;/p&gt;</br> &nbsp;&nbsp;&lt;p <span class="highlight">lang="ru"</span>&gt;«Кавычки»&lt;/p&gt; </br>&nbsp;&nbsp;...</br> &lt;/html&gt;</code>
+      </blockquote>
+      <p class="paragraph">По умолчанию применяются все правила. Можно применять только определённые правила к некоторым элементам, указав нужные атрибуты:</p>
+      <blockquote class="container module">
+        <code class="mono paragraph">&lt;p class="alaska"&gt; </br> &nbsp;&nbsp;Все правила будут применены к этому тексту.</br> &nbsp;&nbsp;&lt;span <span class="highlight">data-place-emdash="false"</span>&gt;Все правила будут применены к этому тексту, кроме одного -- правила о тире.&lt;/span&gt; </br> &lt;/p&gt;</code>
+      </blockquote>
+    </section>
+
+    <section id="rules" class="row">
+      <h2 class="narrative heading-2">Правила</h2>
+      <p class="narrative paragraph">Ниже -- <span id="rules-count"></span> правил. Выберите нужные и ненужные правила — соответствующие атрибуты сгенерируются автоматически:</p>
+      <blockquote class="container module">
+        <code id="user-config" class="mono paragraph">все правила применяются</code>
+      </blockquote>
+
+      <div id="rules-container" class="grid cols gap">
+        <label class="span5 module narrative" for="place-emdash">
+          <h3 class="heading-3"><input id="place-emdash" name="rules" type="checkbox" checked/><span></span>Длинные тире</h3>
+          <p class="paragraph short">Меняет дефис или два дефиса на тире с неразрывным пробелом слева и обычным пробелом справа</p>
+          <figure class="module">
+            <span class="small-capitals caption">Было</span>
+            <p class="paragraph short alaska-skip">Знание - без границ! Знание--без границ! Знание -- без границ!</p>
+            <span class="small-capitals caption">Стало</span>
+            <p class="paragraph short">Знание - без границ! Знание--без границ! Знание -- без границ!</p>
+          </figure>
+        </label>
+        <label class="span5 module narrative" for="place-hyphen">
+          <h3 class="heading-3"><input id="place-hyphen" name="rules" type="checkbox" checked/><span></span>Неразрывные дефисы</h3>
+          <p class="paragraph short">Ставит неразрывные пробелы по обе стороны дефиса</p>
+          <figure> 
+            <span class="small-capitals caption">Было</span>
+            <p class="paragraph short alaska-skip">Она купила новое платье-сарафан</p>
+            <span class="small-capitals caption">Стало</span>
+            <p class="paragraph short">Она купила новое платье-сарафан</p>
+          </figure>
+        </label>
+        <label class="span5 module narrative" for="place-nbsp">
+          <h3 class="heading-3"><input id="place-nbsp" name="rules" type="checkbox" checked/><span></span>Висяки</h3>
+          <p class="paragraph short">Слово из трёх или менее символов, за которым следует другое слово, дополняется справа неразрывным пробелом</p>
+          <figure> 
+            <span class="small-capitals caption">Было</span>
+            <p class="paragraph short alaska-skip">Короткие слова имеют тенденцию болтаться на краях</p>
+            <span class="small-capitals caption">Стало</span>
+            <p class="paragraph short">Короткие слова имеют тенденцию болтаться на краях</p>
+          </figure>
+        </label>
+        <label class="span5 module narrative" for="place-three-stops">
+          <h3 class="heading-3"><input id="place-three-stops" name="rules" type="checkbox" checked/><span></span>Многоточия</h3>
+          <p class="paragraph short">Меняет многоточие и три последовательные точки на три точки, разделённые неразрывными пробелами</p>
+          <figure> 
+            <span class="small-capitals caption">Было</span>
+            <p class="paragraph short alaska-skip">Она сказала…</p>
+            <span class="small-capitals caption">Стало</span>
+            <p class="paragraph short">Она сказала…</p>
+          </figure>
+        </label>
+        <label class="span5 module narrative" for="place-numeric-range">
+          <h3 class="heading-3"><input id="place-numeric-range" name="rules" type="checkbox" checked/><span></span>Диапазоны чисел</h3>
+          <p class="paragraph short">Меняет дефис и минус в числовом диапазоне на две точки и добавляет с обеих сторон точек неразрывные пробелы</p>
+          <figure> 
+            <span class="small-capitals caption">Было</span>
+            <p class="paragraph short alaska-skip">2010-2012, 2-3, от нуля до единицы, от 1 до 3</p>
+            <span class="small-capitals caption">Стало</span>
+            <p class="paragraph short">2010-2012, 2-3, от нуля до единицы, от 1 до 3</p>
+          </figure>
+        </label>
+        <label class="span5 module narrative" for="place-numero-sign">
+          <h3 class="heading-3"><input id="place-numero-sign" name="rules" type="checkbox" checked/><span></span>Символы номера</h3>
+          <p class="paragraph short">Меняет No. и его вариации на знак номера, дополненный справа пробелом-волоском и неразрывным символом</p>
+          <figure>
+            <span class="small-capitals caption">Было</span>
+            <p class="paragraph short alaska-skip">No.1, no. 2, номер 3</p>
+            <span class="small-capitals caption">Стало</span>
+            <p class="paragraph short">No.1, no. 2, номер 3</p>
+          </figure>
+        </label>
+        <label class="span5 module narrative" for="place-minus-sign">
+          <h3 class="heading-3"><input id="place-minus-sign" name="rules" type="checkbox" checked/><span></span>Символы минуса</h3>
+          <p class="paragraph short">Меняет дефис в простых уравнениях на минус с неразрывными пробелами с обеих сторон, а в отрицательных числах -- на минус с неразрывными символами с обеих сторон</p>
+          <figure>
+            <span class="small-capitals caption">Было</span>
+            <p class="paragraph short alaska-skip">1-2=-1</p>
+            <span class="small-capitals caption">Стало</span>
+            <p class="paragraph short">1-2=-1</p>
+          </figure>
+        </label>
+        <label class="span5 module narrative" for="place-plus-sign">
+          <h3 class="heading-3"><input id="place-plus-sign" name="rules" type="checkbox" checked/><span></span>Символы плюса</h3>
+          <p class="paragraph short">Меняет плюс в простых уравнениях на плюс с неразрывными пробелами с обеих сторон, а в позитивных числах -- на плюс с неразрывными символами с обеих сторон</p>
+          <figure>
+            <span class="small-capitals caption">Было</span>
+            <p class="paragraph short alaska-skip">1+2=3</p>
+            <span class="small-capitals caption">Стало</span>
+            <p class="paragraph short">1+2=3</p>
+          </figure>
+        </label>
+        <label class="span5 module narrative" for="place-currency-sign">
+          <h3 class="heading-3"><input id="place-currency-sign" name="rules" type="checkbox" checked/><span></span>Символы валют</h3>
+          <p class="paragraph short">Меняет знаки валюты и трёхбуквенные коды валют на знаки валюты, которые стоят после значения и дополнены слева неразрывным пробелом</p>
+          <figure> 
+            <span class="small-capitals caption">Было</span>
+            <p class="paragraph short alaska-skip">$100, 9.99usd, 25gbp, 1eur, 2jpy, 4rub, 5kzt</p>
+            <span class="small-capitals caption">Стало</span>
+            <p class="paragraph short">$100, 9.99usd, 25gbp, 1eur, 2jpy, 4rub, 5kzt</p>
+          </figure>
+        </label>
+        <label class="span5 module narrative" for="place-percent-sign">
+          <h3 class="heading-3"><input id="place-percent-sign" name="rules" type="checkbox" checked/><span></span>Символы процента</h3>
+          <p class="paragraph short">Ставит знак процента после значения и дополняет его слева неразрывным пробелом-волоском</p>
+          <figure> 
+            <span class="small-capitals caption">Было</span>
+            <p class="paragraph short alaska-skip">%100, 25%</p>
+            <span class="small-capitals caption">Стало</span>
+            <p class="paragraph short">%100, 25%</p>
+          </figure>
+        </label>
+        <label class="span5 module narrative" for="place-typographic-apostrophe">
+          <h3 class="heading-3"><input id="place-typographic-apostrophe" name="rules" type="checkbox" checked/><span></span>Типографские апострофы</h3>
+          <p class="paragraph short">В английском тексте, меняет одинарную нейтральную кавычку в сокращённом слове и в конце слова на типографскую правую одинарную кавычку</p>
+          <figure>
+            <span class="small-capitals caption">Было</span>
+            <p class="paragraph short alaska-skip">Let's go to the Bernadettes' you're looking awfully hungry after working t'barn</p>
+            <span class="small-capitals caption">Стало</span>
+            <p lang="en" class="paragraph short">Let's go to the Bernadettes' you're looking awfully hungry after working t'barn</p>
+          </figure>
+        </label>
+       <label class="span5 module narrative" for="place-typographic-quotes">
+          <h3 class="heading-3"><input id="place-typographic-quotes" name="rules" type="checkbox" checked/><span></span>Типографские кавычки</h3>
+          <p class="paragraph short">Меняет нейтральные кавычки на стандартные. Поддерживает только вложенные кавычки первого и второго уровня. Кавычки первого уровня всегда одинарные нейтральные кавычки, а второго уровня — двойные нейтральные</p>
+          <figure>
+            <span class="small-capitals caption">Было</span>
+            <p class="paragraph short alaska-skip">Он сказал: 'Увидев надпись "Делай быстро" на стене, я услышал: "Помни об этом, парень"'.</p>
+            <span class="small-capitals caption">Стало</span>
+            <p class="paragraph short">Он сказал: 'Увидев надпись "Делай быстро" на стене, я услышал: "Помни об этом, парень"'.</p>
+          </figure>
+        </label>
+        <label class="span5 module narrative" for="place-number-nbsp-word">
+          <h3 class="heading-3"><input id="place-number-nbsp-word" name="rules" type="checkbox" checked/><span></span>Неразрывный пробел между числом и словом</h3>
+          <figure>
+            <span class="small-capitals caption">Было</span>
+            <p class="paragraph short alaska-skip">100 яблок, 1.5 человека</p>
+            <span class="small-capitals caption">Стало</span>
+            <p class="paragraph short">100 яблок, 1.5 человека</p>
+          </figure>
+        </label>
+        <label class="span5 module narrative" for="place-fractions">
+          <h3 class="heading-3"><input id="place-fractions" name="rules" type="checkbox" checked/><span></span>Доли</h3>
+          <figure>
+            <span class="small-capitals caption">Было</span>
+            <p class="paragraph short alaska-skip">1/2 стакана муки, 3/4 круга, 1/16 яблока</p>
+            <span class="small-capitals caption">Стало</span>
+            <p class="paragraph short">1/2 стакана муки, 3/4 круга, 1/16 яблока</p>
+          </figure>
+        </label>
+        <label class="span5 module narrative" for="place-copyright">
+          <h3 class="heading-3"><input id="place-copyright" name="rules" type="checkbox" checked/><span></span>Символы авторского права</h3>
+          <figure>
+            <span class="small-capitals caption">Было</span>
+            <p class="paragraph short alaska-skip">(c), (C), (tm), (TM), (r), (R), (p), (P)</p>
+            <span class="small-capitals caption">Стало</span>
+            <p class="paragraph short">(c), (C), (tm), (TM), (r), (R), (p), (P)</p>
+          </figure>
+        </label>
+        <label class="span5 module narrative" for="place-mathematical-symbols">
+          <h3 class="heading-3"><input id="place-mathematical-symbols" name="rules" type="checkbox" checked/><span></span>Математические символы</h3>
+          <figure>
+            <span class="small-capitals caption">Было</span>
+            <p class="paragraph short alaska-skip">/dia, /deg, /pm, /mp, /loz, /prime, /dprime, /tprime, /qprime, /dot, /times, !=, /lq, /gq, ~=</p>
+            <span class="small-capitals caption">Стало</span>
+            <p class="paragraph short">/dia, /deg, /pm, /mp, /loz, /prime, /dprime, /tprime, /qprime, /dot, /times, !=, /lq, /gq, ~=</p>
+          </figure>
+        </label>
+        <label class="span5 module narrative" for="place-emoticons">
+          <h3 class="heading-3"><input id="place-emoticons" name="rules" type="checkbox" checked/><span></span>Эмотиконы</h3>
+          <figure>
+            <span class="small-capitals caption">Было</span>
+            <p class="paragraph short alaska-skip">/shrug, /crying, /happy, /dying, /angry, /surprised</p>
+            <span class="small-capitals caption">Стало</span>
+            <p class="paragraph short">/shrug, /crying, /happy, /dying, /angry, /surprised</p>
+          </figure>
+        </label>
+        <label class="span5 module narrative" for="place-typography-ornamentation">
+          <h3 class="heading-3"><input id="place-typography-ornamentation" name="rules" type="checkbox" checked/><span></span>Типографские украшения</h3>
+          <figure>
+            <span class="small-capitals caption">Было</span>
+            <p class="paragraph short alaska-skip">/dinkus, /asterism, /fleuron, /dingbat, /dagger, /section, /bullet, /tainome</p>
+            <span class="small-capitals caption">Стало</span>
+            <p class="paragraph short">/dinkus, /asterism, /fleuron, /dingbat, /dagger, /section, /bullet, /tainome</p>
+          </figure>
+        </label>
+        <label class="span5 module narrative" for="remove-leading-spaces">
+          <h3 class="heading-3"><input id="remove-leading-spaces" name="rules" type="checkbox" checked/><span></span>Пробелы в начале</h3>
+          <p class="paragraph short">Удаляет пробелы в начале предложения</p>
+        </label>
+        <label class="span5 module narrative" for="remove-trailing-spaces">
+          <h3 class="heading-3"><input id="remove-trailing-spaces" name="rules" type="checkbox" checked/><span></span>Пробелы в конце</h3>
+          <p class="paragraph short">Удаляет пробелы в конце предложения</p>
+        </label>
+        <label class="span5 module narrative" for="remove-multiple-spaces">
+          <h3 class="heading-3"><input id="remove-multiple-spaces" name="rules" type="checkbox" checked/><span></span>Последовательные пробелы</h3>
+          <p class="paragraph short">Удаляет несколько последовательных пробелов</p>
+        </label>
+        <label class="span5 module narrative" for="remove-nobreak-spaces">
+          <h3 class="heading-3"><input id="remove-nobreak-spaces" name="rules" type="checkbox" checked/><span></span>Неразрывные пробелы</h3>
+          <p class="paragraph short">Удаляет неразрывные пробелы перед применением других правил</p>
+        </label>
+        <label class="span5 module narrative" for="remove-nobreaks">
+          <h3 class="heading-3"><input id="remove-nobreaks" name="rules" type="checkbox" checked/><span></span>Неразрывные символы</h3>
+          <p class="paragraph short">Удаляет неразрывные символы перед применением других правил</p>
+        </label>
+        <label class="span5 module narrative" for="remove-punctuation-spaces">
+          <h3 class="heading-3"><input id="remove-punctuation-spaces" name="rules" type="checkbox" checked/><span></span>Пробелы перед знаками препинания</h3>
+          <p class="paragraph short">Удаляет пробелы перед знаками препинания</p>
+        </label>
+        <label class="span5 module narrative" for="skip-blockquote">
+          <h3 class="heading-3"><input id="skip-blockquote" name="rules" type="checkbox" checked/><span></span>Блоки цитат</h3>
+          <p class="paragraph short">Пропускает содержимое в тегах <code clas="mono">blockquote</code> и дочерних элементах</p>
+        </label>
+        <label class="span5 module narrative" for="skip-code">
+          <h3 class="heading-3"><input id="skip-code" name="rules" type="checkbox" checked/><span></span>Код</h3>
+          <p class="paragraph short">Пропускает содержимое в тегах <code clas="mono">code</code> и дочерних элементах</p>
+        </label>
+      </div>
+    </section>
+  </main>
+  <footer class="footer container content grid cols gap">
+    <div class="span8 language-switch-container">
+      <a href="/alaska" class="link"><span class="caption small-capitals">EN</span></a>
+      <span class="caption small-capitals"><b>РУ</b></span>
+    </div>
+  </footer>
+</body>
+</html>
