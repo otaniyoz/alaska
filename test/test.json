@@ -1,0 +1,581 @@
+{
+  "groups": [
+    {
+      "name": "quotes-edge-cases",
+      "description": "Apostrophes at word end, single outer quotes, and opening quote after punctuation with no space",
+      "cases": [
+        {
+          "desc": "possessive apostrophe at word end",
+          "input": "dogs' day",
+          "expected": "dogs\u2060\u2019 day",
+          "lang": "en"
+        },
+        {
+          "desc": "single outer quotes in English",
+          "input": "'hello'",
+          "expected": "\u2018\u2060hello\u2060\u2019",
+          "lang": "en"
+        },
+        {
+          "desc": "opening quote after punctuation with no space",
+          "input": "said,\"hello\"",
+          "expected": "said,‘⁠hello⁠’",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "em-dash-guards",
+      "description": "Em-dash must not fire when the right-hand side is a number; newline-leading dash",
+      "cases": [
+        {
+          "desc": "hyphen between word and number stays as-is",
+          "input": "value - 5",
+          "expected": "value - 5",
+          "lang": "en"
+        },
+        {
+          "desc": "leading dash after newline",
+          "input": "\n- item",
+          "expected": "\n\u2014 item",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "arithmetic-complex",
+      "description": "Unary minus on the rhs of a binary op; unary minus before parenthesis",
+      "cases": [
+        {
+          "desc": "binary op followed by unary minus — thin spaces omitted on +, minus converted",
+          "input": "3 + -5",
+          "expected": "3 + \u22125",
+          "lang": "en"
+        },
+        {
+          "desc": "unary minus before open parenthesis",
+          "input": "-(5)",
+          "expected": "\u2212(5)",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "all-caps-boundary",
+      "description": "Two-letter minimum to trigger rule; single letter must not be touched",
+      "cases": [
+        {
+          "desc": "two-letter acronym — minimum trigger",
+          "input": "AI",
+          "expected": "A\u202FI",
+          "lang": "en"
+        },
+        {
+          "desc": "single capital letter — must stay unchanged",
+          "input": "I",
+          "expected": "I",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "multiplication-chain",
+      "description": "Multiple x operators in a row — second x must still be processed after first is mutated",
+      "cases": [
+        {
+          "desc": "triple multiplication",
+          "input": "5 x 5 x 5",
+          "expected": "5\u200A\u00D7\u200A5\u200A\u00D7\u200A5",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "currency-adjacent",
+      "description": "ISO code directly adjacent to number with no space",
+      "cases": [
+        {
+          "desc": "ISO code no space",
+          "input": "100USD",
+          "expected": "$\u202F100",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "rule-interactions",
+      "description": "Multiple rules firing on the same token stream",
+      "cases": [
+        {
+          "desc": "numero followed by ordinal",
+          "input": "No. 1st",
+          "expected": "\u2116\u202F1\u02E2\u1D57",
+          "lang": "en"
+        },
+        {
+          "desc": "temperature and percent in same string",
+          "input": "100oC at 50%",
+          "expected": "100\u202F\u00B0C at\u00A0%\u202F50",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "whitespace",
+      "description": "Collapses multiple spaces and removes spaces before punctuation",
+      "cases": [
+        {
+          "desc": "multiple spaces collapsed",
+          "input": "hello  world",
+          "expected": "hello world",
+          "lang": "en"
+        },
+        {
+          "desc": "space before comma removed",
+          "input": "hello , world",
+          "expected": "hello, world",
+          "lang": "en"
+        },
+        {
+          "desc": "space before period removed",
+          "input": "hello . world",
+          "expected": "hello. world",
+          "lang": "en"
+        },
+        {
+          "desc": "space before exclamation removed",
+          "input": "hello !",
+          "expected": "hello!",
+          "lang": "en"
+        },
+        {
+          "desc": "space before semicolon removed",
+          "input": "hello ; world",
+          "expected": "hello; world",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "em-dash",
+      "description": "Converts double dashes and spaced hyphens to em-dashes; does not fire on numeric ranges or compound words",
+      "cases": [
+        {
+          "desc": "double dash between words",
+          "input": "a -- b",
+          "expected": "a\u00A0\u2014 b",
+          "lang": "en"
+        },
+        {
+          "desc": "spaced hyphen between words",
+          "input": "a - b",
+          "expected": "a\u00A0\u2014 b",
+          "lang": "en"
+        },
+        {
+          "desc": "leading dash at line start",
+          "input": "- word",
+          "expected": "\u2014 word",
+          "lang": "en"
+        },
+        {
+          "desc": "no em-dash for numeric range",
+          "input": "10-20",
+          "expected": "10\u2060\u2013\u206020",
+          "lang": "en"
+        },
+        {
+          "desc": "no em-dash for compound word",
+          "input": "well-known",
+          "expected": "well\u2060-\u2060known",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "numeric-range",
+      "description": "Replaces hyphen between two numbers with an en-dash",
+      "cases": [
+        {
+          "desc": "simple range",
+          "input": "10-20",
+          "expected": "10\u2060\u2013\u206020",
+          "lang": "en"
+        },
+        {
+          "desc": "larger range",
+          "input": "200-800",
+          "expected": "200\u2060\u2013\u2060800",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "hyphen",
+      "description": "Wraps hyphens in compound words with word joiners to prevent line breaks",
+      "cases": [
+        {
+          "desc": "two-part compound",
+          "input": "well-known",
+          "expected": "well\u2060-\u2060known",
+          "lang": "en"
+        },
+        {
+          "desc": "three-part compound",
+          "input": "editor-in-chief",
+          "expected": "editor\u2060-\u2060in\u2060-\u2060chief",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "ellipsis",
+      "description": "Replaces ... and … with word-joiner-separated dots",
+      "cases": [
+        {
+          "desc": "three dots",
+          "input": "wait...",
+          "expected": "wait\u2060.\u2060.\u2060.\u2060",
+          "lang": "en"
+        },
+        {
+          "desc": "unicode ellipsis",
+          "input": "wait\u2026",
+          "expected": "wait\u2060.\u2060.\u2060.\u2060",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "ordinals",
+      "description": "Converts ordinal suffixes to superscript",
+      "cases": [
+        {
+          "desc": "1st",
+          "input": "1st",
+          "expected": "1\u02E2\u1D57",
+          "lang": "en"
+        },
+        {
+          "desc": "2nd",
+          "input": "2nd",
+          "expected": "2\u207F\u1D48",
+          "lang": "en"
+        },
+        {
+          "desc": "3rd",
+          "input": "3rd",
+          "expected": "3\u02B3\u1D48",
+          "lang": "en"
+        },
+        {
+          "desc": "4th",
+          "input": "4th",
+          "expected": "4\u1D57\u02B0",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "fractions",
+      "description": "Replaces / between two numbers with a fraction slash",
+      "cases": [
+        {
+          "desc": "half",
+          "input": "1/2",
+          "expected": "1\u20442",
+          "lang": "en"
+        },
+        {
+          "desc": "three-quarter",
+          "input": "3/4",
+          "expected": "3\u20444",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "temperature",
+      "description": "Formats temperature values with a narrow no-break space and degree sign",
+      "cases": [
+        {
+          "desc": "Celsius",
+          "input": "100oC",
+          "expected": "100\u202F\u00B0C",
+          "lang": "en"
+        },
+        {
+          "desc": "Fahrenheit",
+          "input": "72oF",
+          "expected": "72\u202F\u00B0F",
+          "lang": "en"
+        },
+        {
+          "desc": "negative",
+          "input": "-18oC",
+          "expected": "\u221218\u202F\u00B0C",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "numero",
+      "description": "Replaces No. with the № sign",
+      "cases": [
+        {
+          "desc": "No. with space before number",
+          "input": "No. 1",
+          "expected": "\u2116\u202F1",
+          "lang": "en"
+        },
+        {
+          "desc": "No. without space",
+          "input": "No.1",
+          "expected": "\u2116\u202F\u20601",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "arithmetic",
+      "description": "Replaces ASCII operators with proper mathematical symbols and thin spaces",
+      "cases": [
+        {
+          "desc": "unary minus",
+          "input": "-5",
+          "expected": "\u22125",
+          "lang": "en"
+        },
+        {
+          "desc": "binary plus",
+          "input": "3 + 4",
+          "expected": "3\u200A+\u200A4",
+          "lang": "en"
+        },
+        {
+          "desc": "binary minus",
+          "input": "3 - 4",
+          "expected": "3\u200A\u2212\u200A4",
+          "lang": "en"
+        },
+        {
+          "desc": "multiplication x",
+          "input": "3 x 4",
+          "expected": "3\u200A\u00D7\u200A4",
+          "lang": "en"
+        },
+        {
+          "desc": "equals",
+          "input": "2 = 2",
+          "expected": "2\u200A=\u200A2",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "percent",
+      "description": "Places % sign before the number with a narrow no-break space",
+      "cases": [
+        {
+          "desc": "percent after number",
+          "input": "50%",
+          "expected": "%\u202F50",
+          "lang": "en"
+        },
+        {
+          "desc": "percent after 100",
+          "input": "100%",
+          "expected": "%\u202F100",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "currency",
+      "description": "Places currency symbol before the number with a narrow no-break space; converts ISO codes",
+      "cases": [
+        {
+          "desc": "symbol before number",
+          "input": "$100",
+          "expected": "$\u202F100",
+          "lang": "en"
+        },
+        {
+          "desc": "ISO code before number",
+          "input": "USD 100",
+          "expected": "$\u202F100",
+          "lang": "en"
+        },
+        {
+          "desc": "number then ISO code",
+          "input": "100 USD",
+          "expected": "$\u202F100",
+          "lang": "en"
+        },
+        {
+          "desc": "euro symbol",
+          "input": "\u20AC200",
+          "expected": "\u20AC\u202F200",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "copyright",
+      "description": "Replaces (c), (tm), (r), (p) with the appropriate symbols",
+      "cases": [
+        {
+          "desc": "copyright",
+          "input": "(c)",
+          "expected": "\u00A9",
+          "lang": "en"
+        },
+        {
+          "desc": "trademark",
+          "input": "(tm)",
+          "expected": "\u2122",
+          "lang": "en"
+        },
+        {
+          "desc": "registered",
+          "input": "(r)",
+          "expected": "\u00AE",
+          "lang": "en"
+        },
+        {
+          "desc": "phonogram",
+          "input": "(p)",
+          "expected": "\u2117",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "math-shortcodes",
+      "description": "Expands backslash shortcodes to Unicode math and Greek symbols",
+      "cases": [
+        {
+          "desc": "plus-minus",
+          "input": "\\pm",
+          "expected": "\u00B1",
+          "lang": "en"
+        },
+        {
+          "desc": "infinity",
+          "input": "\\infty",
+          "expected": "\u221E",
+          "lang": "en"
+        },
+        { "desc": "pi", "input": "\\pi", "expected": "\u03C0", "lang": "en" },
+        {
+          "desc": "not-equal",
+          "input": "\\neq",
+          "expected": "\u2260",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "quotes-en",
+      "description": "Converts straight quotes to curly quotes; outer level uses single, inner uses double",
+      "cases": [
+        {
+          "desc": "outer double quotes",
+          "input": "\"hello\"",
+          "expected": "\u2018\u2060hello\u2060\u2019",
+          "lang": "en"
+        },
+        {
+          "desc": "nested quotes",
+          "input": "\"she said 'hi'\"",
+          "expected": "\u2018\u2060she said \u201C\u2060hi\u2060\u201D\u2060\u2019",
+          "lang": "en"
+        },
+        {
+          "desc": "apostrophe",
+          "input": "it's",
+          "expected": "it\u2019s",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "nbsp",
+      "description": "Inserts non-breaking spaces after short words, between numbers and words, and after initials",
+      "cases": [
+        {
+          "desc": "number followed by word",
+          "input": "5 meters",
+          "expected": "5\u00A0meters",
+          "lang": "en"
+        },
+        {
+          "desc": "short word at end of phrase",
+          "input": "it is a test",
+          "expected": "it is a\u00A0test",
+          "lang": "en"
+        },
+        {
+          "desc": "initial followed by name",
+          "input": "J. Smith",
+          "expected": "J.\u00A0Smith",
+          "lang": "en"
+        },
+        {
+          "desc": "two initials",
+          "input": "J. K. Smith",
+          "expected": "J.\u202FK.\u00A0Smith",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "all-caps",
+      "description": "Inserts thin spaces between letters of all-caps words",
+      "cases": [
+        {
+          "desc": "four-letter acronym",
+          "input": "NASA",
+          "expected": "N\u202FA\u202FS\u202FA",
+          "lang": "en"
+        },
+        {
+          "desc": "three-letter acronym",
+          "input": "USSR",
+          "expected": "U\u202FS\u202FS\u202FR",
+          "lang": "en"
+        }
+      ]
+    },
+    {
+      "name": "russian",
+      "description": "Russian-specific rules: em-dash, non-breaking spaces after short words, guillemet quotes",
+      "cases": [
+        {
+          "desc": "spaced hyphen becomes em-dash",
+          "input": "\u0430 - \u0431",
+          "expected": "\u0430\u00A0\u2014 \u0431",
+          "lang": "ru"
+        },
+        {
+          "desc": "nbsp after short preposition",
+          "input": "\u044F \u0432 \u0434\u043E\u043C\u0435",
+          "expected": "\u044F \u0432\u00A0\u0434\u043E\u043C\u0435",
+          "lang": "ru"
+        },
+        {
+          "desc": "outer guillemet quotes",
+          "input": "\"\u043F\u0440\u0438\u0432\u0435\u0442\"",
+          "expected": "\u00AB\u2060\u043F\u0440\u0438\u0432\u0435\u0442\u2060\u00BB",
+          "lang": "ru"
+        },
+        {
+          "desc": "nested quotes use lower-9 style",
+          "input": "\"\u0442\u0435\u043A\u0441\u0442 '\u0432\u043D\u0443\u0442\u0440\u044C'\"",
+          "expected": "\u00AB\u2060\u0442\u0435\u043A\u0441\u0442 \u201E\u2060\u0432\u043D\u0443\u0442\u0440\u044C\u2060\u201C\u2060\u00BB",
+          "lang": "ru"
+        }
+      ]
+    }
+  ]
+}
