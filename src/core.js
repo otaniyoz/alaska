@@ -1,5 +1,3 @@
-"use strict";
-
 const MAX_INPUT_LENGTH = 2_000_000;
 
 const commonRules = Object.fromEntries("removePunctuationSpaces removeMultipleSpaces placeNumberNbspWord placeThreeStops placeFractions placeArithmeticalSymbols placeEmdash placeNumericRange placeCopyright placeNumeroSign placeMathematicalSymbols placeTypographyOrnamentation placeEmoticons placeCurrencySign placePercentSign placeNbsp placeHyphen placeTemperatureSign placeOrdinals placeMultiplicationSign formatInitials formatAllCaps placeTypographicQuotes".split(" ").map((k) => [k, true]));

@@ -1,5 +1,6 @@
 "use strict";
 
+{
 const MAX_INPUT_LENGTH = 2_000_000;
 
 const commonRules = Object.fromEntries("removePunctuationSpaces removeMultipleSpaces placeNumberNbspWord placeThreeStops placeFractions placeArithmeticalSymbols placeEmdash placeNumericRange placeCopyright placeNumeroSign placeMathematicalSymbols placeTypographyOrnamentation placeEmoticons placeCurrencySign placePercentSign placeNbsp placeHyphen placeTemperatureSign placeOrdinals placeMultiplicationSign formatInitials formatAllCaps placeTypographicQuotes".split(" ").map((k) => [k, true]));
@@ -419,4 +420,5 @@ function getRules(node, _lang, rules) {
 if (typeof document !== "undefined") {
   if (document.readyState !== "loading") init();
   else document.addEventListener("DOMContentLoaded", init);
+}
 }
