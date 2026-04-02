@@ -159,7 +159,7 @@ function formatString(text, rules, lang) {
       if (rules.removeMultipleSpaces && t.value.length > 1) t.value = " ";
       if (rules.removePunctuationSpaces && next?.type === "punct" && /[.,!?:;]/.test(next.value)) t.value = "";
     } else if (t.type === "punct") {
-      if (rules.placeNumericRange && t.value === "-" && prev?.type === "num" && next?.type === "num") {
+      if (rules.placeNumericRange && t.value === "-" && prev?.type === "num" && (next?.type === "num" || !next || next.type === "ws")) {
         t.value = "\u2060\u2013\u2060";
       } else if (t.value === "-" && (next?.type === "num" || (next?.type === "punct" && next.value === "("))) {
         const p = prevOf(tokens, i);
@@ -240,9 +240,7 @@ function formatString(text, rules, lang) {
         const bop = nextOf(tokens, i);
         const usign = bop ? nextOf(tokens, bop.index) : null;
         const unum = usign ? nextOf(tokens, usign.index) : null;
-        if (bop && usign && unum && (bop.token.type === "punct" || bop.token.type === "sym") && /[+\-*\/×÷=]/.test(bop.token.value) && usign.token.value === "-" && unum.token.type === "num") {
-          usign.token.value = "\u2212";
-        }
+        if (bop && usign && unum && (bop.token.type === "punct" || bop.token.type === "sym") && /[+\-*\/×÷=]/.test(bop.token.value) && usign.token.value === "-" && unum.token.type === "num") usign.token.value = "\u2212";
       }
     } else if (t.type === "curr" && rules.placeCurrencySign) {
       const n = nextOf(tokens, i);

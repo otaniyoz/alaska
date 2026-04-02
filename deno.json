@@ -2,6 +2,9 @@
   "fmt": {
     "lineWidth": 1440
   },
+  "lint": {
+    "exclude": ["alaska.js"]
+  },
   "tasks": {
     "build": "deno lint -q && deno fmt -q && deno run -R test/test.js && deno run -R -W build.js",
     "bench": "deno run -R bench/bench.js bench/bench.txt"

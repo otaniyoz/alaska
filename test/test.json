@@ -203,6 +203,12 @@
           "lang": "en"
         },
         {
+          "desc": "open-ended range",
+          "input": "2024-",
+          "expected": "2024\u2060\u2013\u2060",
+          "lang": "en"
+        },
+        {
           "desc": "larger range",
           "input": "200-800",
           "expected": "200\u2060\u2013\u2060800",
