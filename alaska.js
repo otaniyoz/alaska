@@ -3,7 +3,7 @@
 {
 const MAX_INPUT_LENGTH = 2_000_000;
 
-const commonRules = Object.fromEntries("removePunctuationSpaces removeMultipleSpaces placeNumberNbspWord placeThreeStops placeFractions placeArithmeticalSymbols placeEmdash placeNumericRange placeCopyright placeNumeroSign placeMathematicalSymbols placeTypographyOrnamentation placeEmoticons placeCurrencySign placePercentSign placeNbsp placeHyphen placeTemperatureSign placeOrdinals placeMultiplicationSign formatInitials formatAllCaps placeTypographicQuotes".split(" ").map((k) => [k, true]));
+const commonRules = Object.fromEntries("removePunctuationSpaces removeMultipleSpaces placeNumberNbspWord placeThreeStops placeFractions placeArithmeticalSymbols placeEmdash placeNumericRange placeCopyright placeNumeroSign placeMathematicalSymbols placeTypographyOrnamentation placeEmoticons placeCurrencySign placePercentSign placeNbsp placeHyphen placeTemperatureSign placeOrdinals placeMultiplicationSign formatInitials placeTypographicQuotes".split(" ").map((k) => [k, true]));
 
 const ordinalMap = { st: "ˢᵗ", nd: "ⁿᵈ", rd: "ʳᵈ", th: "ᵗʰ" };
 const shortWords = {
@@ -280,8 +280,6 @@ function formatString(text, rules, lang) {
             tokens[j].value = "\u00A0";
           }
         }
-      } else if (rules.formatAllCaps && t.value.length > 1 && /^[A-ZА-Я]+$/u.test(t.value)) {
-        t.value = t.value.split("").join("\u202F");
       }
     } else if (t.type === "sym") {
       if (rules.placePercentSign && t.value === "%") {

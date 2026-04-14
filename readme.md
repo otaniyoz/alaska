@@ -14,9 +14,6 @@ You can start using Alaska by adding it to a page:
     ...
   </head>
   <body class="alaska">
-    <p data-format-all-caps="false">
-      All caps text will not be formatted in this element.
-    </p>
     <p lang="ru">
       Alaska will apply russian language typographic conventions to this element.
     </p>
@@ -56,4 +53,3 @@ All rules are enabled by default:
 | `placeMultiplicationSign`      | `3 x 4`         | `3 × 4` (thin spaces)                             |
 | `placeTypographicQuotes`       | `"hello"`       | `‘⁠hello⁠’` (curly quotes; English outer = singles) |
 | `formatInitials`               | `J. Smith`      | `J. Smith` (nbsp after dot)                       |
-| `formatAllCaps`                | `NASA`          | `N A S A` (thin nbsp between letters)             |

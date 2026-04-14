@@ -12,7 +12,7 @@ from html.parser import HTMLParser
 
 MAX_INPUT_LENGTH = 2_000_000
 
-COMMON_RULES = {k: True for k in {"removePunctuationSpaces", "removeMultipleSpaces", "placeNumberNbspWord", "placeThreeStops", "placeFractions", "placeArithmeticalSymbols", "placeEmdash", "placeNumericRange", "placeCopyright", "placeNumeroSign", "placeMathematicalSymbols", "placeTypographyOrnamentation", "placeEmoticons", "placeCurrencySign", "placePercentSign", "placeNbsp", "placeHyphen", "placeTemperatureSign", "placeOrdinals", "placeMultiplicationSign", "formatInitials", "formatAllCaps", "placeTypographicQuotes"}}
+COMMON_RULES = {k: True for k in {"removePunctuationSpaces", "removeMultipleSpaces", "placeNumberNbspWord", "placeThreeStops", "placeFractions", "placeArithmeticalSymbols", "placeEmdash", "placeNumericRange", "placeCopyright", "placeNumeroSign", "placeMathematicalSymbols", "placeTypographyOrnamentation", "placeEmoticons", "placeCurrencySign", "placePercentSign", "placeNbsp", "placeHyphen", "placeTemperatureSign", "placeOrdinals", "placeMultiplicationSign", "formatInitials", "placeTypographicQuotes"}}
 
 ORDINAL_MAP = {"st": "ˢᵗ", "nd": "ⁿᵈ", "rd": "ʳᵈ", "th": "ᵗʰ"}
 SHORT_WORDS = {"en": {"a", "an", "at", "by", "for", "in", "of", "on", "or", "the", "to", "and", "but", "nor", "yet", "so", "as", "if"}, "ru": {"а", "в", "во", "и", "к", "не", "на", "о", "об", "от", "по", "с", "со", "у", "из", "за", "до", "для", "или", "но", "же", "то", "бы", "ли"}}
@@ -27,7 +27,6 @@ _SYM = '%#@&*+=<>~№©℗™®'
 _CURR = '$€¥£₽₸'
 _ORDINAL_RE = re.compile(r"^(st|nd|rd|th)$", re.I)
 _PUNCT_NBSP = ".,!?:;"
-_ALLCAPS_RE = re.compile(r"^[A-ZА-Я]+$")
 _INITIALS_RE = re.compile(r"^[A-ZА-Я]")
 
 
@@ -145,7 +144,6 @@ def format_string(text, rules, lang):
   r_numero = rules.get("placeNumeroSign")
   r_nbsp = rules.get("placeNbsp")
   r_initials = rules.get("formatInitials")
-  r_caps = rules.get("formatAllCaps")
   r_pct = rules.get("placePercentSign")
   r_emote = rules.get("placeEmoticons")
   r_math = rules.get("placeMathematicalSymbols")
@@ -289,9 +287,7 @@ def format_string(text, rules, lang):
           nxt.v = "."
           for j in range(i + 2, adi):
             tokens[j].v = "\u00A0"
-      elif r_caps and len(t.v) > 1 and _ALLCAPS_RE.match(t.v):
-        t.v = "\u202F".join(t.v)
-
+      
     elif t.tp == "sym":
       if r_pct and t.v == "%":
         if prev and prev.tp == "num":

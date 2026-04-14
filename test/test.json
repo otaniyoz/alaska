@@ -25,7 +25,6 @@
         { "desc": "placeOrdinals", "input": "1st", "expected": "1\u02E2\u1D57", "lang": "en", "rules": { "base": "none", "placeOrdinals": true } },
         { "desc": "placeMultiplicationSign", "input": "3 x 4", "expected": "3\u200A\u00D7\u200A4", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
         { "desc": "formatInitials", "input": "J. Smith", "expected": "J.\u00A0Smith", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
-        { "desc": "formatAllCaps", "input": "NASA", "expected": "N\u202FA\u202FS\u202FA", "lang": "en", "rules": { "base": "none", "formatAllCaps": true } },
         { "desc": "placeTypographicQuotes", "input": "\"hello\"", "expected": "\u2018\u2060hello\u2060\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } }
       ]
     },
@@ -54,7 +53,6 @@
         { "desc": "placeOrdinals off", "input": "1st", "expected": "1st", "lang": "en", "rules": { "base": "all", "placeOrdinals": false } },
         { "desc": "placeMultiplicationSign off", "input": "3 x 4", "expected": "3\u00A0x 4", "lang": "en", "rules": { "base": "all", "placeMultiplicationSign": false } },
         { "desc": "formatInitials off", "input": "J. Smith", "expected": "J. Smith", "lang": "en", "rules": { "base": "all", "formatInitials": false } },
-        { "desc": "formatAllCaps off", "input": "NASA", "expected": "NASA", "lang": "en", "rules": { "base": "all", "formatAllCaps": false } },
         { "desc": "placeTypographicQuotes off", "input": "\"hello\"", "expected": "\"hello\"", "lang": "en", "rules": { "base": "all", "placeTypographicQuotes": false } }
       ]
     },
@@ -114,24 +112,6 @@
           "desc": "unary minus before open parenthesis",
           "input": "-(5)",
           "expected": "\u2212(5)",
-          "lang": "en"
-        }
-      ]
-    },
-    {
-      "name": "all-caps-boundary",
-      "description": "Two-letter minimum to trigger rule; single letter must not be touched",
-      "cases": [
-        {
-          "desc": "two-letter acronym — minimum trigger",
-          "input": "AI",
-          "expected": "A\u202FI",
-          "lang": "en"
-        },
-        {
-          "desc": "single capital letter — must stay unchanged",
-          "input": "I",
-          "expected": "I",
           "lang": "en"
         }
       ]
@@ -589,24 +569,6 @@
           "desc": "two initials",
           "input": "J. K. Smith",
           "expected": "J.\u202FK.\u00A0Smith",
-          "lang": "en"
-        }
-      ]
-    },
-    {
-      "name": "all-caps",
-      "description": "Inserts thin spaces between letters of all-caps words",
-      "cases": [
-        {
-          "desc": "four-letter acronym",
-          "input": "NASA",
-          "expected": "N\u202FA\u202FS\u202FA",
-          "lang": "en"
-        },
-        {
-          "desc": "three-letter acronym",
-          "input": "USSR",
-          "expected": "U\u202FS\u202FS\u202FR",
           "lang": "en"
         }
       ]
