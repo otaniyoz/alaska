@@ -5,8 +5,11 @@ let pass = 0;
 let fail = 0;
 
 for (const group of testData.groups) {
-  for (const { desc, input, expected, lang } of group.cases) {
-    const output = formatString(input, commonRules, lang);
+  for (const { desc, input, expected, lang, rules: ruleConfig } of group.cases) {
+    const { base = "all", ...overrides } = ruleConfig || {};
+    const baseRules = base === "none" ? Object.fromEntries(Object.keys(commonRules).map(k => [k, false])) : { ...commonRules };
+    const caseRules = { ...baseRules, ...overrides };
+    const output = formatString(input, caseRules, lang);
     if (output === expected) {
       pass++;
     } else {

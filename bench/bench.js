@@ -17,3 +17,9 @@ const elapsed = performance.now() - t0;
 
 console.log(`${text.length} chars`);
 console.log(`${(elapsed / RUNS).toFixed(2)}ms per run`);
+
+const ts = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
+const name = path.split("/").pop();
+const entry = `${ts} bench.js ${(elapsed / RUNS).toFixed(2)}ms\n`;
+const historyPath = new URL("history", import.meta.url).pathname;
+await Deno.writeTextFile(historyPath, entry, { append: true });

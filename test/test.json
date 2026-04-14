@@ -1,6 +1,64 @@
 {
   "groups": [
     {
+      "name": "rule-isolation",
+      "description": "Each rule enabled alone (base: none) — catches wrong flag wiring",
+      "cases": [
+        { "desc": "removePunctuationSpaces", "input": "hello , world", "expected": "hello, world", "lang": "en", "rules": { "base": "none", "removePunctuationSpaces": true } },
+        { "desc": "removeMultipleSpaces", "input": "hello  world", "expected": "hello world", "lang": "en", "rules": { "base": "none", "removeMultipleSpaces": true } },
+        { "desc": "placeNumberNbspWord", "input": "5 meters", "expected": "5\u00A0meters", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "placeThreeStops", "input": "wait...", "expected": "wait\u2060.\u2060.\u2060.\u2060", "lang": "en", "rules": { "base": "none", "placeThreeStops": true } },
+        { "desc": "placeFractions", "input": "1/2", "expected": "1\u20442", "lang": "en", "rules": { "base": "none", "placeFractions": true } },
+        { "desc": "placeArithmeticalSymbols", "input": "3 - 4", "expected": "3\u200A\u2212\u200A4", "lang": "en", "rules": { "base": "none", "placeArithmeticalSymbols": true } },
+        { "desc": "placeEmdash", "input": "a - b", "expected": "a\u00A0\u2014 b", "lang": "en", "rules": { "base": "none", "placeEmdash": true } },
+        { "desc": "placeNumericRange", "input": "10-20", "expected": "10\u2060\u2013\u206020", "lang": "en", "rules": { "base": "none", "placeNumericRange": true } },
+        { "desc": "placeCopyright", "input": "(c)", "expected": "\u00A9", "lang": "en", "rules": { "base": "none", "placeCopyright": true } },
+        { "desc": "placeNumeroSign", "input": "No. 1", "expected": "\u2116\u202F1", "lang": "en", "rules": { "base": "none", "placeNumeroSign": true } },
+        { "desc": "placeMathematicalSymbols", "input": "\\pm", "expected": "\u00B1", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true } },
+        { "desc": "placeTypographyOrnamentation", "input": "\\dinkus", "expected": "\u2217\u2060\u2217\u2060\u2217", "lang": "en", "rules": { "base": "none", "placeTypographyOrnamentation": true } },
+        { "desc": "placeEmoticons", "input": "\\shrug", "expected": "\u00AF\u2060\\\u2060_\u2060(\u2060\u30C4\u2060)\u2060_\u2060/\u2060\u00AF", "lang": "en", "rules": { "base": "none", "placeEmoticons": true } },
+        { "desc": "placeCurrencySign", "input": "USD 100", "expected": "$\u202F100", "lang": "en", "rules": { "base": "none", "placeCurrencySign": true } },
+        { "desc": "placePercentSign", "input": "50%", "expected": "%\u202F50", "lang": "en", "rules": { "base": "none", "placePercentSign": true } },
+        { "desc": "placeNbsp", "input": "it is a test", "expected": "it is a\u00A0test", "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
+        { "desc": "placeHyphen", "input": "well-known", "expected": "well\u2060-\u2060known", "lang": "en", "rules": { "base": "none", "placeHyphen": true } },
+        { "desc": "placeTemperatureSign", "input": "100oC", "expected": "100\u202F\u00B0C", "lang": "en", "rules": { "base": "none", "placeTemperatureSign": true } },
+        { "desc": "placeOrdinals", "input": "1st", "expected": "1\u02E2\u1D57", "lang": "en", "rules": { "base": "none", "placeOrdinals": true } },
+        { "desc": "placeMultiplicationSign", "input": "3 x 4", "expected": "3\u200A\u00D7\u200A4", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "formatInitials", "input": "J. Smith", "expected": "J.\u00A0Smith", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "formatAllCaps", "input": "NASA", "expected": "N\u202FA\u202FS\u202FA", "lang": "en", "rules": { "base": "none", "formatAllCaps": true } },
+        { "desc": "placeTypographicQuotes", "input": "\"hello\"", "expected": "\u2018\u2060hello\u2060\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } }
+      ]
+    },
+    {
+      "name": "rule-negation",
+      "description": "Each rule disabled alone (base: all) — confirms the rule is actually responsible for the transformation",
+      "cases": [
+        { "desc": "removePunctuationSpaces off", "input": "hello , world", "expected": "hello , world", "lang": "en", "rules": { "base": "all", "removePunctuationSpaces": false } },
+        { "desc": "removeMultipleSpaces off", "input": "hello  world", "expected": "hello  world", "lang": "en", "rules": { "base": "all", "removeMultipleSpaces": false } },
+        { "desc": "placeNumberNbspWord off", "input": "5 meters", "expected": "5 meters", "lang": "en", "rules": { "base": "all", "placeNumberNbspWord": false } },
+        { "desc": "placeThreeStops off", "input": "wait...", "expected": "wait...", "lang": "en", "rules": { "base": "all", "placeThreeStops": false } },
+        { "desc": "placeFractions off", "input": "1/2", "expected": "1/2", "lang": "en", "rules": { "base": "all", "placeFractions": false } },
+        { "desc": "placeArithmeticalSymbols off", "input": "3 + 4", "expected": "3 + 4", "lang": "en", "rules": { "base": "all", "placeArithmeticalSymbols": false } },
+        { "desc": "placeEmdash off", "input": "x - y", "expected": "x - y", "lang": "en", "rules": { "base": "all", "placeEmdash": false } },
+        { "desc": "placeNumericRange off", "input": "10-20", "expected": "10-20", "lang": "en", "rules": { "base": "all", "placeNumericRange": false } },
+        { "desc": "placeCopyright off", "input": "(c)", "expected": "(c)", "lang": "en", "rules": { "base": "all", "placeCopyright": false } },
+        { "desc": "placeNumeroSign off", "input": "No. 1", "expected": "No. 1", "lang": "en", "rules": { "base": "all", "placeNumeroSign": false } },
+        { "desc": "placeMathematicalSymbols off", "input": "\\pm", "expected": "\\pm", "lang": "en", "rules": { "base": "all", "placeMathematicalSymbols": false, "placeTypographyOrnamentation": false, "placeEmoticons": false } },
+        { "desc": "placeTypographyOrnamentation off", "input": "\\dinkus", "expected": "\\dinkus", "lang": "en", "rules": { "base": "all", "placeTypographyOrnamentation": false, "placeMathematicalSymbols": false, "placeEmoticons": false } },
+        { "desc": "placeEmoticons off", "input": "\\shrug", "expected": "\\shrug", "lang": "en", "rules": { "base": "all", "placeEmoticons": false, "placeMathematicalSymbols": false, "placeTypographyOrnamentation": false } },
+        { "desc": "placeCurrencySign off", "input": "$100", "expected": "$100", "lang": "en", "rules": { "base": "all", "placeCurrencySign": false } },
+        { "desc": "placePercentSign off", "input": "50%", "expected": "50%", "lang": "en", "rules": { "base": "all", "placePercentSign": false } },
+        { "desc": "placeNbsp off", "input": "it is a test", "expected": "it is a test", "lang": "en", "rules": { "base": "all", "placeNbsp": false } },
+        { "desc": "placeHyphen off", "input": "well-known", "expected": "well-known", "lang": "en", "rules": { "base": "all", "placeHyphen": false } },
+        { "desc": "placeTemperatureSign off", "input": "100oC", "expected": "100oC", "lang": "en", "rules": { "base": "all", "placeTemperatureSign": false } },
+        { "desc": "placeOrdinals off", "input": "1st", "expected": "1st", "lang": "en", "rules": { "base": "all", "placeOrdinals": false } },
+        { "desc": "placeMultiplicationSign off", "input": "3 x 4", "expected": "3\u00A0x 4", "lang": "en", "rules": { "base": "all", "placeMultiplicationSign": false } },
+        { "desc": "formatInitials off", "input": "J. Smith", "expected": "J. Smith", "lang": "en", "rules": { "base": "all", "formatInitials": false } },
+        { "desc": "formatAllCaps off", "input": "NASA", "expected": "NASA", "lang": "en", "rules": { "base": "all", "formatAllCaps": false } },
+        { "desc": "placeTypographicQuotes off", "input": "\"hello\"", "expected": "\"hello\"", "lang": "en", "rules": { "base": "all", "placeTypographicQuotes": false } }
+      ]
+    },
+    {
       "name": "quotes-edge-cases",
       "description": "Apostrophes at word end, single outer quotes, and opening quote after punctuation with no space",
       "cases": [
