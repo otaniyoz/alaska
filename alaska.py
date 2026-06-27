@@ -169,15 +169,17 @@ def format_string(text, rules, lang):
 
     if t.tp == "punct" and t.v in ('"', "'"):
       prev_open = prev and prev.qi and prev.qi.get("isOpening")
-      is_open = not prev or prev.tp == "ws" or prev_open or (prev.tp == "punct" and prev.v in ",;:([")
+      top = stack[-1] if stack else None
+      same_char = top is not None and top["char"] == t.v
+      is_open = not same_char and (not prev or prev.tp == "ws" or prev_open or (prev.tp == "punct" and prev.v in ",;:(["))
       if is_open:
         d = len(stack)
-        stack.append(d)
-        t.qi = {"isOpening": True,  "depth": d}
+        stack.append({"depth": d, "char": t.v})
+        t.qi = {"isOpening": True, "depth": d}
       else:
-        d = stack.pop() if stack else 0
+        d = stack.pop()["depth"] if stack else 0
         t.qi = {"isOpening": False, "depth": d}
-
+    
   i = 0
   while i < len(tokens):
     t = tokens[i]

@@ -81,6 +81,40 @@
       ]
     },
     {
+      "name": "quotes-closing-after-comma",
+      "description": "Quote immediately after a comma should close if same char is open on the stack",
+      "cases": [
+        {
+          "desc": "closing single quote directly after comma",
+          "input": "'hello,' he said",
+          "expected": "\u2018\u2060hello,\u2060\u2019 he said",
+          "lang": "en",
+          "rules": { "base": "none", "placeTypographicQuotes": true }
+        },
+        {
+          "desc": "closing double quote directly after comma",
+          "input": "\"hello,\" he said",
+          "expected": "\u2018\u2060hello,\u2060\u2019 he said",
+          "lang": "en",
+          "rules": { "base": "none", "placeTypographicQuotes": true }
+        },
+        {
+          "desc": "dialogue with apostrophe and comma-preceded closing quote",
+          "input": "Rick says, 'You're a good friend, Cliff,' Cliff replies.",
+          "expected": "Rick says, \u2018\u2060You\u2019re a good friend, Cliff,\u2060\u2019 Cliff replies.",
+          "lang": "en",
+          "rules": { "base": "none", "placeTypographicQuotes": true }
+        },
+        {
+          "desc": "nested single inside double still opens after comma",
+          "input": "\"She said,'hi'\"",
+          "expected": "\u2018\u2060She said,\u201C\u2060hi\u2060\u201D\u2060\u2019",
+          "lang": "en",
+          "rules": { "base": "none", "placeTypographicQuotes": true }
+        }
+      ]
+    },
+    {
       "name": "em-dash-guards",
       "description": "Em-dash must not fire when the right-hand side is a number; newline-leading dash",
       "cases": [

@@ -134,11 +134,13 @@ function formatString(text, rules, lang) {
 
     if (t.type === "punct" && (t.value === '"' || t.value === "'")) {
       const prevIsOpening = prev && prev?.quoteInfo?.isOpening;
-      const isOpening = !prev || prev.type === "ws" || prevIsOpening || (prev.type === "punct" && /[,;:(\[]/.test(prev.value));
+      const top = stack.length > 0 ? stack[stack.length - 1] : null;
+      const sameCharOnStack = top?.char === t.value;
+      const isOpening = !sameCharOnStack && (!prev || prev.type === "ws" || prevIsOpening || (prev.type === "punct" && /[,;:(\[]/.test(prev.value)));
 
       if (isOpening) {
         const depth = stack.length;
-        stack.push({ depth });
+        stack.push({ depth, char: t.value });
         t.quoteInfo = { isOpening: true, depth };
       } else {
         const opened = stack.pop();
