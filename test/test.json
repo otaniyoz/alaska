@@ -578,6 +578,26 @@
       ]
     },
     {
+      "name": "quotes-nested-same-char",
+      "description": "Nested quotes that reuse the same character must reopen (not close) when preceded by whitespace and immediately followed by a word",
+      "cases": [
+        {
+          "desc": "minimal same-char nesting",
+          "input": "'a 'b' c'",
+          "expected": "\u2018\u2060a \u201C\u2060b\u2060\u201D c\u2060\u2019",
+          "lang": "en",
+          "rules": { "base": "none", "placeTypographicQuotes": true }
+        },
+        {
+          "desc": "reported case: single quote nested inside single quote",
+          "input": "She said, 'I heard him whisper 'not today' before he left.'",
+          "expected": "She said, \u2018\u2060I heard him whisper \u201C\u2060not today\u2060\u201D before he left.\u2060\u2019",
+          "lang": "en",
+          "rules": { "base": "none", "placeTypographicQuotes": true }
+        }
+      ]
+    },
+    {
       "name": "nbsp",
       "description": "Inserts non-breaking spaces after short words, between numbers and words, and after initials",
       "cases": [

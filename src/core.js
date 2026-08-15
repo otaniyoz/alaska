@@ -136,7 +136,9 @@ function formatString(text, rules, lang) {
       const prevIsOpening = prev && prev?.quoteInfo?.isOpening;
       const top = stack.length > 0 ? stack[stack.length - 1] : null;
       const sameCharOnStack = top?.char === t.value;
-      const isOpening = !sameCharOnStack && (!prev || prev.type === "ws" || prevIsOpening || (prev.type === "punct" && /[,;:(\[]/.test(prev.value)));
+      const openContext = !prev || prev.type === "ws" || prevIsOpening || (prev.type === "punct" && /[,;:(\[]/.test(prev.value));
+      const reopensNested = sameCharOnStack && prev?.type === "ws" && next?.type === "word";
+      const isOpening = openContext && (!sameCharOnStack || reopensNested);
 
       if (isOpening) {
         const depth = stack.length;

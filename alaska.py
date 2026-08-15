@@ -171,7 +171,9 @@ def format_string(text, rules, lang):
       prev_open = prev and prev.qi and prev.qi.get("isOpening")
       top = stack[-1] if stack else None
       same_char = top is not None and top["char"] == t.v
-      is_open = not same_char and (not prev or prev.tp == "ws" or prev_open or (prev.tp == "punct" and prev.v in ",;:(["))
+      open_context = not prev or prev.tp == "ws" or prev_open or (prev.tp == "punct" and prev.v in ",;:([")
+      reopens_nested = same_char and prev and prev.tp == "ws" and nxt and nxt.tp == "word"
+      is_open = open_context and (not same_char or reopens_nested)
       if is_open:
         d = len(stack)
         stack.append({"depth": d, "char": t.v})
