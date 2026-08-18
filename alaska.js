@@ -392,7 +392,7 @@ function skipNode(node, rules) {
   rules = rules || {};
   const commentNodeOrWhitespace = node.nodeType === 8 || (node.nodeType === 3 && !/[^\t\n\r ]/.test(node.textContent));
   const alaskaSkip = node.classList !== undefined && node.classList.contains("alaska-skip");
-  const semanticSkip = ["CODE", "PRE", "SAMP", "KBD"].includes(node.nodeName);
+  const semanticSkip = ["CODE", "PRE", "SAMP", "KBD", "SCRIPT", "STYLE"].includes(node.nodeName);
   return !node.textContent.length || commentNodeOrWhitespace || alaskaSkip || semanticSkip;
 }
 

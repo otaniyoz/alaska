@@ -21,3 +21,5 @@ for (const group of testData.groups) {
     }
   }
 }
+
+if (fail > 0) Deno.exit(1);
