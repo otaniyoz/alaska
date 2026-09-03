@@ -628,6 +628,12 @@
           "input": "J. K. Smith",
           "expected": "J.\u202FK.\u00A0Smith",
           "lang": "en"
+        },
+        {
+          "desc": "short word followed by comma still glues to next word",
+          "input": "for, then again",
+          "expected": "for,\u00A0then again",
+          "lang": "en"
         }
       ]
     },
@@ -657,6 +663,12 @@
           "desc": "nested quotes use lower-9 style",
           "input": "\"\u0442\u0435\u043A\u0441\u0442 '\u0432\u043D\u0443\u0442\u0440\u044C'\"",
           "expected": "\u00AB\u2060\u0442\u0435\u043A\u0441\u0442 \u201E\u2060\u0432\u043D\u0443\u0442\u0440\u044C\u2060\u201C\u2060\u00BB",
+          "lang": "ru"
+        },
+        {
+          "desc": "short conjunction followed by comma still glues to next word",
+          "input": "и, возможно, дома",
+          "expected": "и,\u00A0возможно, дома",
           "lang": "ru"
         }
       ]

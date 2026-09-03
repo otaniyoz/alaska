@@ -270,8 +270,9 @@ function formatString(text, rules, lang) {
           if (next2?.type === "num") replaceRange(tokens, i, i + 1, "№\u202F\u2060");
           else if (next2?.type === "ws" && next3?.type === "num") replaceRange(tokens, i, i + 2, "№\u202F");
         }
-      } else if (rules.placeNbsp && next?.type === "ws" && shortWords[lang]?.has(t.value.toLowerCase())) {
-        next.value = "\u00A0";
+      } else if (rules.placeNbsp && shortWords[lang]?.has(t.value.toLowerCase())) {
+        if (next?.type === "ws") next.value = "\u00A0";
+        else if (next?.type === "punct" && next.value === "," && next2?.type === "ws") next2.value = "\u00A0";
       } else if (rules.formatInitials && t.value.length <= 3 && /^[A-ZА-Я]/u.test(t.value) && next?.type === "punct" && next.value === ".") {
         const afterDot = nextOf(tokens, i + 1);
         const nextIsInitial = afterDot?.token.type === "word" && afterDot.token.value.length === 1 && /^[A-ZА-Я]/u.test(afterDot.token.value) && tokens[afterDot.index + 1]?.type === "punct" && tokens[afterDot.index + 1]?.value === ".";
