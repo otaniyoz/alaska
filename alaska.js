@@ -3,7 +3,7 @@
 {
 const MAX_INPUT_LENGTH = 2_000_000;
 
-const commonRules = Object.fromEntries("removePunctuationSpaces removeMultipleSpaces placeNumberNbspWord placeThreeStops placeFractions placeArithmeticalSymbols placeEmdash placeNumericRange placeCopyright placeNumeroSign placeMathematicalSymbols placeTypographyOrnamentation placeEmoticons placeCurrencySign placePercentSign placeNbsp placeHyphen placeTemperatureSign placeOrdinals placeMultiplicationSign formatInitials placeTypographicQuotes".split(" ").map((k) => [k, true]));
+const commonRules = Object.fromEntries("removePunctuationSpaces removeMultipleSpaces placeNumberNbspWord placeThreeStops placeFractions placeArithmeticalSymbols placeEmdash placeNumericRange placeCopyright placeNumeroSign placeMathematicalSymbols placeTypographyOrnamentation placeEmoticons placeCurrencySign placePercentSign placeNbsp placeHyphen placeTemperatureSign placeOrdinals placeMultiplicationSign formatInitials placeTypographicQuotes placeArrows".split(" ").map((k) => [k, true]));
 
 const ordinalMap = { st: "ˢᵗ", nd: "ⁿᵈ", rd: "ʳᵈ", th: "ᵗʰ" };
 const shortWords = {
@@ -12,6 +12,10 @@ const shortWords = {
 };
 const arithmeticOps = { "-": "−", "*": "⋅", "/": "∕", "+": "+", "=": "=" };
 const currencyWordMap = { usd: "$", eur: "€", gbp: "£", jpy: "¥", cny: "CN¥", rub: "₽", kzt: "₸" };
+const mathShortcodes = { "\\pm": "±", "\\prime": "′", "\\dprime": "″", "\\tprime": "‴", "\\qprime": "⁗", "\\infty": "∞", "\\leq": "⩽", "\\geq": "⩾", "\\neq": "≠", "\\approx": "≈", "\\sqrt": "√", "\\prod": "∏", "\\sum": "∑", "\\int": "∫", "\\partial": "∂", "\\therefore": "∴", "\\because": "∵", "\\forall": "∀", "\\exists": "∃", "\\in": "∈", "\\notin": "∉", "\\emptyset": "∅", "\\cup": "∪", "\\cap": "∩", "\\angle": "∠", "\\perp": "⊥", "\\parallel": "∥", "\\pi": "π", "\\epsilon": "ε", "\\alpha": "α", "\\beta": "β", "\\gamma": "γ", "\\delta": "δ", "\\theta": "θ", "\\lambda": "λ", "\\mu": "μ", "\\sigma": "σ", "\\phi": "φ", "\\omega": "ω", "\\deg": "°" };
+const ornamentShortcodes = { "\\dinkus": "∗\u2060∗\u2060∗", "\\asterism": "⁂", "\\dagger": "†", "\\ddagger": "‡", "\\section": "§", "\\bullet": "•", "\\tainome": "◉", "\\dia": "⌀" };
+const emoticonShortcodes = { "\\shrug": "¯\u2060\\\u2060\_\u2060(\u2060ツ\u2060)\u2060_\u2060/\u2060¯", "\\crying": "(\u2060⊤\u2060_\u2060⊤\u2060)", "\\dying": "(\u2060×\u2060_\u2060×\u2060)", "\\nervous": "(\u2060-\u2060_\u2060-\u2060;\u2060)", "\\cute": "(\u2060^\u2060.\u2060^\u2060)", "\\happy": "(\u2060^\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060^\u2060)", "\\surprised": "(\u2060\u00A0\u2060ⵔ\u2060.\u2060ⵔ\u2060\u00A0\u2060)", "\\angry": "(\u2060>\u2060_\u2060<\u2060)" };
+const arrowShortcodes = { "\\arrn": "↑", "\\arrs": "↓", "\\arrne": "↗", "\\arrse": "↘", "\\arrsw": "↙", "\\arrnw": "↖" };
 
 const isWhitespace = (char) => /[\s\u00A0\t]/.test(char);
 
@@ -166,7 +170,9 @@ function formatString(text, rules, lang) {
       if (rules.removeMultipleSpaces && t.value.length > 1) t.value = " ";
       if (rules.removePunctuationSpaces && next?.type === "punct" && /[.,!?:;]/.test(next.value)) t.value = "";
     } else if (t.type === "punct") {
-      if (rules.placeNumericRange && t.value === "-" && prev?.type === "num" && (next?.type === "num" || !next || next.type === "ws")) {
+      if (rules.placeArrows && t.value === "-" && next?.type === "sym" && next.value === ">") {
+        replaceRange(tokens, i, i + 1, "\u2192");
+      } else if (rules.placeNumericRange && t.value === "-" && prev?.type === "num" && (next?.type === "num" || !next || next.type === "ws")) {
         t.value = "\u2060\u2013\u2060";
       } else if (t.value === "-" && (next?.type === "num" || (next?.type === "punct" && next.value === "("))) {
         const p = prevOf(tokens, i);
@@ -286,7 +292,9 @@ function formatString(text, rules, lang) {
         }
       }
     } else if (t.type === "sym") {
-      if (rules.placePercentSign && t.value === "%") {
+      if (rules.placeArrows && t.value === "<" && next?.type === "punct" && next.value === "-") {
+        replaceRange(tokens, i, i + 1, "\u2190");
+      } else if (rules.placePercentSign && t.value === "%") {
         if (prev?.type === "num") {
           replaceRange(tokens, i - 1, i, "%\u202F" + prev.value);
           i--;
@@ -295,9 +303,9 @@ function formatString(text, rules, lang) {
         }
       }
     } else if (t.type === "short") {
-      if (rules.placeEmoticons || rules.placeMathematicalSymbols || rules.placeTypographyOrnamentation) {
-        const map = { "\\dia": "⌀", "\\deg": "°", "\\pm": "±", "\\prime": "′", "\\dprime": "″", "\\tprime": "‴", "\\qprime": "⁗", "\\infty": "∞", "\\leq": "⩽", "\\geq": "⩾", "\\neq": "≠", "\\approx": "≈", "\\sqrt": "√", "\\prod": "∏", "\\sum": "∑", "\\int": "∫", "\\partial": "∂", "\\therefore": "∴", "\\because": "∵", "\\forall": "∀", "\\exists": "∃", "\\in": "∈", "\\notin": "∉", "\\emptyset": "∅", "\\cup": "∪", "\\cap": "∩", "\\angle": "∠", "\\perp": "⊥", "\\parallel": "∥", "\\pi": "π", "\\epsilon": "ε", "\\alpha": "α", "\\beta": "β", "\\gamma": "γ", "\\delta": "δ", "\\theta": "θ", "\\lambda": "λ", "\\mu": "μ", "\\sigma": "σ", "\\phi": "φ", "\\omega": "ω", "\\dinkus": "∗\u2060∗\u2060∗", "\\asterism": "⁂", "\\dagger": "†", "\\ddagger": "‡", "\\section": "§", "\\bullet": "•", "\\tainome": "◉", "\\shrug": "¯\u2060\\\u2060\_\u2060(\u2060ツ\u2060)\u2060_\u2060/\u2060¯", "\\crying": "(\u2060⊤\u2060_\u2060⊤\u2060)", "\\dying": "(\u2060×\u2060_\u2060×\u2060)", "\\nervous": "(\u2060-\u2060_\u2060-\u2060;\u2060)", "\\cute": "(\u2060^\u2060.\u2060^\u2060)", "\\happy": "(\u2060^\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060^\u2060)", "\\surprised": "(\u2060\u00A0\u2060ⵔ\u2060.\u2060ⵔ\u2060\u00A0\u2060)", "\\angry": "(\u2060>\u2060_\u2060<\u2060)" };
-        const replacement = map[t.value.toLowerCase()];
+      if (rules.placeEmoticons || rules.placeMathematicalSymbols || rules.placeTypographyOrnamentation || rules.placeArrows) {
+        const key = t.value.toLowerCase();
+        const replacement = (rules.placeMathematicalSymbols && mathShortcodes[key]) || (rules.placeTypographyOrnamentation && ornamentShortcodes[key]) || (rules.placeEmoticons && emoticonShortcodes[key]) || (rules.placeArrows && arrowShortcodes[key]);
         if (replacement) t.value = replacement;
       }
     }

@@ -25,7 +25,9 @@
         { "desc": "placeOrdinals", "input": "1st", "expected": "1\u02E2\u1D57", "lang": "en", "rules": { "base": "none", "placeOrdinals": true } },
         { "desc": "placeMultiplicationSign", "input": "3 x 4", "expected": "3\u200A\u00D7\u200A4", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
         { "desc": "formatInitials", "input": "J. Smith", "expected": "J.\u00A0Smith", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
-        { "desc": "placeTypographicQuotes", "input": "\"hello\"", "expected": "\u2018\u2060hello\u2060\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } }
+        { "desc": "placeTypographicQuotes", "input": "\"hello\"", "expected": "\u2018\u2060hello\u2060\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "placeArrows right arrow", "input": "item -> next", "expected": "item \u2192 next", "lang": "en", "rules": { "base": "none", "placeArrows": true } },
+        { "desc": "placeArrows left arrow", "input": "item <- next", "expected": "item \u2190 next", "lang": "en", "rules": { "base": "none", "placeArrows": true } }
       ]
     },
     {
@@ -53,7 +55,9 @@
         { "desc": "placeOrdinals off", "input": "1st", "expected": "1st", "lang": "en", "rules": { "base": "all", "placeOrdinals": false } },
         { "desc": "placeMultiplicationSign off", "input": "3 x 4", "expected": "3\u00A0x 4", "lang": "en", "rules": { "base": "all", "placeMultiplicationSign": false } },
         { "desc": "formatInitials off", "input": "J. Smith", "expected": "J. Smith", "lang": "en", "rules": { "base": "all", "formatInitials": false } },
-        { "desc": "placeTypographicQuotes off", "input": "\"hello\"", "expected": "\"hello\"", "lang": "en", "rules": { "base": "all", "placeTypographicQuotes": false } }
+        { "desc": "placeTypographicQuotes off", "input": "\"hello\"", "expected": "\"hello\"", "lang": "en", "rules": { "base": "all", "placeTypographicQuotes": false } },
+        { "desc": "placeArrows off", "input": "item -> next", "expected": "item -> next", "lang": "en", "rules": { "base": "all", "placeArrows": false } },
+        { "desc": "placeArrows off does not leak via other shortcode flags", "input": "\\arrn", "expected": "\\arrn", "lang": "en", "rules": { "base": "all", "placeArrows": false } }
       ]
     },
     {
@@ -655,6 +659,32 @@
           "expected": "\u00AB\u2060\u0442\u0435\u043A\u0441\u0442 \u201E\u2060\u0432\u043D\u0443\u0442\u0440\u044C\u2060\u201C\u2060\u00BB",
           "lang": "ru"
         }
+      ]
+    },
+    {
+      "name": "arrows",
+      "description": "ASCII arrow substitution and compass-direction shortcodes",
+      "cases": [
+        { "desc": "right arrow", "input": "item -> next", "expected": "item \u2192 next", "lang": "en" },
+        { "desc": "left arrow", "input": "item <- next", "expected": "item \u2190 next", "lang": "en" },
+        { "desc": "arrow wins over numeric-range hyphen", "input": "10->20", "expected": "10\u219220", "lang": "en" },
+        { "desc": "arrow survives multi-space collapse on both sides", "input": "item  ->  next", "expected": "item \u2192 next", "lang": "en" },
+        { "desc": "north shortcode", "input": "\\arrn", "expected": "\u2191", "lang": "en" },
+        { "desc": "south shortcode", "input": "\\arrs", "expected": "\u2193", "lang": "en" },
+        { "desc": "northeast shortcode", "input": "\\arrne", "expected": "\u2197", "lang": "en" },
+        { "desc": "southeast shortcode", "input": "\\arrse", "expected": "\u2198", "lang": "en" },
+        { "desc": "southwest shortcode", "input": "\\arrsw", "expected": "\u2199", "lang": "en" },
+        { "desc": "northwest shortcode", "input": "\\arrnw", "expected": "\u2196", "lang": "en" }
+      ]
+    },
+    {
+      "name": "shortcode-isolation",
+      "description": "Each shortcode category is gated only by its own flag, not by the others",
+      "cases": [
+        { "desc": "math shortcode ignored when only emoticons on", "input": "\\pm", "expected": "\\pm", "lang": "en", "rules": { "base": "none", "placeEmoticons": true } },
+        { "desc": "emoticon ignored when only math on", "input": "\\shrug", "expected": "\\shrug", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true } },
+        { "desc": "ornament ignored when only arrows on", "input": "\\dinkus", "expected": "\\dinkus", "lang": "en", "rules": { "base": "none", "placeArrows": true } },
+        { "desc": "arrow shortcode ignored when only ornamentation on", "input": "\\arrn", "expected": "\\arrn", "lang": "en", "rules": { "base": "none", "placeTypographyOrnamentation": true } }
       ]
     }
   ]
