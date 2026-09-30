@@ -3,7 +3,7 @@
     "lineWidth": 1440
   },
   "lint": {
-    "exclude": ["alaska.js"]
+    "exclude": ["browser/alaska.js"]
   },
   "tasks": {
     "build": "deno lint -q && deno fmt -q && deno run -R test/test.js && deno run -R test/walk.test.js && deno run -R -W build.js",
