@@ -57,12 +57,13 @@ function computeFrame(parent, tag, attrs, foreign) {
       lang = val;
     }
   }
+  const isRoot = !parent.active && classes.has("alaska");
   return {
     tag,
     active: parent.active || classes.has("alaska"),
     skip: parent.skip || SKIP_TAGS.has(tag) || classes.has("alaska-skip"),
     lang,
-    rules: computeRules(attrs, parent.rules),
+    rules: computeRules(attrs, isRoot ? commonRules : parent.rules),
     foreign,
   };
 }

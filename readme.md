@@ -46,7 +46,7 @@ Link `browser/alaska.js` in the head of a page:
 | `alaska-skip`    | The element and its subtree are not formatted.                                                                                                                                                                                                                                              |
 | `alaska-observe` | A `MutationObserver` formats nodes added inside this element after load. It must be on or inside an `.alaska` element.                                                                                                                                                                      |
 
-Always skipped inside `.alaska`: `code`, `pre`, `samp`, `kbd`, `script`, `style`.
+Always skipped inside `.alaska`: `code`, `pre`, `samp`, `kbd`, `script`, `style`. An `.alaska` element inside a skipped element (those, or `.alaska-skip`) is not a root and is not formatted.
 
 Only the outermost `.alaska` is a root. A `.alaska` inside another `.alaska` is not formatted separately; it is traversed like any other element, and its own `lang` and `data-*` attributes apply to its subtree.
 

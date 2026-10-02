@@ -141,6 +141,26 @@ const cases = [
     input: `<div class="alaska" data-math>x - 5</div>`,
     expected: `<div class="alaska" data-math>x\u00A0\u2014 5</div>`,
   },
+  {
+    desc: "alaska root inside pre is not formatted",
+    input: `<pre><span class="alaska">50%</span></pre>`,
+    expected: `<pre><span class="alaska">50%</span></pre>`,
+  },
+  {
+    desc: "alaska root inside alaska-skip is not formatted",
+    input: `<div class="alaska-skip"><span class="alaska">50%</span></div>`,
+    expected: `<div class="alaska-skip"><span class="alaska">50%</span></div>`,
+  },
+  {
+    desc: "data-* above the root is ignored",
+    input: `<div data-place-percent-sign="false"><p class="alaska">50%</p></div>`,
+    expected: `<div data-place-percent-sign="false"><p class="alaska">%\u202F50</p></div>`,
+  },
+  {
+    desc: "data-math above the root is ignored",
+    input: `<div data-math="true"><p class="alaska">x - 5</p></div>`,
+    expected: `<div data-math="true"><p class="alaska">x\u00A0\u2014 5</p></div>`,
+  },
 ];
 
 let pass = 0;
