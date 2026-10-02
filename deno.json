@@ -6,7 +6,8 @@
     "exclude": ["browser/alaska.js"]
   },
   "tasks": {
-    "build": "deno lint -q && deno fmt -q && deno run -R test/test.js && deno run -R test/walk.test.js && deno run -R -W build.js",
+    "fuzz": "deno run -R test/fuzz.js",
+    "build": "deno lint -q && deno fmt -q && deno run -R test/test.js && deno run -R test/walk.test.js && deno run -R test/fuzz.js 3000 1 && deno run -R -W build.js",
     "bench": "deno run -R -W bench/bench.js bench/bench.txt"
   }
 }

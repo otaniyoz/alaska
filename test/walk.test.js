@@ -91,6 +91,41 @@ const cases = [
     input: `<div class="alaska" lang="en"><p>"hi"</p></div>`,
     expected: `<div class="alaska" lang="en"><p>\u2018\u2060hi\u2060\u2019</p></div>`,
   },
+  {
+    desc: "prose default leaves binary operators alone",
+    input: `<div class="alaska">3 + 4</div>`,
+    expected: `<div class="alaska">3 + 4</div>`,
+  },
+  {
+    desc: "data-math true applies the math overlay",
+    input: `<div class="alaska" data-math="true">x - 5</div>`,
+    expected: `<div class="alaska" data-math="true">x\u200A\u2212\u200A5</div>`,
+  },
+  {
+    desc: "data-math inherits into descendants",
+    input: `<div class="alaska" data-math="true"><p>x - 5</p></div>`,
+    expected: `<div class="alaska" data-math="true"><p>x\u200A\u2212\u200A5</p></div>`,
+  },
+  {
+    desc: "data-math false under a true ancestor restores prose",
+    input: `<div class="alaska" data-math="true"><p data-math="false">x - 5</p></div>`,
+    expected: `<div class="alaska" data-math="true"><p data-math="false">x\u00A0\u2014 5</p></div>`,
+  },
+  {
+    desc: "explicit data-place attribute on the same element wins over the overlay",
+    input: `<div class="alaska" data-math="true" data-place-arithmetical-symbols="false">x - 5</div>`,
+    expected: `<div class="alaska" data-math="true" data-place-arithmetical-symbols="false">x - 5</div>`,
+  },
+  {
+    desc: "data-math with any other value is ignored",
+    input: `<div class="alaska" data-math="yes">x - 5</div>`,
+    expected: `<div class="alaska" data-math="yes">x\u00A0\u2014 5</div>`,
+  },
+  {
+    desc: "bare data-math is ignored",
+    input: `<div class="alaska" data-math>x - 5</div>`,
+    expected: `<div class="alaska" data-math>x\u00A0\u2014 5</div>`,
+  },
 ];
 
 let pass = 0;
@@ -98,14 +133,15 @@ let fail = 0;
 
 for (const { desc, input, expected } of cases) {
   const output = formatHtml(input);
-  if (output === expected) {
+  const again = formatHtml(output);
+  if (output === expected && again === output) {
     pass++;
   } else {
     fail++;
-    console.log(`x ${desc}`);
+    console.log(`x ${desc}${output === expected ? " (not idempotent)" : ""}`);
     console.log(`  input    ${JSON.stringify(input)}`);
     console.log(`  expected ${JSON.stringify(expected)}`);
-    console.log(`  actual   ${JSON.stringify(output)}`);
+    console.log(`  actual   ${JSON.stringify(output === expected ? again : output)}`);
   }
 }
 

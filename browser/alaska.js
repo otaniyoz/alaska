@@ -3,7 +3,8 @@
 {
 const MAX_INPUT_LENGTH = 2_000_000;
 
-const commonRules = Object.fromEntries("removePunctuationSpaces removeMultipleSpaces placeNumberNbspWord placeThreeStops placeFractions placeArithmeticalSymbols placeEmdash placeNumericRange placeCopyright placeNumeroSign placeMathematicalSymbols placeTypographyOrnamentation placeEmoticons placeCurrencySign placePercentSign placeNbsp placeHyphen placeTemperatureSign placeOrdinals placeMultiplicationSign formatInitials placeTypographicQuotes placeArrows".split(" ").map((k) => [k, true]));
+const commonRules = Object.fromEntries("placeNumberNbspWord placeThreeStops placeFractions placeArithmeticalSymbols placeMinusSign placeEmdash placeNumericRange placeCopyright placeNumeroSign placeMathematicalSymbols placeTypographyOrnamentation placeEmoticons placeCurrencySign placePercentSign placeNbsp placeHyphen placeTemperatureSign placeOrdinals placeMultiplicationSign formatInitials placeTypographicQuotes placeArrows".split(" ").map((k) => [k, k !== "placeArithmeticalSymbols"]));
+const mathRules = { placeArithmeticalSymbols: true, placeEmdash: false, placeNumericRange: false, placeHyphen: false };
 
 const ordinalMap = { st: "ˢᵗ", nd: "ⁿᵈ", rd: "ʳᵈ", th: "ᵗʰ" };
 const shortWords = {
@@ -18,6 +19,7 @@ const emoticonShortcodes = { "\\shrug": "¯\u2060\\\u2060\_\u2060(\u2060ツ\u206
 const arrowShortcodes = { "\\arrn": "↑", "\\arrs": "↓", "\\arrne": "↗", "\\arrse": "↘", "\\arrsw": "↙", "\\arrnw": "↖" };
 
 const isWhitespace = (char) => /[\s\u00A0\t]/.test(char);
+const isDash = (tokens, i, rules) => tokens[i]?.type === "punct" && /^(-|--|\u2013|\u2014)$/.test(tokens[i].value) && !(rules.placeArrows && tokens[i].value === "-" && tokens[i + 1]?.type === "sym" && tokens[i + 1].value === ">");
 
 function nextOf(tokens, i) {
   for (let j = i + 1; j < tokens.length; j++) {
@@ -37,27 +39,30 @@ function replaceRange(tokens, from, to, value) {
   tokens.splice(from, to - from + 1, { type: "other", value });
 }
 
+function replaceTokens(tokens, from, to, value) {
+  tokens.splice(from, to - from + 1, ...tokenize(value));
+}
+
 function applyArithmeticOp(tokens, before, opMap) {
   const ws1 = tokens[before + 1];
   const op = tokens[before + 2];
   const ws2 = tokens[before + 3];
   const rhs = tokens[before + 4];
 
-  const valid = ws1?.type === "ws" && op && (op.type === "punct" || op.type === "sym") && ws2?.type === "ws" && rhs?.type === "num";
+  const valid = ws1?.type === "ws" && op && (op.type === "punct" || op.type === "sym") && ws2?.type === "ws" && (rhs?.type === "num" || rhs?.type === "word" || rhs?.value === "(");
   if (!valid) return false;
 
   const replacement = opMap[op.value];
   if (!replacement) return false;
 
   ws1.value = "\u200A";
+  if (replacement !== op.value) op.type = "other";
   op.value = replacement;
   ws2.value = "\u200A";
   return true;
 }
 
-function formatString(text, rules, lang) {
-  if (text.length > MAX_INPUT_LENGTH) return text;
-
+function tokenize(text) {
   let pos = 0;
   const tokens = [];
 
@@ -114,6 +119,13 @@ function formatString(text, rules, lang) {
     }
   }
 
+  return tokens;
+}
+
+function formatString(text, rules, lang) {
+  if (text.length > MAX_INPUT_LENGTH) return text;
+
+  const tokens = tokenize(text);
   const stack = [];
   if (rules.placeCurrencySign) {
     for (let i = 0; i < tokens.length; i++) {
@@ -122,6 +134,15 @@ function formatString(text, rules, lang) {
         if (sym) tokens[i] = { ...tokens[i], type: "curr", value: sym };
       }
     }
+  }
+  for (let i = 0; i < tokens.length; i++) {
+    if (tokens[i].type !== "short") continue;
+    const key = tokens[i].value.toLowerCase();
+    const replacement = (rules.placeMathematicalSymbols && mathShortcodes[key]) || (rules.placeTypographyOrnamentation && ornamentShortcodes[key]) || (rules.placeEmoticons && emoticonShortcodes[key]) || (rules.placeArrows && arrowShortcodes[key]);
+    if (!replacement) continue;
+    const expanded = tokenize(replacement);
+    tokens.splice(i, 1, ...expanded);
+    i += expanded.length - 1;
   }
   for (let i = 0; i < tokens.length; i++) {
     const t = tokens[i];
@@ -166,30 +187,28 @@ function formatString(text, rules, lang) {
     const next2 = tokens[i + 2];
     const next3 = tokens[i + 3];
 
-    if (t.type === "ws") {
-      if (rules.removeMultipleSpaces && t.value.length > 1) t.value = " ";
-      if (rules.removePunctuationSpaces && next?.type === "punct" && /[.,!?:;]/.test(next.value)) t.value = "";
-    } else if (t.type === "punct") {
+    if (t.type === "punct") {
       if (rules.placeArrows && t.value === "-" && next?.type === "sym" && next.value === ">") {
         replaceRange(tokens, i, i + 1, "\u2192");
       } else if (rules.placeNumericRange && t.value === "-" && prev?.type === "num" && (next?.type === "num" || !next || next.type === "ws")) {
         t.value = "\u2060\u2013\u2060";
-      } else if (t.value === "-" && (next?.type === "num" || (next?.type === "punct" && next.value === "("))) {
-        const p = prevOf(tokens, i);
-        const isUnary = !p || (p.token.type !== "num" && p.token.value !== ")");
-        if (isUnary && rules.placeArithmeticalSymbols) t.value = "−";
+      } else if (rules.placeMinusSign && t.value === "-" && (!prev || prev.type === "ws" || prev.value === "(" || prev.value === "[") && (next?.type === "num" || next?.type === "curr" || (rules.placeArithmeticalSymbols && next?.value === "("))) {
+        t.value = "\u2212";
+        t.type = "other";
       } else if (rules.placeThreeStops && (t.value === "..." || t.value === "…")) {
         t.value = "\u2060.\u2060.\u2060.\u2060";
-      } else if (rules.placeEmdash && t.value === "--") {
-        t.value = "\u00A0\u2014\u0020";
-        if (prev?.type === "ws") prev.value = "";
-        if (next?.type === "ws") next.value = "";
-      } else if (rules.placeEmdash && t.value === "-" && (!prev || (prev?.type === "ws" && prev.value.includes("\n"))) && next?.type === "ws" && next2?.type !== "num") {
+      } else if (rules.placeEmdash && t.value === "--" && !isDash(tokens, i - 1, rules) && !isDash(tokens, i + 1, rules)) {
+        const from = prev?.type === "ws" ? i - 1 : i;
+        replaceTokens(tokens, from, next?.type === "ws" ? i + 1 : i, "\u00A0\u2014\u0020");
+        i = from + 2;
+      } else if (rules.placeEmdash && t.value === "-" && (!prev || (prev.type === "ws" && prev.value.includes("\n"))) && next?.type === "ws") {
         if (prev?.type === "ws") prev.value = prev.value.slice(0, prev.value.lastIndexOf("\n") + 1);
-        replaceRange(tokens, i, i + 1, "\u2014\u0020");
-      } else if (rules.placeEmdash && t.value === "-" && prev?.type === "ws" && next?.type === "ws" && next2?.type !== "num") {
-        replaceRange(tokens, i - 1, i + 1, "\u00A0\u2014\u0020");
-        i--;
+        t.value = "\u2014";
+        next.value = "\u0020";
+      } else if (rules.placeEmdash && t.value === "-" && prev?.type === "ws" && next?.type === "ws" && prevOf(tokens, i)?.token.type === "word" && ["word", "num", "curr"].includes(nextOf(tokens, i)?.token.type)) {
+        prev.value = "\u00A0";
+        t.value = "\u2014";
+        next.value = "\u0020";
       } else if (rules.placeHyphen && t.value === "-" && prev?.type === "word" && next?.type === "word") {
         t.value = "\u2060-\u2060";
       } else if (rules.placeTypographicQuotes && (t.value === '"' || t.value === "'")) {
@@ -221,17 +240,18 @@ function formatString(text, rules, lang) {
       if (rules.placeNumberNbspWord && next?.type === "ws" && next2?.type === "word") next.value = "\u00A0";
 
       if (rules.placeOrdinals && next?.type === "word" && /^(st|nd|rd|th)$/i.test(next.value)) {
-        replaceRange(tokens, i, i + 1, t.value + ordinalMap[next.value.toLowerCase()]);
+        replaceTokens(tokens, i, i + 1, t.value + ordinalMap[next.value.toLowerCase()]);
         continue;
       }
 
-      if (rules.placeFractions && next?.type === "punct" && next.value === "/" && next2?.type === "num") {
+      if (rules.placeFractions && next?.type === "punct" && next.value === "/" && next2?.type === "num" && prev?.value !== "/" && next3?.value !== "/") {
         if (next3?.type === "ws") next3.value = "\u00A0";
-        replaceRange(tokens, i, i + 2, t.value + "\u2044" + next2.value);
+        replaceTokens(tokens, i, i + 2, t.value + "\u2044" + next2.value);
+        i++;
         continue;
       }
 
-      if (t.type === "num" && rules.placeArithmeticalSymbols) applyArithmeticOp(tokens, i, arithmeticOps);
+      if (rules.placeArithmeticalSymbols) applyArithmeticOp(tokens, i, arithmeticOps);
 
       if (rules.placeMultiplicationSign) {
         const xTok = nextOf(tokens, i);
@@ -242,18 +262,12 @@ function formatString(text, rules, lang) {
               tokens[j].value = "\u200A";
             }
             xTok.token.value = "×";
+            xTok.token.type = "other";
             for (let j = xTok.index + 1; j < numTok.index; j++) {
               tokens[j].value = "\u200A";
             }
           }
         }
-      }
-
-      if (rules.placeArithmeticalSymbols) {
-        const bop = nextOf(tokens, i);
-        const usign = bop ? nextOf(tokens, bop.index) : null;
-        const unum = usign ? nextOf(tokens, usign.index) : null;
-        if (bop && usign && unum && (bop.token.type === "punct" || bop.token.type === "sym") && /[+\-*\/×÷=]/.test(bop.token.value) && usign.token.value === "-" && unum.token.type === "num") usign.token.value = "\u2212";
       }
     } else if (t.type === "curr" && rules.placeCurrencySign) {
       const n = nextOf(tokens, i);
@@ -265,9 +279,11 @@ function formatString(text, rules, lang) {
         i = p.index;
       }
     } else if (t.type === "word") {
+      if (rules.placeArithmeticalSymbols) applyArithmeticOp(tokens, i, arithmeticOps);
+
       if (rules.placeTemperatureSign && (t.value === "oC" || t.value === "oF") && prev?.type === "num") {
-        replaceRange(tokens, i - 1, i, prev.value + "\u202F°" + t.value[1]);
-        i--;
+        replaceTokens(tokens, i - 1, i, prev.value + "\u202F\u00B0" + t.value[1]);
+        i++;
       } else if (rules.placeNumeroSign && /^no$/i.test(t.value)) {
         if (next?.type === "punct" && next.value === ".") {
           if (next2?.type === "num") replaceRange(tokens, i, i + 1, "№\u202F\u2060");
@@ -297,17 +313,18 @@ function formatString(text, rules, lang) {
         replaceRange(tokens, i, i + 1, "\u2190");
       } else if (rules.placePercentSign && t.value === "%") {
         if (prev?.type === "num") {
-          replaceRange(tokens, i - 1, i, "%\u202F" + prev.value);
-          i--;
+          let j = i + 1;
+          while (tokens[j]?.type === "punct" && /^[.,]$/.test(tokens[j].value)) j++;
+          if (tokens[j]?.type === "sym" && tokens[j].value === "%") continue;
+          if (tokens[j]?.type === "num") {
+            tokens[j].type = "other";
+            continue;
+          }
+          replaceTokens(tokens, i - 1, i, "%\u202F" + prev.value);
+          while (tokens[i + 2]?.type === "punct" && /^[.,]$/.test(tokens[i + 2].value)) tokens[i + 1].value += tokens.splice(i + 2, 1)[0].value;
         } else if (next?.type === "num") {
-          t.value = "%\u202F";
+          replaceTokens(tokens, i, i, "%\u202F");
         }
-      }
-    } else if (t.type === "short") {
-      if (rules.placeEmoticons || rules.placeMathematicalSymbols || rules.placeTypographyOrnamentation || rules.placeArrows) {
-        const key = t.value.toLowerCase();
-        const replacement = (rules.placeMathematicalSymbols && mathShortcodes[key]) || (rules.placeTypographyOrnamentation && ornamentShortcodes[key]) || (rules.placeEmoticons && emoticonShortcodes[key]) || (rules.placeArrows && arrowShortcodes[key]);
-        if (replacement) t.value = replacement;
       }
     }
   }
@@ -423,7 +440,10 @@ function getRules(node, _lang, rules) {
       else datasetRules[key] = val;
     }
   }
-  return { ...commonRules, ...(rules || {}), ...datasetRules };
+  let mathOverlay = {};
+  if (dataset?.math === "true") mathOverlay = mathRules;
+  else if (dataset?.math === "false") mathOverlay = Object.fromEntries(Object.keys(mathRules).map((k) => [k, commonRules[k]]));
+  return { ...commonRules, ...(rules || {}), ...mathOverlay, ...datasetRules };
 }
 
 if (typeof document !== "undefined") {

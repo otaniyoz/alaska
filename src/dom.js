@@ -1,4 +1,4 @@
-import { commonRules, formatString } from "./core.js";
+import { commonRules, formatString, mathRules } from "./core.js";
 
 function init() {
   const nodes = document.getElementsByClassName("alaska");
@@ -107,7 +107,10 @@ function getRules(node, _lang, rules) {
       else datasetRules[key] = val;
     }
   }
-  return { ...commonRules, ...(rules || {}), ...datasetRules };
+  let mathOverlay = {};
+  if (dataset?.math === "true") mathOverlay = mathRules;
+  else if (dataset?.math === "false") mathOverlay = Object.fromEntries(Object.keys(mathRules).map((k) => [k, commonRules[k]]));
+  return { ...commonRules, ...(rules || {}), ...mathOverlay, ...datasetRules };
 }
 
 if (typeof document !== "undefined") {

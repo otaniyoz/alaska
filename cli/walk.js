@@ -1,4 +1,4 @@
-import { commonRules, formatString } from "../src/core.js";
+import { commonRules, formatString, mathRules } from "../src/core.js";
 
 const VOID = new Set("area base br col embed hr img input link meta param source track wbr".split(" "));
 const SKIP_TAGS = new Set("code pre samp kbd".split(" "));
@@ -29,13 +29,20 @@ function kebabToCamel(s) {
 
 function computeRules(attrs, inherited) {
   const data = {};
+  let math;
   for (const [name, val] of attrs) {
     if (!name.startsWith("data-")) continue;
     const key = kebabToCamel(name.slice(5));
+    if (key === "math") {
+      if (val === "true" || val === "false") math = val;
+      continue;
+    }
     if (!(key in commonRules)) continue;
     data[key] = val === "true" ? true : val === "false" ? false : val;
   }
-  return Object.keys(data).length ? { ...inherited, ...data } : inherited;
+  if (math === undefined && !Object.keys(data).length) return inherited;
+  const mathOverlay = math === undefined ? {} : math === "true" ? mathRules : Object.fromEntries(Object.keys(mathRules).map((k) => [k, commonRules[k]]));
+  return { ...inherited, ...mathOverlay, ...data };
 }
 
 function computeFrame(parent, tag, attrs, foreign) {

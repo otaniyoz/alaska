@@ -4,12 +4,11 @@
       "name": "rule-isolation",
       "description": "Each rule enabled alone (base: none) — catches wrong flag wiring",
       "cases": [
-        { "desc": "removePunctuationSpaces", "input": "hello , world", "expected": "hello, world", "lang": "en", "rules": { "base": "none", "removePunctuationSpaces": true } },
-        { "desc": "removeMultipleSpaces", "input": "hello  world", "expected": "hello world", "lang": "en", "rules": { "base": "none", "removeMultipleSpaces": true } },
         { "desc": "placeNumberNbspWord", "input": "5 meters", "expected": "5\u00A0meters", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
         { "desc": "placeThreeStops", "input": "wait...", "expected": "wait\u2060.\u2060.\u2060.\u2060", "lang": "en", "rules": { "base": "none", "placeThreeStops": true } },
         { "desc": "placeFractions", "input": "1/2", "expected": "1\u20442", "lang": "en", "rules": { "base": "none", "placeFractions": true } },
         { "desc": "placeArithmeticalSymbols", "input": "3 - 4", "expected": "3\u200A\u2212\u200A4", "lang": "en", "rules": { "base": "none", "placeArithmeticalSymbols": true } },
+        { "desc": "placeMinusSign", "input": "-5", "expected": "\u22125", "lang": "en", "rules": { "base": "none", "placeMinusSign": true } },
         { "desc": "placeEmdash", "input": "a - b", "expected": "a\u00A0\u2014 b", "lang": "en", "rules": { "base": "none", "placeEmdash": true } },
         { "desc": "placeNumericRange", "input": "10-20", "expected": "10\u2060\u2013\u206020", "lang": "en", "rules": { "base": "none", "placeNumericRange": true } },
         { "desc": "placeCopyright", "input": "(c)", "expected": "\u00A9", "lang": "en", "rules": { "base": "none", "placeCopyright": true } },
@@ -34,12 +33,11 @@
       "name": "rule-negation",
       "description": "Each rule disabled alone (base: all) — confirms the rule is actually responsible for the transformation",
       "cases": [
-        { "desc": "removePunctuationSpaces off", "input": "hello , world", "expected": "hello , world", "lang": "en", "rules": { "base": "all", "removePunctuationSpaces": false } },
-        { "desc": "removeMultipleSpaces off", "input": "hello  world", "expected": "hello  world", "lang": "en", "rules": { "base": "all", "removeMultipleSpaces": false } },
         { "desc": "placeNumberNbspWord off", "input": "5 meters", "expected": "5 meters", "lang": "en", "rules": { "base": "all", "placeNumberNbspWord": false } },
         { "desc": "placeThreeStops off", "input": "wait...", "expected": "wait...", "lang": "en", "rules": { "base": "all", "placeThreeStops": false } },
         { "desc": "placeFractions off", "input": "1/2", "expected": "1/2", "lang": "en", "rules": { "base": "all", "placeFractions": false } },
         { "desc": "placeArithmeticalSymbols off", "input": "3 + 4", "expected": "3 + 4", "lang": "en", "rules": { "base": "all", "placeArithmeticalSymbols": false } },
+        { "desc": "placeMinusSign off", "input": "-5", "expected": "-5", "lang": "en", "rules": { "base": "all", "placeMinusSign": false } },
         { "desc": "placeEmdash off", "input": "x - y", "expected": "x - y", "lang": "en", "rules": { "base": "all", "placeEmdash": false } },
         { "desc": "placeNumericRange off", "input": "10-20", "expected": "10-20", "lang": "en", "rules": { "base": "all", "placeNumericRange": false } },
         { "desc": "placeCopyright off", "input": "(c)", "expected": "(c)", "lang": "en", "rules": { "base": "all", "placeCopyright": false } },
@@ -123,9 +121,9 @@
       "description": "Em-dash must not fire when the right-hand side is a number; newline-leading dash",
       "cases": [
         {
-          "desc": "hyphen between word and number stays as-is",
+          "desc": "spaced hyphen between word and number is an em dash",
           "input": "value - 5",
-          "expected": "value - 5",
+          "expected": "value\u00A0\u2014 5",
           "lang": "en"
         },
         {
@@ -138,19 +136,21 @@
     },
     {
       "name": "arithmetic-complex",
-      "description": "Unary minus on the rhs of a binary op; unary minus before parenthesis",
+      "description": "Math zone: unary minus on the rhs of a binary op; unary minus before parenthesis",
       "cases": [
         {
           "desc": "binary op followed by unary minus — thin spaces omitted on +, minus converted",
           "input": "3 + -5",
           "expected": "3 + \u22125",
-          "lang": "en"
+          "lang": "en",
+          "rules": { "base": "math" }
         },
         {
           "desc": "unary minus before open parenthesis",
           "input": "-(5)",
           "expected": "\u2212(5)",
-          "lang": "en"
+          "lang": "en",
+          "rules": { "base": "math" }
         }
       ]
     },
@@ -192,42 +192,6 @@
           "desc": "temperature and percent in same string",
           "input": "100oC at 50%",
           "expected": "100\u202F\u00B0C at\u00A0%\u202F50",
-          "lang": "en"
-        }
-      ]
-    },
-    {
-      "name": "whitespace",
-      "description": "Collapses multiple spaces and removes spaces before punctuation",
-      "cases": [
-        {
-          "desc": "multiple spaces collapsed",
-          "input": "hello  world",
-          "expected": "hello world",
-          "lang": "en"
-        },
-        {
-          "desc": "space before comma removed",
-          "input": "hello , world",
-          "expected": "hello, world",
-          "lang": "en"
-        },
-        {
-          "desc": "space before period removed",
-          "input": "hello . world",
-          "expected": "hello. world",
-          "lang": "en"
-        },
-        {
-          "desc": "space before exclamation removed",
-          "input": "hello !",
-          "expected": "hello!",
-          "lang": "en"
-        },
-        {
-          "desc": "space before semicolon removed",
-          "input": "hello ; world",
-          "expected": "hello; world",
           "lang": "en"
         }
       ]
@@ -420,7 +384,7 @@
     },
     {
       "name": "arithmetic",
-      "description": "Replaces ASCII operators with proper mathematical symbols and thin spaces",
+      "description": "Unary minus in prose; binary operators with hair spaces in a math zone (base: math)",
       "cases": [
         {
           "desc": "unary minus",
@@ -432,13 +396,15 @@
           "desc": "binary plus",
           "input": "3 + 4",
           "expected": "3\u200A+\u200A4",
-          "lang": "en"
+          "lang": "en",
+          "rules": { "base": "math" }
         },
         {
           "desc": "binary minus",
           "input": "3 - 4",
           "expected": "3\u200A\u2212\u200A4",
-          "lang": "en"
+          "lang": "en",
+          "rules": { "base": "math" }
         },
         {
           "desc": "multiplication x",
@@ -450,7 +416,8 @@
           "desc": "equals",
           "input": "2 = 2",
           "expected": "2\u200A=\u200A2",
-          "lang": "en"
+          "lang": "en",
+          "rules": { "base": "math" }
         }
       ]
     },
@@ -680,13 +647,101 @@
         { "desc": "right arrow", "input": "item -> next", "expected": "item \u2192 next", "lang": "en" },
         { "desc": "left arrow", "input": "item <- next", "expected": "item \u2190 next", "lang": "en" },
         { "desc": "arrow wins over numeric-range hyphen", "input": "10->20", "expected": "10\u219220", "lang": "en" },
-        { "desc": "arrow survives multi-space collapse on both sides", "input": "item  ->  next", "expected": "item \u2192 next", "lang": "en" },
+        { "desc": "arrow keeps surrounding multi-spaces", "input": "item  ->  next", "expected": "item  \u2192  next", "lang": "en" },
         { "desc": "north shortcode", "input": "\\arrn", "expected": "\u2191", "lang": "en" },
         { "desc": "south shortcode", "input": "\\arrs", "expected": "\u2193", "lang": "en" },
         { "desc": "northeast shortcode", "input": "\\arrne", "expected": "\u2197", "lang": "en" },
         { "desc": "southeast shortcode", "input": "\\arrse", "expected": "\u2198", "lang": "en" },
         { "desc": "southwest shortcode", "input": "\\arrsw", "expected": "\u2199", "lang": "en" },
         { "desc": "northwest shortcode", "input": "\\arrnw", "expected": "\u2196", "lang": "en" }
+      ]
+    },
+    {
+      "name": "dash-shapes",
+      "description": "Hyphen, dash and minus are chosen by whitespace shape and neighbor types; everything else is untouched",
+      "cases": [
+        { "desc": "double dash between words", "input": "a -- b", "expected": "a\u00A0\u2014 b", "lang": "en" },
+        { "desc": "double dash without spaces", "input": "a--b", "expected": "a\u00A0\u2014 b", "lang": "en" },
+        { "desc": "double dash before punctuation keeps the trailing space", "input": "you --.", "expected": "you\u00A0\u2014 .", "lang": "en" },
+        { "desc": "spaced hyphen, word then currency", "input": "the price - 20USD", "expected": "the\u00A0price\u00A0\u2014 $\u202F20", "lang": "en" },
+        { "desc": "line-start dash before number", "input": "- 5", "expected": "\u2014 5", "lang": "en" },
+        { "desc": "spaced hyphen after number is ambiguous", "input": "5 - 3", "expected": "5 - 3", "lang": "en" },
+        { "desc": "year span with spaces is ambiguous", "input": "1950 - 2000", "expected": "1950 - 2000", "lang": "en" },
+        { "desc": "dash next to dash", "input": "x - - y", "expected": "x - - y", "lang": "en" },
+        { "desc": "triple dash", "input": "x --- y", "expected": "x --- y", "lang": "en" },
+        { "desc": "quadruple dash", "input": "----", "expected": "----", "lang": "en" },
+        { "desc": "dash before punctuation", "input": "a - , b", "expected": "a\u00A0- , b", "lang": "en" },
+        { "desc": "hyphen glued to the right word", "input": "a -b", "expected": "a\u00A0-b", "lang": "en" },
+        { "desc": "hyphen glued to the left word", "input": "a- b", "expected": "a- b", "lang": "en" },
+        { "desc": "spaced hyphen then unary minus", "input": "value - -20m", "expected": "value - \u221220m", "lang": "en" },
+        { "desc": "minus before number", "input": "-20", "expected": "\u221220", "lang": "en" },
+        { "desc": "minus before number then currency code", "input": "-20USD", "expected": "\u2212$\u202F20", "lang": "en" },
+        { "desc": "minus before currency symbol", "input": "-$20", "expected": "\u2212$\u202F20", "lang": "en" },
+        { "desc": "minus after whitespace", "input": "x -5", "expected": "x \u22125", "lang": "en" },
+        { "desc": "minus after opening bracket", "input": "(-5)", "expected": "(\u22125)", "lang": "en" },
+        { "desc": "minus before bracket stays in prose", "input": "-(5)", "expected": "-(5)", "lang": "en" },
+        { "desc": "hyphen between word and number stays", "input": "a-5", "expected": "a-5", "lang": "en" },
+        { "desc": "open-ended range", "input": "2024-", "expected": "2024\u2060\u2013\u2060", "lang": "en" },
+        { "desc": "hyphen after merged ordinal", "input": "20th-century", "expected": "20\u1D57\u02B0\u2060-\u2060century", "lang": "en" },
+        { "desc": "hyphen after merged temperature", "input": "20oC-warm", "expected": "20\u202F\u00B0C\u2060-\u2060warm", "lang": "en" }
+      ]
+    },
+    {
+      "name": "prose-guards",
+      "description": "Identifiers and data shapes pass through unchanged",
+      "cases": [
+        { "desc": "numeric date with slashes", "input": "12/05/2024", "expected": "12/05/2024", "lang": "en" },
+        { "desc": "host path with numbers", "input": "example.com/2024/05", "expected": "example.com/2024/05", "lang": "en" },
+        { "desc": "url", "input": "https://x.com/2024/05/12", "expected": "https://x.com/2024/05/12", "lang": "en" },
+        { "desc": "word then number after hyphen", "input": "COVID-19", "expected": "COVID-19", "lang": "en" },
+        { "desc": "letter number letter after hyphen", "input": "H-1B", "expected": "H-1B", "lang": "en" },
+        { "desc": "version string", "input": "v1.2.3", "expected": "v1.2.3", "lang": "en" },
+        { "desc": "slash between letters", "input": "a/b", "expected": "a/b", "lang": "en" },
+        { "desc": "and/or", "input": "and/or", "expected": "and/or", "lang": "en" },
+        { "desc": "hash number", "input": "#1", "expected": "#1", "lang": "en" },
+        { "desc": "space before slash", "input": "12 /5", "expected": "12 /5", "lang": "en" },
+        { "desc": "space after slash", "input": "12/ 5", "expected": "12/ 5", "lang": "en" },
+        { "desc": "fraction with trailing comma", "input": "12/5,", "expected": "12\u20445,", "lang": "en" }
+      ]
+    },
+    {
+      "name": "idempotence-regressions",
+      "description": "Inputs that changed on the second pass before the idempotence rework",
+      "cases": [
+        { "desc": "number, space, dot, ordinal suffix", "input": "1 .th", "expected": "1 .th", "lang": "en" },
+        { "desc": "double dash before comma", "input": "a --, b", "expected": "a\u00A0\u2014 , b", "lang": "en" },
+        { "desc": "percent chain", "input": "1%%", "expected": "1%%", "lang": "en" },
+        { "desc": "percent then currency code", "input": "2%USD", "expected": "%\u202F$\u202F2", "lang": "en" },
+        { "desc": "percent then comma then hyphen", "input": "2%,-", "expected": "%\u202F2,\u2060\u2013\u2060", "lang": "en" },
+        { "desc": "percent between digits", "input": "1%20%", "expected": "1%20%", "lang": "en" },
+        { "desc": "percent, dot, digit", "input": "1%.2%", "expected": "1%.2%", "lang": "en" },
+        { "desc": "percent before ellipsis", "input": "2%...1", "expected": "%\u202F2\u2060.\u2060.\u2060.\u20601", "lang": "en" },
+        { "desc": "line-start dash before arrow", "input": "-  ->", "expected": "\u2014 \u2192", "lang": "en" },
+        { "desc": "double dash before arrow", "input": "--->", "expected": "\u00A0\u2014 \u2192", "lang": "en" },
+        { "desc": "line-start dash before minus", "input": "-\n-20", "expected": "\u2014 \u221220", "lang": "en" },
+        { "desc": "dash before math shortcode that expands to a letter", "input": "x - \\pi", "expected": "x\u00A0\u2014 \u03C0", "lang": "en" },
+        { "desc": "dash before an emoticon", "input": "x - \\crying", "expected": "x - (\u2060\u22A4\u2060_\u2060\u22A4\u2060)", "lang": "en" },
+        { "desc": "ordinal then plus in a math zone", "input": "1st + 2", "expected": "1\u02E2\u1D57\u200A+\u200A2", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "fraction then plus in a math zone", "input": "1/2 + 3", "expected": "1\u20442\u200A+\u200A3", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "percent then plus in a math zone", "input": "50% + 3", "expected": "%\u202F50\u200A+\u200A3", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "temperature then plus in a math zone", "input": "20oC + 3", "expected": "20\u202F\u00B0C\u200A+\u200A3", "lang": "en", "rules": { "base": "math" } }
+      ]
+    },
+    {
+      "name": "math-zone",
+      "description": "base: math applies mathRules: operators with hair spaces; no em dash, numeric range or hyphen rules",
+      "cases": [
+        { "desc": "word minus number", "input": "x - 5", "expected": "x\u200A\u2212\u200A5", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "word plus word with short-word nbsp", "input": "a + b", "expected": "a\u00A0+\u200Ab", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "parenthesized sum times word", "input": "(a + b) * c", "expected": "(a\u00A0+\u200Ab)\u200A\u22C5\u200Ac", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "slash and equals", "input": "x / y = z", "expected": "x\u200A\u2215\u200Ay\u200A=\u200Az", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "after closing bracket", "input": "f(x) - 1", "expected": "f(x)\u200A\u2212\u200A1", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "unary minus before a word stays", "input": "-x", "expected": "-x", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "compound word keeps its hyphen", "input": "well-known", "expected": "well-known", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "numeric range is not formatted", "input": "10-20", "expected": "10-20", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "prose rules keep em dash off the operator", "input": "value - 5", "expected": "value\u200A\u2212\u200A5", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "prose binary minus stays untouched", "input": "3 - 4", "expected": "3 - 4", "lang": "en" },
+        { "desc": "prose plus stays untouched", "input": "3 + 4", "expected": "3 + 4", "lang": "en" }
       ]
     },
     {
