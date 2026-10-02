@@ -340,11 +340,14 @@ function formatString(text, rules, lang) {
 }
 
 
+const SKIP_SELECTOR = "code, pre, samp, kbd, script, style, .alaska-skip";
+
 function init() {
   const nodes = document.getElementsByClassName("alaska");
 
   for (const node of nodes) {
     if (node.parentElement?.closest(".alaska")) continue;
+    if (node.closest(SKIP_SELECTOR)) continue;
     const lang = resolveLang(node);
     const rules = getRules(node, lang);
     if (skipNode(node, rules)) continue;
@@ -357,7 +360,7 @@ function init() {
         const el = node.nodeType === 1 ? node : node.nodeType === 3 ? node.parentElement : null;
         if (!el) return;
         const root = outermostRoot(el);
-        if (!root) return;
+        if (!root || el.closest(SKIP_SELECTOR)) return;
 
         const { lang, rules } = getContext(el, root);
 
