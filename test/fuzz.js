@@ -5,7 +5,7 @@ const seed = Number(Deno.args[1] ?? 1);
 const alphabet = ["a", "b", "it", "of", "1", "2", "20", "x", "-", "--", "----", "+", "=", "*", "/", "%", "$", "USD", "'", '"', ",", ".", "...", "(", ")", "c", "(c)", "No.", "oC", "st", "th", "%", "->", "<-", " ", "  ", "\n", "\n\n", "\\pm", "J", "K", "\u00A0", "\u202F", "\u200A", "\u2060", "\\pi", "\\crying", "\\shrug", "\\surprised", "\\nervous", "\\arrn", "[", "\u20AC", "\u00D7", ">", "<", "oF", "nd", ":", "\t", "rub", "&", "\u2014", "\u2013"];
 const configs = [["prose", { ...core.commonRules }]];
 if (core.mathRules) configs.push(["math", { ...core.commonRules, ...core.mathRules }]);
-const langs = ["en", "ru", undefined];
+const langs = ["en", "ru", "de", undefined];
 
 function mulberry32(a) {
   return () => {

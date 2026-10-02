@@ -92,6 +92,21 @@ const cases = [
     expected: `<div class="alaska" lang="en"><p>\u2018\u2060hi\u2060\u2019</p></div>`,
   },
   {
+    desc: "lang en-US is English for quotes",
+    input: `<div class="alaska" lang="en-US">"hi"</div>`,
+    expected: `<div class="alaska" lang="en-US">\u2018\u2060hi\u2060\u2019</div>`,
+  },
+  {
+    desc: "unsupported lang leaves quotes untouched",
+    input: `<div class="alaska" lang="de">"hi"</div>`,
+    expected: `<div class="alaska" lang="de">"hi"</div>`,
+  },
+  {
+    desc: "missing lang leaves quotes untouched",
+    input: `<div class="alaska">"hi"</div>`,
+    expected: `<div class="alaska">"hi"</div>`,
+  },
+  {
     desc: "prose default leaves binary operators alone",
     input: `<div class="alaska">3 + 4</div>`,
     expected: `<div class="alaska">3 + 4</div>`,

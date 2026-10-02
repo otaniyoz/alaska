@@ -2,6 +2,12 @@
 
 Deno. No dependencies. No network.
 
+## Principles
+
+Alaska is not smart. It does not guess, repair or interpret text. It does a small set of simple things and does them well. When an input is ambiguous or an edge case has no clear answer, do less: leave the text as written. A missed edit is acceptable; a wrong edit is not. This applies to new rules, to tightening existing ones, and to language handling: an unsupported or missing `lang` means no language-dependent rule fires.
+
+Alaska should be reasonably fast. Recent versions of Alaska have been clocking around 400ms on our bench; we want to make sure it doesn't go up over %5 without good reason. `bench.txt` is Gutenberg's plain-text version of Ulysses.
+
 ## Commands
 
 Run everything from the repo root. All paths in tasks and scripts are relative to the working directory.
@@ -18,12 +24,6 @@ Run everything from the repo root. All paths in tasks and scripts are relative t
 Test files print one `x ...` block per failure (input, expected, actual as JSON) and exit 1. Passing is silent.
 
 `deno fmt` rewrites files in place and covers every file type Deno formats, which includes md and json, with `lineWidth` 1440. Check `git diff` after a build for unintended changes, especially to lines containing non-ASCII characters.
-
-## Bench
-
-Recent versions of Alaska have been clocking around 400ms on our bench; make sure it doesn't go up over %5 without good reason.
-
-`bench.txt` is Gutenberg's plain-text version of Ulysses.
 
 ## Layout
 
@@ -64,12 +64,12 @@ Rules:
 - `token.start` and `token.end` are not maintained after mutation. Do not use them.
 - Input over `MAX_INPUT_LENGTH` (2,000,000) is returned unchanged.
 - `rules` is required and read by key. A missing key is off.
-- `lang` is compared as an exact string in the quote branch and in `shortWords[lang]`.
+- `lang` is normalized once at the top of `formatString` by `normalizeLang`: primary subtag (text before the first `-`), lowercased, kept only if it is in `supportedLangs` (`en`, `ru`), otherwise `undefined`. Everything after that sees only `"en"`, `"ru"` or `undefined`. `quotes` (the quote rule on and `lang` defined) gates both the quote pairing pre-pass and the quote branch, so an unsupported language leaves quotes and apostrophes alone. Adding a language means editing `supportedLangs`, the quote branch and `shortWords`.
 - Formatting must be idempotent: `formatString(formatString(x))` equals `formatString(x)`. A change must not introduce inputs where it fails.
 
 ### `src/dom.js`
 
-`init` runs once (immediately or on `DOMContentLoaded`): formats every `.alaska` element, then attaches a `MutationObserver` (`childList`, `subtree`) to every `.alaska-observe` element. `formatNode` walks a subtree with an explicit stack and calls `formatString` per leaf text node. `getRules` merges `commonRules`, inherited rules, the `data-math` overlay and `data-*` values whose key is in `commonRules`. The observer must resolve an added node's inherited `lang` and rules through `getInheritedContext`.
+`init` runs once (immediately or on `DOMContentLoaded`): formats every `.alaska` element, then attaches a `MutationObserver` (`childList`, `subtree`) to every `.alaska-observe` element. `formatNode` walks a subtree with an explicit stack and calls `formatString` per leaf text node. `getRules` merges `commonRules`, inherited rules, the `data-math` overlay and `data-*` values whose key is in `commonRules`. Only the outermost `.alaska` is a root: `init` skips any `.alaska` that has an `.alaska` ancestor (`formatNode` already applies each descendant's `lang` and `data-*`), and the observer resolves an added node's `lang` and rules through `outermostRoot` and `getContext`, which applies `getRules` from that root down to the node's element. `resolveLang` returns the `lang` of the nearest ancestor-or-self with a non-empty `lang` attribute. Read `lang` with `getAttribute("lang")`, not the `.lang` property, which exists only on HTMLElement.
 
 ### `cli/walk.js`
 
@@ -77,7 +77,7 @@ Rules:
 
 ### dom.js and walk.js parity
 
-The same behavior is implemented twice: skip elements, `lang` inheritance, `data-*` rule parsing, `data-math` (`getRules` and `computeRules`; order: inherited, overlay, explicit `data-place-*`), `alaska` and `alaska-skip`. Any change to one must be made in the other. `alaska-observe` exists only in dom.js. Rule names are whitelisted from `commonRules` in both, so a new rule needs no change in either file.
+The same behavior is implemented twice: skip elements, `lang` inheritance, `data-*` rule parsing, `data-math` (`getRules` and `computeRules`; order: inherited, overlay, explicit `data-place-*`), `alaska` and `alaska-skip`, nested `.alaska` (only the outermost is a root; walk.js gets this from the sticky `active` flag). Any change to one must be made in the other. `alaska-observe` exists only in dom.js. Rule names are whitelisted from `commonRules` in both, so a new rule needs no change in either file.
 
 ### `build.js`
 

@@ -745,6 +745,27 @@
       ]
     },
     {
+      "name": "lang",
+      "description": "lang matches on the primary subtag, case-insensitive; unsupported or missing languages leave quotes, apostrophes and short words untouched",
+      "cases": [
+        { "desc": "en-US is English", "input": "\"hello\"", "expected": "\u2018\u2060hello\u2060\u2019", "lang": "en-US" },
+        { "desc": "uppercase EN is English", "input": "\"hello\"", "expected": "\u2018\u2060hello\u2060\u2019", "lang": "EN" },
+        { "desc": "ru-RU is Russian", "input": "\"hello\"", "expected": "\u00AB\u2060hello\u2060\u00BB", "lang": "ru-RU" },
+        { "desc": "en-US gets the English short-word list", "input": "it is a test", "expected": "it is a\u00A0test", "lang": "en-US" },
+        { "desc": "unsupported language leaves quotes", "input": "\"hello\"", "expected": "\"hello\"", "lang": "de" },
+        { "desc": "unsupported language leaves apostrophe", "input": "it's", "expected": "it's", "lang": "fr" },
+        { "desc": "unsupported language gets no short-word nbsp", "input": "it is a test", "expected": "it is a test", "lang": "de" },
+        { "desc": "unsupported language still gets language-free rules", "input": "5 meters", "expected": "5\u00A0meters", "lang": "de" },
+        { "desc": "missing lang leaves quotes", "input": "\"hello\"", "expected": "\"hello\"" },
+        { "desc": "missing lang leaves apostrophe", "input": "it's", "expected": "it's" },
+        { "desc": "empty lang leaves quotes", "input": "\"hello\"", "expected": "\"hello\"", "lang": "" },
+        { "desc": "underscore tag is not matched", "input": "\"hello\"", "expected": "\"hello\"", "lang": "en_US" },
+        { "desc": "english-like word is not matched", "input": "\"hello\"", "expected": "\"hello\"", "lang": "english" },
+        { "desc": "object property name as lang does not throw", "input": "it is a test", "expected": "it is a test", "lang": "constructor" },
+        { "desc": "__proto__ as lang does not throw", "input": "it is a test", "expected": "it is a test", "lang": "__proto__" }
+      ]
+    },
+    {
       "name": "shortcode-isolation",
       "description": "Each shortcode category is gated only by its own flag, not by the others",
       "cases": [

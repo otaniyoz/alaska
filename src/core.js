@@ -8,6 +8,11 @@ const shortWords = {
   en: new Set("a an at by for in of on or the to and but nor yet so as if".split(" ")),
   ru: new Set("а в во и к не на о об от по с со у из за до для или но же то бы ли".split(" ")),
 };
+const supportedLangs = new Set(["en", "ru"]);
+const normalizeLang = (lang) => {
+  const code = typeof lang === "string" ? lang.split("-", 1)[0].toLowerCase() : "";
+  return supportedLangs.has(code) ? code : undefined;
+};
 const arithmeticOps = { "-": "−", "*": "⋅", "/": "∕", "+": "+", "=": "=" };
 const currencyWordMap = { usd: "$", eur: "€", gbp: "£", jpy: "¥", cny: "CN¥", rub: "₽", kzt: "₸" };
 const mathShortcodes = { "\\pm": "±", "\\prime": "′", "\\dprime": "″", "\\tprime": "‴", "\\qprime": "⁗", "\\infty": "∞", "\\leq": "⩽", "\\geq": "⩾", "\\neq": "≠", "\\approx": "≈", "\\sqrt": "√", "\\prod": "∏", "\\sum": "∑", "\\int": "∫", "\\partial": "∂", "\\therefore": "∴", "\\because": "∵", "\\forall": "∀", "\\exists": "∃", "\\in": "∈", "\\notin": "∉", "\\emptyset": "∅", "\\cup": "∪", "\\cap": "∩", "\\angle": "∠", "\\perp": "⊥", "\\parallel": "∥", "\\pi": "π", "\\epsilon": "ε", "\\alpha": "α", "\\beta": "β", "\\gamma": "γ", "\\delta": "δ", "\\theta": "θ", "\\lambda": "λ", "\\mu": "μ", "\\sigma": "σ", "\\phi": "φ", "\\omega": "ω", "\\deg": "°" };
@@ -122,6 +127,8 @@ function tokenize(text) {
 function formatString(text, rules, lang) {
   if (text.length > MAX_INPUT_LENGTH) return text;
 
+  lang = normalizeLang(lang);
+  const quotes = rules.placeTypographicQuotes && lang !== undefined;
   const tokens = tokenize(text);
   const stack = [];
   if (rules.placeCurrencySign) {
@@ -141,7 +148,7 @@ function formatString(text, rules, lang) {
     tokens.splice(i, 1, ...expanded);
     i += expanded.length - 1;
   }
-  for (let i = 0; i < tokens.length; i++) {
+  for (let i = 0; quotes && i < tokens.length; i++) {
     const t = tokens[i];
     const prev = tokens[i - 1];
     const next = tokens[i + 1];
@@ -208,7 +215,7 @@ function formatString(text, rules, lang) {
         next.value = "\u0020";
       } else if (rules.placeHyphen && t.value === "-" && prev?.type === "word" && next?.type === "word") {
         t.value = "\u2060-\u2060";
-      } else if (rules.placeTypographicQuotes && (t.value === '"' || t.value === "'")) {
+      } else if (quotes && (t.value === '"' || t.value === "'")) {
         const info = t.quoteInfo;
         if (!info) continue;
         if (info.isApostrophe) {

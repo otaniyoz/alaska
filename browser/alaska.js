@@ -11,6 +11,11 @@ const shortWords = {
   en: new Set("a an at by for in of on or the to and but nor yet so as if".split(" ")),
   ru: new Set("а в во и к не на о об от по с со у из за до для или но же то бы ли".split(" ")),
 };
+const supportedLangs = new Set(["en", "ru"]);
+const normalizeLang = (lang) => {
+  const code = typeof lang === "string" ? lang.split("-", 1)[0].toLowerCase() : "";
+  return supportedLangs.has(code) ? code : undefined;
+};
 const arithmeticOps = { "-": "−", "*": "⋅", "/": "∕", "+": "+", "=": "=" };
 const currencyWordMap = { usd: "$", eur: "€", gbp: "£", jpy: "¥", cny: "CN¥", rub: "₽", kzt: "₸" };
 const mathShortcodes = { "\\pm": "±", "\\prime": "′", "\\dprime": "″", "\\tprime": "‴", "\\qprime": "⁗", "\\infty": "∞", "\\leq": "⩽", "\\geq": "⩾", "\\neq": "≠", "\\approx": "≈", "\\sqrt": "√", "\\prod": "∏", "\\sum": "∑", "\\int": "∫", "\\partial": "∂", "\\therefore": "∴", "\\because": "∵", "\\forall": "∀", "\\exists": "∃", "\\in": "∈", "\\notin": "∉", "\\emptyset": "∅", "\\cup": "∪", "\\cap": "∩", "\\angle": "∠", "\\perp": "⊥", "\\parallel": "∥", "\\pi": "π", "\\epsilon": "ε", "\\alpha": "α", "\\beta": "β", "\\gamma": "γ", "\\delta": "δ", "\\theta": "θ", "\\lambda": "λ", "\\mu": "μ", "\\sigma": "σ", "\\phi": "φ", "\\omega": "ω", "\\deg": "°" };
@@ -125,6 +130,8 @@ function tokenize(text) {
 function formatString(text, rules, lang) {
   if (text.length > MAX_INPUT_LENGTH) return text;
 
+  lang = normalizeLang(lang);
+  const quotes = rules.placeTypographicQuotes && lang !== undefined;
   const tokens = tokenize(text);
   const stack = [];
   if (rules.placeCurrencySign) {
@@ -144,7 +151,7 @@ function formatString(text, rules, lang) {
     tokens.splice(i, 1, ...expanded);
     i += expanded.length - 1;
   }
-  for (let i = 0; i < tokens.length; i++) {
+  for (let i = 0; quotes && i < tokens.length; i++) {
     const t = tokens[i];
     const prev = tokens[i - 1];
     const next = tokens[i + 1];
@@ -211,7 +218,7 @@ function formatString(text, rules, lang) {
         next.value = "\u0020";
       } else if (rules.placeHyphen && t.value === "-" && prev?.type === "word" && next?.type === "word") {
         t.value = "\u2060-\u2060";
-      } else if (rules.placeTypographicQuotes && (t.value === '"' || t.value === "'")) {
+      } else if (quotes && (t.value === '"' || t.value === "'")) {
         const info = t.quoteInfo;
         if (!info) continue;
         if (info.isApostrophe) {
@@ -337,7 +344,8 @@ function init() {
   const nodes = document.getElementsByClassName("alaska");
 
   for (const node of nodes) {
-    const lang = node.lang !== "" ? node.lang : document.documentElement.getAttribute("lang");
+    if (node.parentElement?.closest(".alaska")) continue;
+    const lang = resolveLang(node);
     const rules = getRules(node, lang);
     if (skipNode(node, rules)) continue;
     formatNode(node, rules, lang);
@@ -348,18 +356,10 @@ function init() {
       mutation.addedNodes.forEach((node) => {
         const el = node.nodeType === 1 ? node : node.nodeType === 3 ? node.parentElement : null;
         if (!el) return;
-        const alaskaRoot = el.closest(".alaska");
-        if (!alaskaRoot) return;
+        const root = outermostRoot(el);
+        if (!root) return;
 
-        let lang, rules;
-        if (alaskaRoot === el) {
-          lang = el.lang !== "" ? el.lang : document.documentElement.getAttribute("lang");
-          rules = getRules(el, lang);
-        } else {
-          const ctx = getInheritedContext(el);
-          lang = ctx.lang;
-          rules = getRules(el, ctx.lang, ctx.rules);
-        }
+        const { lang, rules } = getContext(el, root);
 
         formatNode(node, rules, lang);
       });
@@ -379,7 +379,7 @@ function formatNode(node, inheritedRules, inheritedLang) {
   while (stack.length > 0) {
     const { node, inheritedRules, inheritedLang } = stack.pop();
     if (node.hasChildNodes()) {
-      const lang = node.lang !== "" ? node.lang : inheritedLang;
+      const lang = node.getAttribute("lang") || inheritedLang;
       const children = node.childNodes;
       for (let j = children.length - 1; j >= 0; j--) {
         const childNode = children[j];
@@ -392,24 +392,27 @@ function formatNode(node, inheritedRules, inheritedLang) {
   }
 }
 
-function getInheritedContext(el) {
-  const root = el.closest(".alaska");
-  const rootLang = root.lang !== "" ? root.lang : document.documentElement.getAttribute("lang");
-  const rootRules = getRules(root, rootLang);
+function resolveLang(el) {
+  return el.closest("[lang]:not([lang=''])")?.getAttribute("lang");
+}
 
+function outermostRoot(el) {
+  let root = el.closest(".alaska");
+  while (root) {
+    const outer = root.parentElement?.closest(".alaska");
+    if (!outer) return root;
+    root = outer;
+  }
+  return null;
+}
+
+function getContext(el, root) {
   const path = [];
-  let cur = el.parentElement;
-  while (cur && cur !== root) {
-    path.unshift(cur);
-    cur = cur.parentElement;
-  }
+  for (let cur = el; cur && cur !== root; cur = cur.parentElement) path.unshift(cur);
 
-  let lang = rootLang;
-  let rules = rootRules;
-  for (const ancestor of path) {
-    lang = ancestor.lang !== "" ? ancestor.lang : lang;
-    rules = getRules(ancestor, lang, rules);
-  }
+  const lang = resolveLang(el);
+  let rules = getRules(root, lang);
+  for (const node of path) rules = getRules(node, lang, rules);
 
   return { lang, rules };
 }

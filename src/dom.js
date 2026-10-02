@@ -4,7 +4,8 @@ function init() {
   const nodes = document.getElementsByClassName("alaska");
 
   for (const node of nodes) {
-    const lang = node.lang !== "" ? node.lang : document.documentElement.getAttribute("lang");
+    if (node.parentElement?.closest(".alaska")) continue;
+    const lang = resolveLang(node);
     const rules = getRules(node, lang);
     if (skipNode(node, rules)) continue;
     formatNode(node, rules, lang);
@@ -15,18 +16,10 @@ function init() {
       mutation.addedNodes.forEach((node) => {
         const el = node.nodeType === 1 ? node : node.nodeType === 3 ? node.parentElement : null;
         if (!el) return;
-        const alaskaRoot = el.closest(".alaska");
-        if (!alaskaRoot) return;
+        const root = outermostRoot(el);
+        if (!root) return;
 
-        let lang, rules;
-        if (alaskaRoot === el) {
-          lang = el.lang !== "" ? el.lang : document.documentElement.getAttribute("lang");
-          rules = getRules(el, lang);
-        } else {
-          const ctx = getInheritedContext(el);
-          lang = ctx.lang;
-          rules = getRules(el, ctx.lang, ctx.rules);
-        }
+        const { lang, rules } = getContext(el, root);
 
         formatNode(node, rules, lang);
       });
@@ -46,7 +39,7 @@ function formatNode(node, inheritedRules, inheritedLang) {
   while (stack.length > 0) {
     const { node, inheritedRules, inheritedLang } = stack.pop();
     if (node.hasChildNodes()) {
-      const lang = node.lang !== "" ? node.lang : inheritedLang;
+      const lang = node.getAttribute("lang") || inheritedLang;
       const children = node.childNodes;
       for (let j = children.length - 1; j >= 0; j--) {
         const childNode = children[j];
@@ -59,24 +52,27 @@ function formatNode(node, inheritedRules, inheritedLang) {
   }
 }
 
-function getInheritedContext(el) {
-  const root = el.closest(".alaska");
-  const rootLang = root.lang !== "" ? root.lang : document.documentElement.getAttribute("lang");
-  const rootRules = getRules(root, rootLang);
+function resolveLang(el) {
+  return el.closest("[lang]:not([lang=''])")?.getAttribute("lang");
+}
 
+function outermostRoot(el) {
+  let root = el.closest(".alaska");
+  while (root) {
+    const outer = root.parentElement?.closest(".alaska");
+    if (!outer) return root;
+    root = outer;
+  }
+  return null;
+}
+
+function getContext(el, root) {
   const path = [];
-  let cur = el.parentElement;
-  while (cur && cur !== root) {
-    path.unshift(cur);
-    cur = cur.parentElement;
-  }
+  for (let cur = el; cur && cur !== root; cur = cur.parentElement) path.unshift(cur);
 
-  let lang = rootLang;
-  let rules = rootRules;
-  for (const ancestor of path) {
-    lang = ancestor.lang !== "" ? ancestor.lang : lang;
-    rules = getRules(ancestor, lang, rules);
-  }
+  const lang = resolveLang(el);
+  let rules = getRules(root, lang);
+  for (const node of path) rules = getRules(node, lang, rules);
 
   return { lang, rules };
 }
