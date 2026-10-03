@@ -28,7 +28,7 @@ Test files print one `x ...` block per failure (input, expected, actual as JSON)
 ## Layout
 
 ```
-src/core.js         tokenizer + rules; exports { commonRules, formatString }
+src/core.js         tokenizer + rules; exports { blockTags, commonRules, formatString, mathRules, resetCarry }
 src/dom.js          live DOM entry: init pass + MutationObserver
 cli/walk.js         streaming HTML rewriter; exports { formatHtml }
 cli/cli.js          file/glob CLI over formatHtml
@@ -36,7 +36,7 @@ build.js            bundles src/core.js + src/dom.js into browser/alaska.js
 browser/alaska.js   generated build artifact. Never edit by hand; excluded from lint
 test/test.js        runs test/test.json against formatString
 test/test.json      core test cases
-test/fuzz.js        seeded idempotence fuzz with shrinking (mulberry32); runs prose and math rules
+test/fuzz.js        seeded idempotence fuzz with shrinking (mulberry32); runs prose and math rules, segmented runs with one carry, and split-equivalence checks for quotes and minus
 test/walk.test.js   HTML rewriter cases
 bench/bench.js      benchmark; bench/bench.txt input; bench/history appended output
 deno.json           tasks, fmt and lint config
@@ -66,6 +66,7 @@ Rules:
 - `rules` is required and read by key. A missing key is off.
 - `lang` is normalized once at the top of `formatString` by `normalizeLang`: primary subtag (text before the first `-`), lowercased, kept only if it is in `supportedLangs` (`en`, `ru`), otherwise `undefined`. Everything after that sees only `"en"`, `"ru"` or `undefined`. `quotes` (the quote rule on and `lang` defined) gates both the quote pairing pre-pass and the quote branch, so an unsupported language leaves quotes and apostrophes alone. Adding a language means editing `supportedLangs`, the quote branch and `shortWords`.
 - Formatting must be idempotent: `formatString(formatString(x))` equals `formatString(x)`. A change must not introduce inputs where it fails.
+- `carry` (4th argument, optional plain `{}`) lets a caller format the pieces of one block in order. Core stores `carry.stack` (the open-quote stack, entries `{depth, char, lang}`) and `carry.prev` (`{type, value, quoteInfo}` of the last non-empty token, taken after the main pass, never before: a pre-pass snapshot is not idempotent). Without `carry` nothing changes. `resetCarry(carry)` clears it in place; callers do it at every block boundary. Only three guards read across the boundary, all through `before = prev ?? carried`: the quote pairing pre-pass (every `prev` read), the `placeMinusSign` start-or-whitespace-or-bracket group, and the `placeEmdash` line-start branch. Every other rule keeps `tokens[i - 1]` and declines at a piece start, which is why a new rule must not treat a missing `prev` as permission. The `prev.value = ...` trim in the line-start dash branch stays on the in-call token. A closing quote takes its glyphs from the opener's `lang` (`quoteInfo.lang`). Empty text leaves the carry untouched; oversize input resets it. `blockTags` is the one list of block-level tag names, shared by dom.js and walk.js.
 
 ### `src/dom.js`
 
@@ -77,13 +78,13 @@ Rules:
 
 ### dom.js and walk.js parity
 
-The same behavior is implemented twice: skip elements, `lang` inheritance, `data-*` rule parsing, `data-math` (`getRules` and `computeRules`; order: inherited, overlay, explicit `data-place-*`), `alaska` and `alaska-skip`, nested `.alaska` (only the outermost is a root; walk.js gets this from the sticky `active` flag). Any change to one must be made in the other. `alaska-observe` exists only in dom.js. Rule names are whitelisted from `commonRules` in both, so a new rule needs no change in either file.
+The same behavior is implemented twice: skip elements, `lang` inheritance, `data-*` rule parsing, `data-math` (`getRules` and `computeRules`; order: inherited, overlay, explicit `data-place-*`), `alaska` and `alaska-skip`, nested `.alaska` (only the outermost is a root; walk.js gets this from the sticky `active` flag). the carry protocol (one carry per root; `resetCarry` at the start and end of every `blockTags` element, at a new root and at a block skip element; `formatString` fed and output discarded for `<br>` (`"\n"`), an inline skip element (`"x"`, once, only when its parent is active and not skipped) and, in walk.js, a character reference (its decoded character if whitespace, else `"x"`); `script`, `style`, comments and other void elements are transparent). Any change to one must be made in the other. `alaska-observe` exists only in dom.js, including the observer rule: a mutation record starts with a fresh carry; unless the target is a block and `previousSibling` is null, the carry is seeded with `"x"` and quotes are off for added nodes that are not blocks. Rule names are whitelisted from `commonRules` in both, so a new rule needs no change in either file.
 
 ### `build.js`
 
 Reads `src/core.js` and `src/dom.js`, strips with regexes (the first `export {...};` in core.js and the first `import {...} from "...";` in dom.js), and writes `"use strict"` plus both files inside one `{ ... }` block to `browser/alaska.js`. Consequences:
 
-- core.js must keep exactly one `export { ... };` statement (it exports `commonRules`, `formatString`, `mathRules`) and dom.js exactly one import statement from `./core.js`. Any other import or export is not stripped and breaks the bundle.
+- core.js must keep exactly one `export { ... };` statement (it exports `blockTags`, `commonRules`, `formatString`, `mathRules`, `resetCarry`) and dom.js exactly one import statement from `./core.js`. Any other import or export is not stripped and breaks the bundle.
 - Both files share one block scope. Duplicate top-level names between them are a SyntaxError in the bundle.
 - dom.js may use core.js top-level names that are not exported, because they share scope in the bundle. Do not rely on it: dom.js must import what it uses.
 - The output directory `browser/` is created by `build.js` if missing.
@@ -101,7 +102,7 @@ Reads `src/core.js` and `src/dom.js`, strips with regexes (the first `export {..
 
 ## Tests
 
-`test/test.json` is `{ "groups": [{ "name", "description", "cases": [...] }] }`. A case is `{ "desc", "input", "expected", "lang", "rules" }`.
+`test/test.json` is `{ "groups": [{ "name", "description", "cases": [...] }] }`. A case is `{ "desc", "input", "expected", "lang", "rules" }`, or `{ "desc", "segments", "expected", "lang", "langs", "rules" }` where `segments` are formatted in order with one carry, `expected` is an array, and `langs` optionally overrides `lang` per segment. Every case is reformatted once more (segments with a fresh carry) and must not change.
 
 - `rules` is optional: `{ "base": "all" | "none" | "math", ...overrides }`. `base` defaults to `"all"` (`commonRules`, the prose defaults); `"none"` sets all rules false first; `"math"` is `commonRules` plus `mathRules`. Overrides are rule names mapped to booleans.
 - `lang` is passed to `formatString` as-is.

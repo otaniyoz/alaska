@@ -1,6 +1,7 @@
-import { commonRules, formatString, mathRules } from "./core.js";
+import { blockTags, commonRules, formatString, mathRules, resetCarry } from "./core.js";
 
 const SKIP_SELECTOR = "code, pre, samp, kbd, script, style, .alaska-skip";
+const SKIP_TAGS = new Set(["code", "pre", "samp", "kbd"]);
 
 function init() {
   const nodes = document.getElementsByClassName("alaska");
@@ -9,13 +10,14 @@ function init() {
     if (node.parentElement?.closest(".alaska")) continue;
     if (node.closest(SKIP_SELECTOR)) continue;
     const lang = resolveLang(node);
-    const rules = getRules(node, lang);
-    if (skipNode(node, rules)) continue;
-    formatNode(node, rules, lang);
+    formatNode(node, getRules(node, lang), lang, {});
   }
 
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
+      const carry = {};
+      const atBlockStart = isBlock(mutation.target) && mutation.previousSibling === null;
+      if (!atBlockStart) formatString("x", commonRules, undefined, carry);
       mutation.addedNodes.forEach((node) => {
         const el = node.nodeType === 1 ? node : node.nodeType === 3 ? node.parentElement : null;
         if (!el) return;
@@ -24,7 +26,7 @@ function init() {
 
         const { lang, rules } = getContext(el, root);
 
-        formatNode(node, rules, lang);
+        formatNode(node, atBlockStart || isBlock(node) ? rules : { ...rules, placeTypographicQuotes: false }, lang, carry);
       });
     });
   });
@@ -35,24 +37,40 @@ function init() {
   }
 }
 
-function formatNode(node, inheritedRules, inheritedLang) {
-  if (skipNode(node, inheritedRules)) return;
-
+function formatNode(node, inheritedRules, inheritedLang, carry) {
   const stack = [{ node, inheritedRules, inheritedLang }];
   while (stack.length > 0) {
-    const { node, inheritedRules, inheritedLang } = stack.pop();
-    if (node.hasChildNodes()) {
-      const lang = node.getAttribute("lang") || inheritedLang;
-      const children = node.childNodes;
-      for (let j = children.length - 1; j >= 0; j--) {
-        const childNode = children[j];
-        const ownRules = getRules(childNode, lang, inheritedRules);
-        if (!skipNode(childNode, ownRules)) stack.push({ node: childNode, inheritedRules: ownRules, inheritedLang: lang });
+    const { node, inheritedRules, inheritedLang, reset } = stack.pop();
+    if (reset) {
+      resetCarry(carry);
+    } else if (node.nodeType === 3) {
+      const text = node.textContent;
+      const formatted = formatString(text, inheritedRules, inheritedLang, carry);
+      if (formatted !== text) node.textContent = formatted;
+    } else if (node.nodeType === 1) {
+      const name = node.nodeName.toLowerCase();
+      if (name === "script" || name === "style") continue;
+      const block = blockTags.has(name);
+      if (block) resetCarry(carry);
+      if (SKIP_TAGS.has(name) || node.classList.contains("alaska-skip")) {
+        if (!block) formatString("x", inheritedRules, inheritedLang, carry);
+      } else if (name === "br") {
+        formatString("\n", inheritedRules, inheritedLang, carry);
+      } else if (node.hasChildNodes()) {
+        if (block) stack.push({ reset: true });
+        const lang = node.getAttribute("lang") || inheritedLang;
+        const children = node.childNodes;
+        for (let j = children.length - 1; j >= 0; j--) {
+          const childNode = children[j];
+          stack.push({ node: childNode, inheritedRules: getRules(childNode, lang, inheritedRules), inheritedLang: lang });
+        }
       }
-    } else {
-      node.textContent = formatString(node.textContent, inheritedRules, inheritedLang);
     }
   }
+}
+
+function isBlock(node) {
+  return blockTags.has(node.nodeName.toLowerCase());
 }
 
 function resolveLang(el) {
@@ -78,14 +96,6 @@ function getContext(el, root) {
   for (const node of path) rules = getRules(node, lang, rules);
 
   return { lang, rules };
-}
-
-function skipNode(node, rules) {
-  rules = rules || {};
-  const commentNodeOrWhitespace = node.nodeType === 8 || (node.nodeType === 3 && !/[^\t\n\r ]/.test(node.textContent));
-  const alaskaSkip = node.classList !== undefined && node.classList.contains("alaska-skip");
-  const semanticSkip = ["CODE", "PRE", "SAMP", "KBD", "SCRIPT", "STYLE"].includes(node.nodeName);
-  return !node.textContent.length || commentNodeOrWhitespace || alaskaSkip || semanticSkip;
 }
 
 function getRules(node, _lang, rules) {

@@ -1,4 +1,4 @@
-import { commonRules, formatString, mathRules } from "../src/core.js";
+import { blockTags, commonRules, formatString, mathRules, resetCarry } from "../src/core.js";
 
 const VOID = new Set("area base br col embed hr img input link meta param source track wbr".split(" "));
 const SKIP_TAGS = new Set("code pre samp kbd".split(" "));
@@ -68,6 +68,11 @@ function computeFrame(parent, tag, attrs, foreign) {
   };
 }
 
+function entityText(ref) {
+  const cp = ref === "&nbsp;" ? 160 : ref[1] !== "#" ? NaN : ref[2] === "x" ? parseInt(ref.slice(3, -1), 16) : parseInt(ref.slice(2, -1), 10);
+  return cp <= 0x10FFFF && /\s/.test(String.fromCodePoint(cp)) ? String.fromCodePoint(cp) : "x";
+}
+
 function findClose(src, from, closer) {
   const idx = src.indexOf(closer, from);
   return idx === -1 ? src.length : idx + closer.length;
@@ -119,23 +124,25 @@ function parseStartTag(src, pos) {
   return { tag, attrs, end: i, selfClosing };
 }
 
-function emitText(src, pos, n, out, ctx) {
+function emitText(src, pos, n, out, ctx, carry) {
   const start = pos;
   while (pos < n && src[pos] !== "<" && !(src[pos] === "&" && ENTITY_RE.test(src.slice(pos)))) pos++;
   const text = src.slice(start, pos);
-  if (text) out.push(ctx.active && !ctx.skip ? formatString(text, ctx.rules, ctx.lang) : text);
+  if (text) out.push(ctx.active && !ctx.skip ? formatString(text, ctx.rules, ctx.lang, carry) : text);
   if (pos < n && src[pos] === "&") {
     const m = ENTITY_RE.exec(src.slice(pos));
     out.push(m[0]);
+    if (ctx.active && !ctx.skip) formatString(entityText(m[0]), ctx.rules, ctx.lang, carry);
     pos += m[0].length;
   }
   return pos;
 }
 
-function handleEndTag(src, pos, out, stack) {
+function handleEndTag(src, pos, out, stack, carry) {
   const end = findClose(src, pos, ">");
   const tag = src.slice(pos + 2, end - 1).trim().toLowerCase();
   out.push(src.slice(pos, end));
+  if (blockTags.has(tag)) resetCarry(carry);
   if (VOID.has(tag)) return end;
   let i = stack.length - 1;
   while (i > 0 && stack[i].tag !== tag && OPTIONAL_END.has(stack[i].tag)) i--;
@@ -143,7 +150,7 @@ function handleEndTag(src, pos, out, stack) {
   return end;
 }
 
-function handleStartTag(src, pos, out, stack) {
+function handleStartTag(src, pos, out, stack, carry) {
   const { tag, attrs, end, selfClosing } = parseStartTag(src, pos);
   out.push(src.slice(pos, end));
   const foreign = stack[stack.length - 1].foreign || tag === "svg" || tag === "math";
@@ -156,20 +163,25 @@ function handleStartTag(src, pos, out, stack) {
     return closeEnd;
   }
   while (stack.length > 1 && closesForNewTag(stack[stack.length - 1].tag, tag)) stack.pop();
-  const frame = computeFrame(stack[stack.length - 1], tag, attrs, foreign);
+  const parent = stack[stack.length - 1];
+  const frame = computeFrame(parent, tag, attrs, foreign);
+  if (blockTags.has(tag) || (frame.active && !parent.active)) resetCarry(carry);
+  else if (parent.active && !parent.skip && frame.skip) formatString("x", parent.rules, parent.lang, carry);
+  else if (parent.active && !parent.skip && tag === "br") formatString("\n", parent.rules, parent.lang, carry);
   if (!VOID.has(tag) && !selfClosed) stack.push(frame);
   return end;
 }
 
 function formatHtml(src) {
   const out = [];
+  const carry = {};
   const stack = [{ tag: null, active: false, skip: false, lang: "", rules: commonRules, foreign: false }];
   const n = src.length;
   let pos = 0;
 
   while (pos < n) {
     if (src[pos] !== "<") {
-      pos = emitText(src, pos, n, out, stack[stack.length - 1]);
+      pos = emitText(src, pos, n, out, stack[stack.length - 1], carry);
       continue;
     }
     if (src.startsWith("<!--", pos)) {
@@ -185,11 +197,11 @@ function formatHtml(src) {
       continue;
     }
     if (src.startsWith("</", pos)) {
-      pos = handleEndTag(src, pos, out, stack);
+      pos = handleEndTag(src, pos, out, stack, carry);
       continue;
     }
     if (/^[a-zA-Z]/.test(src[pos + 1] ?? "")) {
-      pos = handleStartTag(src, pos, out, stack);
+      pos = handleStartTag(src, pos, out, stack, carry);
       continue;
     }
     out.push("<");

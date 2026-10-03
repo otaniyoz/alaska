@@ -774,6 +774,24 @@
         { "desc": "ornament ignored when only arrows on", "input": "\\dinkus", "expected": "\\dinkus", "lang": "en", "rules": { "base": "none", "placeArrows": true } },
         { "desc": "arrow shortcode ignored when only ornamentation on", "input": "\\arrn", "expected": "\\arrn", "lang": "en", "rules": { "base": "none", "placeTypographyOrnamentation": true } }
       ]
+    },
+    {
+      "name": "carry",
+      "description": "segments are formatted in order with one carry, then the outputs are reformatted with a fresh carry and must not change; langs overrides lang per segment",
+      "cases": [
+        { "desc": "closing quote after an inline element", "segments": ["\"Hello ", "x", "\""], "expected": ["\u2018\u2060Hello ", "x", "\u2060\u2019"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "two pairs across an empty segment", "segments": ["\"a\" ", "", "\"b\""], "expected": ["\u2018\u2060a\u2060\u2019 ", "", "\u2018\u2060b\u2060\u2019"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "nesting across three segments", "segments": ["\"a ", "'b ", "c' d\""], "expected": ["\u2018\u2060a ", "\u201C\u2060b ", "c\u2060\u201D d\u2060\u2019"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "apostrophe after a segment boundary", "segments": ["it", "'s"], "expected": ["it", "\u2019s"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "opener in ru closes as ru in an en segment", "segments": ["\"мир", " hello\""], "expected": ["\u00AB\u2060мир", " hello\u2060\u00BB"], "lang": "en", "langs": ["ru", "en"], "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "unsupported-lang segment mid-quote leaves the stack intact", "segments": ["\"a ", "'x' ", "b\""], "expected": ["\u2018\u2060a ", "'x' ", "b\u2060\u2019"], "lang": "en", "langs": ["en", "de", "en"], "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "minus after whitespace in the previous segment", "segments": ["x ", "-5"], "expected": ["x ", "\u22125"], "lang": "en", "rules": { "base": "none", "placeMinusSign": true } },
+        { "desc": "minus after a word in the previous segment stays", "segments": ["x", "-5"], "expected": ["x", "-5"], "lang": "en", "rules": { "base": "none", "placeMinusSign": true } },
+        { "desc": "minus after an opening bracket in the previous segment", "segments": ["(", "-5"], "expected": ["(", "\u22125"], "lang": "en", "rules": { "base": "none", "placeMinusSign": true } },
+        { "desc": "line-start dash after a newline in the previous segment", "segments": ["a\n", "- b"], "expected": ["a\n", "\u2014 b"], "lang": "en", "rules": { "base": "none", "placeEmdash": true } },
+        { "desc": "dash after a word in the previous segment stays", "segments": ["a", "- b"], "expected": ["a", "- b"], "lang": "en", "rules": { "base": "none", "placeEmdash": true } },
+        { "desc": "carry snapshot is taken after the main pass", "segments": ["a --", "-5"], "expected": ["a\u00A0\u2014 ", "\u22125"], "lang": "en", "rules": { "base": "none", "placeEmdash": true, "placeMinusSign": true } }
+      ]
     }
   ]
 }

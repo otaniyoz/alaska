@@ -9,6 +9,7 @@ const shortWords = {
   ru: new Set("а в во и к не на о об от по с со у из за до для или но же то бы ли".split(" ")),
 };
 const supportedLangs = new Set(["en", "ru"]);
+const blockTags = new Set("address article aside audio body button canvas caption center col colgroup dd details dialog dir div dl dt fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr iframe legend li main math menu nav noscript object ol optgroup option p pre search section select summary svg table tbody td template textarea tfoot th thead tr ul video".split(" "));
 const normalizeLang = (lang) => {
   const code = typeof lang === "string" ? lang.split("-", 1)[0].toLowerCase() : "";
   return supportedLangs.has(code) ? code : undefined;
@@ -22,6 +23,11 @@ const arrowShortcodes = { "\\arrn": "↑", "\\arrs": "↓", "\\arrne": "↗", "\
 
 const isWhitespace = (char) => /[\s\u00A0\t]/.test(char);
 const isDash = (tokens, i, rules) => tokens[i]?.type === "punct" && /^(-|--|\u2013|\u2014)$/.test(tokens[i].value) && !(rules.placeArrows && tokens[i].value === "-" && tokens[i + 1]?.type === "sym" && tokens[i + 1].value === ">");
+
+function resetCarry(carry) {
+  carry.stack = undefined;
+  carry.prev = undefined;
+}
 
 function nextOf(tokens, i) {
   for (let j = i + 1; j < tokens.length; j++) {
@@ -124,13 +130,17 @@ function tokenize(text) {
   return tokens;
 }
 
-function formatString(text, rules, lang) {
-  if (text.length > MAX_INPUT_LENGTH) return text;
+function formatString(text, rules, lang, carry) {
+  if (text.length > MAX_INPUT_LENGTH) {
+    if (carry) resetCarry(carry);
+    return text;
+  }
 
   lang = normalizeLang(lang);
   const quotes = rules.placeTypographicQuotes && lang !== undefined;
   const tokens = tokenize(text);
-  const stack = [];
+  const carried = carry?.prev;
+  const stack = carry ? (carry.stack ??= []) : [];
   if (rules.placeCurrencySign) {
     for (let i = 0; i < tokens.length; i++) {
       if (tokens[i].type === "word") {
@@ -150,7 +160,7 @@ function formatString(text, rules, lang) {
   }
   for (let i = 0; quotes && i < tokens.length; i++) {
     const t = tokens[i];
-    const prev = tokens[i - 1];
+    const prev = i > 0 ? tokens[i - 1] : carried;
     const next = tokens[i + 1];
 
     if (t.type === "punct" && t.value === "'") {
@@ -174,12 +184,12 @@ function formatString(text, rules, lang) {
 
       if (isOpening) {
         const depth = stack.length;
-        stack.push({ depth, char: t.value });
-        t.quoteInfo = { isOpening: true, depth };
+        stack.push({ depth, char: t.value, lang });
+        t.quoteInfo = { isOpening: true, depth, lang };
       } else {
         const opened = stack.pop();
         const depth = opened ? opened.depth : 0;
-        t.quoteInfo = { isOpening: false, depth };
+        t.quoteInfo = { isOpening: false, depth, lang: opened ? opened.lang : lang };
       }
     }
   }
@@ -190,13 +200,14 @@ function formatString(text, rules, lang) {
     const next = tokens[i + 1];
     const next2 = tokens[i + 2];
     const next3 = tokens[i + 3];
+    const before = prev ?? carried;
 
     if (t.type === "punct") {
       if (rules.placeArrows && t.value === "-" && next?.type === "sym" && next.value === ">") {
         replaceRange(tokens, i, i + 1, "\u2192");
       } else if (rules.placeNumericRange && t.value === "-" && prev?.type === "num" && (next?.type === "num" || !next || next.type === "ws")) {
         t.value = "\u2060\u2013\u2060";
-      } else if (rules.placeMinusSign && t.value === "-" && (!prev || prev.type === "ws" || prev.value === "(" || prev.value === "[") && (next?.type === "num" || next?.type === "curr" || (rules.placeArithmeticalSymbols && next?.value === "("))) {
+      } else if (rules.placeMinusSign && t.value === "-" && (!before || before.type === "ws" || before.value === "(" || before.value === "[") && (next?.type === "num" || next?.type === "curr" || (rules.placeArithmeticalSymbols && next?.value === "("))) {
         t.value = "\u2212";
         t.type = "other";
       } else if (rules.placeThreeStops && (t.value === "..." || t.value === "…")) {
@@ -205,7 +216,7 @@ function formatString(text, rules, lang) {
         const from = prev?.type === "ws" ? i - 1 : i;
         replaceTokens(tokens, from, next?.type === "ws" ? i + 1 : i, "\u00A0\u2014\u0020");
         i = from + 2;
-      } else if (rules.placeEmdash && t.value === "-" && (!prev || (prev.type === "ws" && prev.value.includes("\n"))) && next?.type === "ws") {
+      } else if (rules.placeEmdash && t.value === "-" && (!before || (before.type === "ws" && before.value.includes("\n"))) && next?.type === "ws") {
         if (prev?.type === "ws") prev.value = prev.value.slice(0, prev.value.lastIndexOf("\n") + 1);
         t.value = "\u2014";
         next.value = "\u0020";
@@ -223,11 +234,11 @@ function formatString(text, rules, lang) {
         } else {
           const depth = info.depth;
           if (info.isOpening) {
-            if (depth % 2 === 0) t.value = lang === "en" ? "\u2018\u2060" : "\u00AB\u2060";
-            else t.value = lang === "en" ? "\u201C\u2060" : "\u201E\u2060";
+            if (depth % 2 === 0) t.value = info.lang === "en" ? "\u2018\u2060" : "\u00AB\u2060";
+            else t.value = info.lang === "en" ? "\u201C\u2060" : "\u201E\u2060";
           } else {
-            if (depth % 2 === 0) t.value = lang === "en" ? "\u2060\u2019" : "\u2060\u00BB";
-            else t.value = lang === "en" ? "\u2060\u201D" : "\u2060\u201C";
+            if (depth % 2 === 0) t.value = info.lang === "en" ? "\u2060\u2019" : "\u2060\u00BB";
+            else t.value = info.lang === "en" ? "\u2060\u201D" : "\u2060\u201C";
           }
         }
       } else if (t.value === ")" && rules.placeArithmeticalSymbols) {
@@ -333,7 +344,15 @@ function formatString(text, rules, lang) {
     }
   }
 
+  if (carry) {
+    for (let j = tokens.length - 1; j >= 0; j--) {
+      if (!tokens[j].value) continue;
+      carry.prev = { type: tokens[j].type, value: tokens[j].value, quoteInfo: tokens[j].quoteInfo };
+      break;
+    }
+  }
+
   return tokens.map((t) => t.value).join("");
 }
 
-export { commonRules, formatString, mathRules };
+export { blockTags, commonRules, formatString, mathRules, resetCarry };

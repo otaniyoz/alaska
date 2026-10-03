@@ -161,6 +161,91 @@ const cases = [
     input: `<div data-math="true"><p class="alaska">x - 5</p></div>`,
     expected: `<div data-math="true"><p class="alaska">x\u00A0\u2014 5</p></div>`,
   },
+  {
+    desc: "closing quote after an inline element",
+    input: `<div class="alaska" lang="en">"Hello <b>x</b>"</div>`,
+    expected: `<div class="alaska" lang="en">\u2018\u2060Hello <b>x</b>\u2060\u2019</div>`,
+  },
+  {
+    desc: "quote pairing restarts in each block",
+    input: `<div class="alaska" lang="en"><p>"a</p><p>"b</p></div>`,
+    expected: `<div class="alaska" lang="en"><p>\u2018\u2060a</p><p>\u2018\u2060b</p></div>`,
+  },
+  {
+    desc: "separate inline pairs with a space between",
+    input: `<div class="alaska" lang="en"><b>"a"</b> <i>"b"</i></div>`,
+    expected: `<div class="alaska" lang="en"><b>\u2018\u2060a\u2060\u2019</b> <i>\u2018\u2060b\u2060\u2019</i></div>`,
+  },
+  {
+    desc: "apostrophe after an inline skip element",
+    input: `<div class="alaska" lang="en"><code>x</code>'s</div>`,
+    expected: `<div class="alaska" lang="en"><code>x</code>\u2019s</div>`,
+  },
+  {
+    desc: "br counts as a line break for quotes",
+    input: `<div class="alaska" lang="en">a<br>"b"</div>`,
+    expected: `<div class="alaska" lang="en">a<br>\u2018\u2060b\u2060\u2019</div>`,
+  },
+  {
+    desc: "br counts as a line break for the line-start dash",
+    input: `<div class="alaska">a<br>- x</div>`,
+    expected: `<div class="alaska">a<br>\u2014 x</div>`,
+  },
+  {
+    desc: "dash after text without a line break stays",
+    input: `<div class="alaska">a<b>- x</b></div>`,
+    expected: `<div class="alaska">a<b>- x</b></div>`,
+  },
+  {
+    desc: "minus after whitespace in a previous text node",
+    input: `<div class="alaska">x <b>-5</b></div>`,
+    expected: `<div class="alaska">x <b>\u22125</b></div>`,
+  },
+  {
+    desc: "minus after a word in a previous text node stays",
+    input: `<div class="alaska">x<b>-5</b></div>`,
+    expected: `<div class="alaska">x<b>-5</b></div>`,
+  },
+  {
+    desc: "minus after an inline alaska-skip element stays",
+    input: `<div class="alaska">a <span class="alaska-skip">x</span>-5</div>`,
+    expected: `<div class="alaska">a <span class="alaska-skip">x</span>-5</div>`,
+  },
+  {
+    desc: "block alaska-skip element resets the carry",
+    input: `<div class="alaska" lang="en">"a<div class="alaska-skip">x</div>"b</div>`,
+    expected: `<div class="alaska" lang="en">\u2018\u2060a<div class="alaska-skip">x</div>\u2018\u2060b</div>`,
+  },
+  {
+    desc: "nbsp reference counts as whitespace",
+    input: `<div class="alaska" lang="en">said&nbsp;"hi"</div>`,
+    expected: `<div class="alaska" lang="en">said&nbsp;\u2018\u2060hi\u2060\u2019</div>`,
+  },
+  {
+    desc: "other character reference counts as a word",
+    input: `<div class="alaska">x&amp;-5</div>`,
+    expected: `<div class="alaska">x&amp;-5</div>`,
+  },
+  {
+    desc: "oversized numeric reference does not throw",
+    input: `<div class="alaska">a&#99999999;b</div>`,
+    expected: `<div class="alaska">a&#99999999;b</div>`,
+  },
+  {
+    desc: "closing quote uses the opener's lang",
+    input: `<div class="alaska" lang="en"><span lang="ru">"мир</span> hello"</div>`,
+    expected: `<div class="alaska" lang="en"><span lang="ru">\u00AB\u2060мир</span> hello\u2060\u00BB</div>`,
+  },
+  {
+    desc: "carry does not leave an inactive root",
+    input: `<p class="alaska" lang="en">"a</p><p class="alaska" lang="en">"b</p>`,
+    expected: `<p class="alaska" lang="en">\u2018\u2060a</p><p class="alaska" lang="en">\u2018\u2060b</p>`,
+  },
+  {
+    desc: "inline roots do not share a carry",
+    input: `<span class="alaska" lang="en">"a</span> <span class="alaska" lang="en">"b</span>`,
+    expected: `<span class="alaska" lang="en">\u2018\u2060a</span> <span class="alaska" lang="en">\u2018\u2060b</span>`,
+  },
 ];
 
 let pass = 0;

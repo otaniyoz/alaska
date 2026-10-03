@@ -52,6 +52,8 @@ Only the outermost `.alaska` is a root. A `.alaska` inside another `.alaska` is 
 
 Observer scope: it watches `childList` on the subtree. Added or replaced nodes are formatted, including via `innerHTML` and `el.textContent = "..."`. In-place edits of an existing text node (`textNode.data`, `nodeValue`) are not observed, so text rewritten that way by a framework or script stays unformatted. An added node uses the `lang` and `data-*` attributes of its ancestors up to the outermost `.alaska`.
 
+Inline elements do not break formatting within a block: `"Hello <b>x</b>"` pairs its quotes, and a minus sign or line-start dash looks at the text before the element. Block-level elements (`blockTags` in `src/core.js`) and `<br>` start a new line of context; `code`, `kbd`, `samp` and inline `.alaska-skip` elements count as a word. The observer sees only the added nodes, so it pairs quotes only in nodes added at the start of a block or in added block elements, and it does not format a minus sign or line-start dash at the start of any other added node.
+
 ## Vendored core
 
 Use `src/core.js` into your code:
@@ -63,13 +65,14 @@ formatString("5 meters", commonRules, "en"); // 5{U+00A0}meters
 formatString("50%", { ...commonRules, placePercentSign: false }, "en"); // 50%
 ```
 
-### `formatString(text, rules, lang)`
+### `formatString(text, rules, lang, carry)`
 
-| Param   | Type     | Notes                                                         |
-| ------- | -------- | ------------------------------------------------------------- |
-| `text`  | `string` | Input longer than 2,000,000 characters is returned unchanged. |
-| `rules` | `object` | Required. `undefined` throws a `TypeError`.                   |
-| `lang`  | `string` | Language tag. See [Language](#language). May be `undefined`.  |
+| Param   | Type     | Notes                                                                 |
+| ------- | -------- | --------------------------------------------------------------------- |
+| `text`  | `string` | Input longer than 2,000,000 characters is returned unchanged.         |
+| `rules` | `object` | Required. `undefined` throws a `TypeError`.                           |
+| `lang`  | `string` | Language tag. See [Language](#language). May be `undefined`.          |
+| `carry` | `object` | Optional. Shared across the pieces of one block. See [Carry](#carry). |
 
 Returns the formatted string.
 
@@ -81,7 +84,23 @@ formatString("5 meters 50%", { placePercentSign: true }, "en"); // 5 meters %{U+
 
 To disable one rule, spread `commonRules` and set it to `false`. To enable a subset, pass only those keys.
 
-Call it on whole text blocks (a paragraph, a heading, a cell), not on fragments. Quote pairing and neighbor-dependent rules see only the string you pass. See [Known limitations](#known-limitations).
+Call it on whole text blocks (a paragraph, a heading, a cell), not on fragments. Without a `carry`, quote pairing and neighbor-dependent rules see only the string you pass. See [Carry](#carry) and [bugs.md](bugs.md).
+
+### Carry
+
+Text split by inline elements (`"Hello <b>x</b>"`) reaches `formatString` in pieces. Pass the same `carry` object, a plain `{}`, to every piece of one block in document order, and quote pairing, the minus sign and the line-start dash read across the piece boundary. The object is opaque: only the core reads or writes it.
+
+```js
+import { commonRules, formatString, resetCarry } from "./vendor/alaska/core.js";
+
+const carry = {};
+formatString('"Hello', commonRules, "en", carry); // {U+2018}{U+2060}Hello
+formatString(" x", commonRules, "en", carry); // {U+0020}x
+formatString('"', commonRules, "en", carry); // {U+2060}{U+2019}
+resetCarry(carry); // at every block boundary
+```
+
+Call `resetCarry` at the start and end of each block-level element. `blockTags` is the set of lowercase tag names the browser and CLI treat as blocks. Without `carry`, every call stands alone. Lookahead rules still see only the current piece (`5 <b>meters</b>`, `it'<b>s</b>`); see [bugs.md](bugs.md).
 
 ## CLI
 
@@ -95,7 +114,7 @@ deno run -R -W cli/cli.js page.html docs/*.html --exclude 'docs/drafts/*'
 - `--exclude <pattern>` is repeatable. It is matched against each path exactly as given, so `./a.html` and `a.html` are different strings. `*` matches any characters including `/`, `?` matches one character, `[abc]` and `[!abc]` are character classes. Patterns are anchored to the whole path.
 - Exit code is 1 if no files are given or any file fails.
 - `lang`, `data-*` rule attributes, `alaska-skip`, and the skip elements behave as in the browser. `alaska-observe` has no effect.
-- The parser is a streaming rewriter, not a full HTML parser. It handles void elements, optional end tags, `script`/`style` contents, and self-closing tags in `svg` and `math`. Character references (`&amp;`, `&nbsp;`) are passed through untouched and split the surrounding text into separate `formatString` calls.
+- The parser is a streaming rewriter, not a full HTML parser. It handles void elements, optional end tags, `script`/`style` contents, and self-closing tags in `svg` and `math`. Character references (`&amp;`, `&nbsp;`) are passed through untouched and split the surrounding text into separate `formatString` calls that share one [carry](#carry): a reference that decodes to whitespace (`&nbsp;`, `&#32;`) counts as whitespace, any other as a word.
 - The rewrite is in place, so the source files become formatted. Running it again changes nothing (formatting is idempotent, see [Output contract](#output-contract)).
 
 ## Rules
