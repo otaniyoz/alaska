@@ -50,8 +50,8 @@ agents.md           this file
 
 `formatString(text, rules, lang)` runs three phases:
 
-1. **Tokenize** (`tokenize(text)`) into `ws`, `num`, `curr`, `short` (backslash shortcode), `punct`, `sym`, `word`, `other`. Digits and `. ,` form one `num` token; `--` and `...` are single `punct` tokens; `word` is a run of `\p{L}`.
-2. **Pre-pass**: currency words (`usd` etc.) are retyped to `curr`; backslash shortcodes are expanded and re-tokenized, so every later rule sees the final shape of the text; quotes are paired with a stack and annotated in `token.quoteInfo` (opening or closing, depth, apostrophe).
+1. **Tokenize** (`tokenize(text)`) into `ws`, `num`, `curr`, `short` (backslash and ASCII letters of either case), `punct`, `sym`, `word`, `other`. Digits and `. ,` form one `num` token; `--` and `...` are single `punct` tokens; `word` is a run of `\p{L}`.
+2. **Pre-pass**: currency words (`usd` etc.) are retyped to `curr`; backslash shortcodes are expanded and re-tokenized, and a `word` produced by an expansion is merged with an adjacent `word`, as tokenizing the output would, so every later rule sees the final shape of the text; quotes are paired with a stack and annotated in `token.quoteInfo` (opening or closing, depth, apostrophe).
 3. **Main pass**: one left-to-right loop that branches on token type and mutates tokens in place. The result is `tokens.map((t) => t.value).join("")`.
 
 Rules:
@@ -62,6 +62,7 @@ Rules:
 - A decision that reads a neighbor must read something no later rule changes. The failures found by the fuzz were all this: a guard looking at a `-` that later became an arrow or minus, a percent sign looking at a number that later merged with a currency, a number token absorbing a trailing `.` or `,` only after `%` moved. When a rule declines, make sure pass 2 would decline too.
 - `commonRules` holds the prose defaults (every rule true except `placeArithmeticalSymbols`). `mathRules` is the math-zone overlay. `formatString` knows no zones: math behavior follows `rules.placeArithmeticalSymbols`.
 - `token.start` and `token.end` are not maintained after mutation. Do not use them.
+- Shortcode lookup is case-sensitive (`\Delta` is not `\delta`) and each key lives in exactly one of `mathShortcodes`, `greekShortcodes`, `ornamentShortcodes`, `emoticonShortcodes`, `arrowShortcodes`, each gated by its own rule. A key in two tables would make a category respond to another category's flag.
 - Input over `MAX_INPUT_LENGTH` (2,000,000) is returned unchanged.
 - `rules` is required and read by key. A missing key is off.
 - `lang` is normalized once at the top of `formatString` by `normalizeLang`: primary subtag (text before the first `-`), lowercased, kept only if it is in `supportedLangs` (`en`, `ru`), otherwise `undefined`. Everything after that sees only `"en"`, `"ru"` or `undefined`. `quotes` (the quote rule on and `lang` defined) gates both the quote pairing pre-pass and the quote branch, so an unsupported language leaves quotes and apostrophes alone. Adding a language means editing `supportedLangs`, the quote branch and `shortWords`.

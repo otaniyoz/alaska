@@ -3,7 +3,7 @@
 {
 const MAX_INPUT_LENGTH = 2_000_000;
 
-const commonRules = Object.fromEntries("placeNumberNbspWord placeThreeStops placeFractions placeArithmeticalSymbols placeMinusSign placeEmdash placeNumericRange placeCopyright placeNumeroSign placeMathematicalSymbols placeTypographyOrnamentation placeEmoticons placeCurrencySign placePercentSign placeNbsp placeHyphen placeTemperatureSign placeOrdinals placeMultiplicationSign formatInitials placeTypographicQuotes placeArrows".split(" ").map((k) => [k, k !== "placeArithmeticalSymbols"]));
+const commonRules = Object.fromEntries("placeNumberNbspWord placeThreeStops placeFractions placeArithmeticalSymbols placeMinusSign placeEmdash placeNumericRange placeCopyright placeNumeroSign placeMathematicalSymbols placeGreekSymbols placeTypographyOrnamentation placeEmoticons placeCurrencySign placePercentSign placeNbsp placeHyphen placeTemperatureSign placeOrdinals placeMultiplicationSign formatInitials placeTypographicQuotes placeArrows".split(" ").map((k) => [k, k !== "placeArithmeticalSymbols"]));
 const mathRules = { placeArithmeticalSymbols: true, placeEmdash: false, placeNumericRange: false, placeHyphen: false };
 
 const ordinalMap = { st: "ˢᵗ", nd: "ⁿᵈ", rd: "ʳᵈ", th: "ᵗʰ" };
@@ -19,10 +19,11 @@ const normalizeLang = (lang) => {
 };
 const arithmeticOps = { "-": "−", "*": "⋅", "/": "∕", "+": "+", "=": "=" };
 const currencyWordMap = { usd: "$", eur: "€", gbp: "£", jpy: "¥", cny: "CN¥", rub: "₽", kzt: "₸" };
-const mathShortcodes = { "\\pm": "±", "\\prime": "′", "\\dprime": "″", "\\tprime": "‴", "\\qprime": "⁗", "\\infty": "∞", "\\leq": "⩽", "\\geq": "⩾", "\\neq": "≠", "\\approx": "≈", "\\sqrt": "√", "\\prod": "∏", "\\sum": "∑", "\\int": "∫", "\\partial": "∂", "\\therefore": "∴", "\\because": "∵", "\\forall": "∀", "\\exists": "∃", "\\in": "∈", "\\notin": "∉", "\\emptyset": "∅", "\\cup": "∪", "\\cap": "∩", "\\angle": "∠", "\\perp": "⊥", "\\parallel": "∥", "\\pi": "π", "\\epsilon": "ε", "\\alpha": "α", "\\beta": "β", "\\gamma": "γ", "\\delta": "δ", "\\theta": "θ", "\\lambda": "λ", "\\mu": "μ", "\\sigma": "σ", "\\phi": "φ", "\\omega": "ω", "\\deg": "°" };
-const ornamentShortcodes = { "\\dinkus": "∗\u2060∗\u2060∗", "\\asterism": "⁂", "\\dagger": "†", "\\ddagger": "‡", "\\section": "§", "\\bullet": "•", "\\tainome": "◉", "\\dia": "⌀" };
+const mathShortcodes = { "\\pm": "\u00B1", "\\prime": "\u2032", "\\dprime": "\u2033", "\\tprime": "\u2034", "\\qprime": "\u2057", "\\infty": "\u221E", "\\leq": "\u2A7D", "\\geq": "\u2A7E", "\\neq": "\u2260", "\\approx": "\u2248", "\\sqrt": "\u221A", "\\prod": "\u220F", "\\sum": "\u2211", "\\int": "\u222B", "\\partial": "\u2202", "\\therefore": "\u2234", "\\because": "\u2235", "\\forall": "\u2200", "\\exists": "\u2203", "\\in": "\u2208", "\\notin": "\u2209", "\\emptyset": "\u2205", "\\cup": "\u222A", "\\cap": "\u2229", "\\angle": "\u2220", "\\perp": "\u22A5", "\\parallel": "\u2225", "\\deg": "\u00B0", "\\dia": "\u2300" };
+const greekShortcodes = { "\\alpha": "\u03B1", "\\beta": "\u03B2", "\\gamma": "\u03B3", "\\delta": "\u03B4", "\\epsilon": "\u03B5", "\\varepsilon": "\u03F5", "\\zeta": "\u03B6", "\\eta": "\u03B7", "\\theta": "\u03B8", "\\vartheta": "\u03D1", "\\iota": "\u03B9", "\\kappa": "\u03BA", "\\varkappa": "\u03F0", "\\lambda": "\u03BB", "\\mu": "\u03BC", "\\nu": "\u03BD", "\\xi": "\u03BE", "\\pi": "\u03C0", "\\varpi": "\u03D6", "\\rho": "\u03C1", "\\varrho": "\u03F1", "\\sigma": "\u03C3", "\\varsigma": "\u03C2", "\\tau": "\u03C4", "\\upsilon": "\u03C5", "\\phi": "\u03C6", "\\varphi": "\u03D5", "\\chi": "\u03C7", "\\psi": "\u03C8", "\\omega": "\u03C9", "\\digamma": "\u03DD", "\\Gamma": "\u0393", "\\Delta": "\u0394", "\\Theta": "\u0398", "\\Lambda": "\u039B", "\\Xi": "\u039E", "\\Pi": "\u03A0", "\\Sigma": "\u03A3", "\\Upsilon": "\u03A5", "\\Phi": "\u03A6", "\\Psi": "\u03A8", "\\Omega": "\u03A9" };
+const ornamentShortcodes = { "\\dinkus": "\u2217\u2060\u2217\u2060\u2217", "\\asterism": "\u2042", "\\dag": "\u2020", "\\ddag": "\u2021", "\\section": "\u00A7", "\\bullet": "\u2022", "\\tainome": "\u25C9", "\\S": "\u00A7", "\\P": "\u00B6" };
 const emoticonShortcodes = { "\\shrug": "¯\u2060\\\u2060\_\u2060(\u2060ツ\u2060)\u2060_\u2060/\u2060¯", "\\crying": "(\u2060⊤\u2060_\u2060⊤\u2060)", "\\dying": "(\u2060×\u2060_\u2060×\u2060)", "\\nervous": "(\u2060-\u2060_\u2060-\u2060;\u2060)", "\\cute": "(\u2060^\u2060.\u2060^\u2060)", "\\happy": "(\u2060^\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060^\u2060)", "\\surprised": "(\u2060\u00A0\u2060ⵔ\u2060.\u2060ⵔ\u2060\u00A0\u2060)", "\\angry": "(\u2060>\u2060_\u2060<\u2060)" };
-const arrowShortcodes = { "\\arrn": "↑", "\\arrs": "↓", "\\arrne": "↗", "\\arrse": "↘", "\\arrsw": "↙", "\\arrnw": "↖" };
+const arrowShortcodes = { "\\arrn": "\u2191", "\\arrs": "\u2193", "\\arrne": "\u2197", "\\arrse": "\u2198", "\\arrsw": "\u2199", "\\arrnw": "\u2196", "\\arre": "\u2192", "\\arrw": "\u2190" };
 
 const isWhitespace = (char) => /[\s\u00A0\t]/.test(char);
 const isDash = (tokens, i, rules) => tokens[i]?.type === "punct" && /^(-|--|\u2013|\u2014)$/.test(tokens[i].value) && !(rules.placeArrows && tokens[i].value === "-" && tokens[i + 1]?.type === "sym" && tokens[i + 1].value === ">");
@@ -96,10 +97,10 @@ function tokenize(text) {
     } else if (/[$€¥£₽₸]/.test(char)) {
       tokens.push({ type: "curr", value: char, start, end: pos + 1 });
       pos++;
-    } else if (char === "\\" && /[a-z]/.test(text[pos + 1])) {
+    } else if (char === "\\" && /[a-zA-Z]/.test(text[pos + 1])) {
       let value = "\\";
       pos++;
-      while (pos < text.length && /[a-z]/.test(text[pos])) {
+      while (pos < text.length && /[a-zA-Z]/.test(text[pos])) {
         value += text[pos++];
       }
       tokens.push({ type: "short", value, start, end: pos });
@@ -154,12 +155,22 @@ function formatString(text, rules, lang, carry) {
   }
   for (let i = 0; i < tokens.length; i++) {
     if (tokens[i].type !== "short") continue;
-    const key = tokens[i].value.toLowerCase();
-    const replacement = (rules.placeMathematicalSymbols && mathShortcodes[key]) || (rules.placeTypographyOrnamentation && ornamentShortcodes[key]) || (rules.placeEmoticons && emoticonShortcodes[key]) || (rules.placeArrows && arrowShortcodes[key]);
+    const key = tokens[i].value;
+    const replacement = (rules.placeMathematicalSymbols && mathShortcodes[key]) || (rules.placeGreekSymbols && greekShortcodes[key]) || (rules.placeTypographyOrnamentation && ornamentShortcodes[key]) || (rules.placeEmoticons && emoticonShortcodes[key]) || (rules.placeArrows && arrowShortcodes[key]);
     if (!replacement) continue;
     const expanded = tokenize(replacement);
+    const from = i;
     tokens.splice(i, 1, ...expanded);
     i += expanded.length - 1;
+    if (tokens[i].type === "word" && tokens[i + 1]?.type === "word") {
+      tokens[i].value += tokens[i + 1].value;
+      tokens.splice(i + 1, 1);
+    }
+    if (tokens[from].type === "word" && tokens[from - 1]?.type === "word") {
+      tokens[from - 1].value += tokens[from].value;
+      tokens.splice(from, 1);
+      i--;
+    }
   }
   for (let i = 0; quotes && i < tokens.length; i++) {
     const t = tokens[i];

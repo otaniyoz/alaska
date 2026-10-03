@@ -142,6 +142,16 @@ const cases = [
     expected: `<div class="alaska" data-math>x\u00A0\u2014 5</div>`,
   },
   {
+    desc: "greek shortcode is formatted by default",
+    input: `<div class="alaska">\\alpha \\Omega</div>`,
+    expected: `<div class="alaska">\u03B1 \u03A9</div>`,
+  },
+  {
+    desc: "data-place-greek-symbols false leaves greek shortcodes",
+    input: `<div class="alaska" data-place-greek-symbols="false">\\alpha \\S</div>`,
+    expected: `<div class="alaska" data-place-greek-symbols="false">\\alpha \u00A7</div>`,
+  },
+  {
     desc: "alaska root inside pre is not formatted",
     input: `<pre><span class="alaska">50%</span></pre>`,
     expected: `<pre><span class="alaska">50%</span></pre>`,
