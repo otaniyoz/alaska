@@ -27,7 +27,9 @@
         { "desc": "formatInitials", "input": "J. Smith", "expected": "J.\u00A0Smith", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
         { "desc": "placeTypographicQuotes", "input": "\"hello\"", "expected": "\u2018\u2060hello\u2060\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
         { "desc": "placeArrows right arrow", "input": "item -> next", "expected": "item \u2192 next", "lang": "en", "rules": { "base": "none", "placeArrows": true } },
-        { "desc": "placeArrows left arrow", "input": "item <- next", "expected": "item \u2190 next", "lang": "en", "rules": { "base": "none", "placeArrows": true } }
+        { "desc": "placeArrows left arrow", "input": "item <- next", "expected": "item \u2190 next", "lang": "en", "rules": { "base": "none", "placeArrows": true } },
+        { "desc": "placeArrows both-way arrow", "input": "item <-> next", "expected": "item \u2194 next", "lang": "en", "rules": { "base": "none", "placeArrows": true } },
+        { "desc": "placeShapes", "input": "\\square", "expected": "\u25A1", "lang": "en", "rules": { "base": "none", "placeShapes": true } }
       ]
     },
     {
@@ -57,7 +59,9 @@
         { "desc": "formatInitials off", "input": "J. Smith", "expected": "J. Smith", "lang": "en", "rules": { "base": "all", "formatInitials": false } },
         { "desc": "placeTypographicQuotes off", "input": "\"hello\"", "expected": "\"hello\"", "lang": "en", "rules": { "base": "all", "placeTypographicQuotes": false } },
         { "desc": "placeArrows off", "input": "item -> next", "expected": "item -> next", "lang": "en", "rules": { "base": "all", "placeArrows": false } },
-        { "desc": "placeArrows off does not leak via other shortcode flags", "input": "\\arrn", "expected": "\\arrn", "lang": "en", "rules": { "base": "all", "placeArrows": false } }
+        { "desc": "placeArrows off does not leak via other shortcode flags", "input": "\\arrn", "expected": "\\arrn", "lang": "en", "rules": { "base": "all", "placeArrows": false } },
+        { "desc": "placeArrows off leaves both-way arrow", "input": "item <-> next", "expected": "item <-> next", "lang": "en", "rules": { "base": "all", "placeArrows": false } },
+        { "desc": "placeShapes off", "input": "\\square", "expected": "\\square", "lang": "en", "rules": { "base": "all", "placeShapes": false } }
       ]
     },
     {
@@ -660,7 +664,14 @@
         { "desc": "east shortcode", "input": "\\arre", "expected": "\u2192", "lang": "en" },
         { "desc": "west shortcode", "input": "\\arrw", "expected": "\u2190", "lang": "en" },
         { "desc": "shortcodes next to each other", "input": "\\arrn\\arre\\arrs\\arrw", "expected": "\u2191\u2192\u2193\u2190", "lang": "en" },
-        { "desc": "east does not clash with north-east", "input": "\\arre \\arrne", "expected": "\u2192 \u2197", "lang": "en" }
+        { "desc": "east does not clash with north-east", "input": "\\arre \\arrne", "expected": "\u2192 \u2197", "lang": "en" },
+        { "desc": "both-way arrow", "input": "item <-> next", "expected": "item \u2194 next", "lang": "en" },
+        { "desc": "both-way arrow wins over numeric-range hyphen", "input": "10<->20", "expected": "10\u219420", "lang": "en" },
+        { "desc": "both-way arrow inside a longer run", "input": "<<->", "expected": "<\u2194", "lang": "en" },
+        { "desc": "left arrow followed by a spaced greater-than is not both-way", "input": "<- >", "expected": "\u2190 >", "lang": "en" },
+        { "desc": "left-right shortcode", "input": "\\arrlr", "expected": "\u2194", "lang": "en" },
+        { "desc": "up-down shortcode", "input": "\\arrud", "expected": "\u2195", "lang": "en" },
+        { "desc": "left-right does not clash with west", "input": "\\arrlr \\arrw", "expected": "\u2194 \u2190", "lang": "en" }
       ]
     },
     {
@@ -810,6 +821,57 @@
       ]
     },
     {
+      "name": "shape-shortcodes",
+      "description": "Shape shortcodes: white shapes use the plain name, filled ones the black prefix; U+FE0E (text presentation) follows the five glyphs platforms may draw as colour emoji",
+      "cases": [
+        { "desc": "square", "input": "\\square", "expected": "\u25A1", "lang": "en" },
+        { "desc": "blacksquare", "input": "\\blacksquare", "expected": "\u25A0", "lang": "en" },
+        { "desc": "circle", "input": "\\circle", "expected": "\u25CB", "lang": "en" },
+        { "desc": "blackcircle", "input": "\\blackcircle", "expected": "\u25CF", "lang": "en" },
+        { "desc": "doublecircle", "input": "\\doublecircle", "expected": "\u25CE", "lang": "en" },
+        { "desc": "tainome", "input": "\\tainome", "expected": "\u25C9", "lang": "en" },
+        { "desc": "triangle", "input": "\\triangle", "expected": "\u25B3", "lang": "en" },
+        { "desc": "blacktriangle", "input": "\\blacktriangle", "expected": "\u25B2", "lang": "en" },
+        { "desc": "triangledown", "input": "\\triangledown", "expected": "\u25BD", "lang": "en" },
+        { "desc": "blacktriangledown", "input": "\\blacktriangledown", "expected": "\u25BC", "lang": "en" },
+        { "desc": "triangleleft", "input": "\\triangleleft", "expected": "\u25C1", "lang": "en" },
+        { "desc": "blacktriangleleft", "input": "\\blacktriangleleft", "expected": "\u25C0\uFE0E", "lang": "en" },
+        { "desc": "triangleright", "input": "\\triangleright", "expected": "\u25B7", "lang": "en" },
+        { "desc": "blacktriangleright", "input": "\\blacktriangleright", "expected": "\u25B6\uFE0E", "lang": "en" },
+        { "desc": "diamond", "input": "\\diamond", "expected": "\u25C7", "lang": "en" },
+        { "desc": "blackdiamond", "input": "\\blackdiamond", "expected": "\u25C6", "lang": "en" },
+        { "desc": "lozenge", "input": "\\lozenge", "expected": "\u25CA", "lang": "en" },
+        { "desc": "blacklozenge", "input": "\\blacklozenge", "expected": "\u29EB", "lang": "en" },
+        { "desc": "star", "input": "\\star", "expected": "\u2606", "lang": "en" },
+        { "desc": "blackstar", "input": "\\blackstar", "expected": "\u2605", "lang": "en" },
+        { "desc": "heart", "input": "\\heart", "expected": "\u2661", "lang": "en" },
+        { "desc": "blackheart", "input": "\\blackheart", "expected": "\u2665\uFE0E", "lang": "en" },
+        { "desc": "hexagon", "input": "\\hexagon", "expected": "\u2B21", "lang": "en" },
+        { "desc": "blackhexagon", "input": "\\blackhexagon", "expected": "\u2B22", "lang": "en" },
+        { "desc": "pentagon", "input": "\\pentagon", "expected": "\u2B20", "lang": "en" },
+        { "desc": "blackpentagon", "input": "\\blackpentagon", "expected": "\u2B1F", "lang": "en" },
+        { "desc": "spade", "input": "\\spade", "expected": "\u2664", "lang": "en" },
+        { "desc": "blackspade", "input": "\\blackspade", "expected": "\u2660\uFE0E", "lang": "en" },
+        { "desc": "club", "input": "\\club", "expected": "\u2667", "lang": "en" },
+        { "desc": "blackclub", "input": "\\blackclub", "expected": "\u2663\uFE0E", "lang": "en" }
+      ]
+    },
+    {
+      "name": "shape-interactions",
+      "description": "Shapes next to quotes, other shapes and near-miss names",
+      "cases": [
+        { "desc": "quoted shape", "input": "\"\\star\"", "expected": "\u2018\u2060\u2606\u2060\u2019", "lang": "en" },
+        { "desc": "adjacent shapes", "input": "\\star\\star", "expected": "\u2606\u2606", "lang": "en" },
+        { "desc": "different shapes adjacent", "input": "\\heart\\blackheart", "expected": "\u2661\u2665\uFE0E", "lang": "en" },
+        { "desc": "prefix of a longer name is not expanded", "input": "\\squarex", "expected": "\\squarex", "lang": "en" },
+        { "desc": "uppercase name is not recognised", "input": "\\STAR", "expected": "\\STAR", "lang": "en" },
+        { "desc": "shortcode names are case-sensitive for the black variants", "input": "\\Blackstar", "expected": "\\Blackstar", "lang": "en" },
+        { "desc": "triangle does not clash with triangleleft", "input": "\\triangle \\triangleleft", "expected": "\u25B3 \u25C1", "lang": "en" },
+        { "desc": "language independent", "input": "\\square", "expected": "\u25A1", "lang": "de" },
+        { "desc": "no language", "input": "\\square", "expected": "\u25A1" }
+      ]
+    },
+    {
       "name": "shortcode-isolation",
       "description": "Each shortcode category is gated only by its own flag, not by the others",
       "cases": [
@@ -817,7 +879,7 @@
         { "desc": "emoticon ignored when only math on", "input": "\\shrug", "expected": "\\shrug", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true } },
         { "desc": "ornament ignored when only arrows on", "input": "\\dinkus", "expected": "\\dinkus", "lang": "en", "rules": { "base": "none", "placeArrows": true } },
         { "desc": "arrow shortcode ignored when only ornamentation on", "input": "\\arrn", "expected": "\\arrn", "lang": "en", "rules": { "base": "none", "placeTypographyOrnamentation": true } },
-        { "desc": "greek ignored when every other shortcode category is on", "input": "\\alpha \\Omega", "expected": "\\alpha \\Omega", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true, "placeTypographyOrnamentation": true, "placeEmoticons": true, "placeArrows": true } },
+        { "desc": "greek ignored when every other shortcode category is on", "input": "\\alpha \\Omega", "expected": "\\alpha \\Omega", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true, "placeTypographyOrnamentation": true, "placeEmoticons": true, "placeArrows": true, "placeShapes": true } },
         { "desc": "former math greek shortcode ignored when only math on", "input": "\\pi", "expected": "\\pi", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true } },
         { "desc": "greek expands when only greek on", "input": "\\pi", "expected": "\u03C0", "lang": "en", "rules": { "base": "none", "placeGreekSymbols": true } },
         { "desc": "math ignored when only greek on", "input": "\\pm", "expected": "\\pm", "lang": "en", "rules": { "base": "none", "placeGreekSymbols": true } },
@@ -826,7 +888,14 @@
         { "desc": "section sign ignored when only greek on", "input": "\\S \\P", "expected": "\\S \\P", "lang": "en", "rules": { "base": "none", "placeGreekSymbols": true } },
         { "desc": "dag ignored when only math on", "input": "\\dag", "expected": "\\dag", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true } },
         { "desc": "east arrow ignored when only greek on", "input": "\\arre \\arrw", "expected": "\\arre \\arrw", "lang": "en", "rules": { "base": "none", "placeGreekSymbols": true } },
-        { "desc": "east arrow expands when only arrows on", "input": "\\arre \\arrw", "expected": "\u2192 \u2190", "lang": "en", "rules": { "base": "none", "placeArrows": true } }
+        { "desc": "east arrow expands when only arrows on", "input": "\\arre \\arrw", "expected": "\u2192 \u2190", "lang": "en", "rules": { "base": "none", "placeArrows": true } },
+        { "desc": "both-way arrows ignored when only shapes on", "input": "\\arrlr \\arrud", "expected": "\\arrlr \\arrud", "lang": "en", "rules": { "base": "none", "placeShapes": true } },
+        { "desc": "both-way arrows expand when only arrows on", "input": "\\arrlr \\arrud", "expected": "\u2194 \u2195", "lang": "en", "rules": { "base": "none", "placeArrows": true } },
+        { "desc": "shape ignored when only ornamentation on", "input": "\\square", "expected": "\\square", "lang": "en", "rules": { "base": "none", "placeTypographyOrnamentation": true } },
+        { "desc": "ornament ignored when only shapes on", "input": "\\dinkus", "expected": "\\dinkus", "lang": "en", "rules": { "base": "none", "placeShapes": true } },
+        { "desc": "tainome ignored when only ornamentation on", "input": "\\tainome", "expected": "\\tainome", "lang": "en", "rules": { "base": "none", "placeTypographyOrnamentation": true } },
+        { "desc": "tainome expands when only shapes on", "input": "\\tainome", "expected": "\u25C9", "lang": "en", "rules": { "base": "none", "placeShapes": true } },
+        { "desc": "shape ignored when only greek on", "input": "\\star", "expected": "\\star", "lang": "en", "rules": { "base": "none", "placeGreekSymbols": true } }
       ]
     },
     {

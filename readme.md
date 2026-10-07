@@ -20,6 +20,7 @@ Formatted output contains invisible and lookalike characters. Examples write any
 | `{U+202F}` | NARROW NO-BREAK SPACE                           |
 | `{U+200A}` | HAIR SPACE                                      |
 | `{U+2060}` | WORD JOINER (zero width, prevents a line break) |
+| `{U+FE0E}` | VARIATION SELECTOR-15 (text presentation)       |
 
 ## Browser
 
@@ -119,7 +120,7 @@ deno run -R -W cli/cli.js page.html docs/*.html --exclude 'docs/drafts/*'
 
 ## Rules
 
-There are 23 rules. All are on by default except `placeArithmeticalSymbols`, which is for [math zones](#math). Raw input is ASCII unless written in the notation; output uses the notation above.
+There are 24 rules. All are on by default except `placeArithmeticalSymbols`, which is for [math zones](#math). Raw input is ASCII unless written in the notation; output uses the notation above.
 
 | Rule                           | Raw            | Formatted                                                                                                                                                                                                                                                                                                                                                                                          |
 | ------------------------------ | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -145,9 +146,10 @@ There are 23 rules. All are on by default except `placeArithmeticalSymbols`, whi
 | `placeMultiplicationSign`      | `3 x 4`        | `3{U+200A}{U+00D7}{U+200A}4`. Chains work: `5 x 5 x 5`                                                                                                                                                                                                                                                                                                                                             |
 | `placeTypographicQuotes`       | `"hello"`      | `{U+2018}{U+2060}hello{U+2060}{U+2019}` for `en`. Only for `en` and `ru`: with any other language, or none, quotes and apostrophes are left as written (see [Language](#language)). `"` and `'` are treated alike; nesting alternates by depth. An apostrophe between letters becomes `{U+2019}` (`it's` gives `it{U+2019}s`); at word end it gets a joiner (`dogs'` gives `dogs{U+2060}{U+2019}`) |
 | `formatInitials`               | `J. Smith`     | `J.{U+00A0}Smith`. Consecutive initials: `J. K. Smith` gives `J.{U+202F}K.{U+00A0}Smith`. Applies to any capitalized word of up to 3 letters (Latin or Cyrillic) followed by a period                                                                                                                                                                                                              |
-| `placeArrows`                  | `item -> next` | `item {U+2192} next`. `<-` gives U+2190. Wins over `placeNumericRange`: `10->20` gives `10{U+2192}20`. Shortcodes: `\arrn` gives U+2191, `\arre` gives U+2192, `\arrw` gives U+2190, plus `\arrs \arrne \arrse \arrsw \arrnw`                                                                                                                                                                      |
+| `placeArrows`                  | `item -> next` | `item {U+2192} next`. `<-` gives U+2190 and `<->` gives U+2194. Wins over `placeNumericRange`: `10->20` gives `10{U+2192}20`. Shortcodes: `\arrn` gives U+2191, `\arre` gives U+2192, `\arrw` gives U+2190, `\arrlr` gives U+2194, `\arrud` gives U+2195, plus `\arrs \arrne \arrse \arrsw \arrnw`                                                                                                 |
+| `placeShapes`                  | `\square`      | `{U+25A1}`. Filled shapes take a `black` prefix: `\blacksquare` gives U+25A0. Plain names: `\square \circle \triangle \triangledown \triangleleft \triangleright \diamond \lozenge \star \heart \hexagon \pentagon \spade \club`, plus `\doublecircle` (U+25CE) and `\tainome` (U+25C9)                                                                                                            |
 
-Shortcodes (`\pm`, `\alpha`, `\dinkus`, `\shrug`, `\arrn`) are gated by their own category rule. A shortcode is a backslash followed by ASCII letters of either case, and names are case-sensitive. Unknown shortcodes are left as written. The shortcode sets are not final and may change; the tables in `src/core.js` (`mathShortcodes`, `greekShortcodes`, `ornamentShortcodes`, `emoticonShortcodes`, `arrowShortcodes`) are the source of truth.
+Shortcodes (`\pm`, `\alpha`, `\dinkus`, `\shrug`, `\arrn`, `\square`) are gated by their own category rule. A shortcode is a backslash followed by ASCII letters of either case, and names are case-sensitive. Unknown shortcodes are left as written. The shortcode sets are not final and may change; the tables in `src/core.js` (`mathShortcodes`, `greekShortcodes`, `ornamentShortcodes`, `emoticonShortcodes`, `arrowShortcodes`, `shapeShortcodes`) are the source of truth. Shape names follow LaTeX where one exists, except `\star` and `\diamond`, which give U+2606 and U+25C7 (LaTeX's are U+22C6 and U+22C4). `\blacktriangleleft`, `\blacktriangleright`, `\blackheart`, `\blackspade` and `\blackclub` end with `{U+FE0E}` so platforms draw them as text, not colour emoji.
 
 ## Language
 
