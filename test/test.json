@@ -577,7 +577,7 @@
     },
     {
       "name": "nbsp",
-      "description": "Inserts non-breaking spaces after short words, between numbers and words, and after initials",
+      "description": "Inserts non-breaking spaces after short words and between numbers and words (initials: see the initials group)",
       "cases": [
         {
           "desc": "number followed by word",
@@ -592,23 +592,57 @@
           "lang": "en"
         },
         {
-          "desc": "initial followed by name",
-          "input": "J. Smith",
-          "expected": "J.\u00A0Smith",
-          "lang": "en"
-        },
-        {
-          "desc": "two initials",
-          "input": "J. K. Smith",
-          "expected": "J.\u202FK.\u00A0Smith",
-          "lang": "en"
-        },
-        {
           "desc": "short word followed by comma still glues to next word",
           "input": "for, then again",
           "expected": "for,\u00A0then again",
           "lang": "en"
         }
+      ]
+    },
+    {
+      "name": "initials",
+      "description": "An initial is one capital letter plus a period. Whitespace between initials becomes U+202F; whitespace before a following capitalized word becomes U+00A0. Whole words (Mr., Yes., AI.) are not initials, a lone I is skipped unless chained, and no spaces are ever inserted",
+      "cases": [
+        { "desc": "initial and surname", "input": "J. Smith", "expected": "J.\u00A0Smith", "lang": "en" },
+        { "desc": "two initials", "input": "J. K. Smith", "expected": "J.\u202FK.\u00A0Smith", "lang": "en" },
+        { "desc": "three initials", "input": "J. R. R. Tolkien", "expected": "J.\u202FR.\u202FR.\u00A0Tolkien", "lang": "en" },
+        { "desc": "initials with no surname", "input": "J. K.", "expected": "J.\u202FK.", "lang": "en" },
+        { "desc": "lowercase after the last initial stays", "input": "J. K. smith", "expected": "J.\u202FK. smith", "lang": "en" },
+        { "desc": "lowercase after a lone initial stays", "input": "J. smith", "expected": "J. smith", "lang": "en" },
+        { "desc": "no space between initials: nothing is inserted", "input": "J.K.Rowling", "expected": "J.K.Rowling", "lang": "en" },
+        { "desc": "tight chain then spaced surname", "input": "J.K. Rowling", "expected": "J.K.\u00A0Rowling", "lang": "en" },
+        { "desc": "short-word initial is not pre-empted by placeNbsp", "input": "A. Smith", "expected": "A.\u00A0Smith", "lang": "en" },
+        { "desc": "short-word initials chain", "input": "A. A. Milne", "expected": "A.\u202FA.\u00A0Milne", "lang": "en" },
+        { "desc": "accented capital", "input": "\u00C9. Zola", "expected": "\u00C9.\u00A0Zola", "lang": "en" },
+        { "desc": "after an opening bracket", "input": "(J. Smith)", "expected": "(J.\u00A0Smith)", "lang": "en" },
+        { "desc": "newline between initial and surname becomes no-break space", "input": "J.\nSmith", "expected": "J.\u00A0Smith", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "shortcode that expands to a capital letter", "input": "\\Pi. Smith", "expected": "\u03A0.\u00A0Smith", "lang": "en" },
+        { "desc": "shortcode merged into a longer word is not an initial", "input": "J\\alpha. Smith", "expected": "J\u03B1. Smith", "lang": "en", "rules": { "base": "none", "placeGreekSymbols": true, "formatInitials": true } },
+        { "desc": "two-letter abbreviation (only this rule)", "input": "Ph.D. students", "expected": "Ph.D. students", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "dotted acronym (only this rule)", "input": "the U.S. economy", "expected": "the U.S. economy", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "honorific (only this rule)", "input": "Mr. Smith", "expected": "Mr. Smith", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "short sentence-final word (only this rule)", "input": "Yes. And then", "expected": "Yes. And then", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "capitalized two-letter word before a period (only this rule)", "input": "I use AI. Then we", "expected": "I use AI. Then we", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "paragraph break after a short word (only this rule)", "input": "Hi.\n\nHow are you", "expected": "Hi.\n\nHow are you", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "pronoun I at sentence end (only this rule)", "input": "So did I. Then we left.", "expected": "So did I. Then we left.", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "lone I before a surname (only this rule)", "input": "I. Smith", "expected": "I. Smith", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "I starting a chain", "input": "I. M. Pei", "expected": "I.\u202FM.\u00A0Pei", "lang": "en" },
+        { "desc": "I ending a chain", "input": "X. I. Smith", "expected": "X.\u202FI.\u00A0Smith", "lang": "en" },
+        { "desc": "I after a sentence end is not chained (only this rule)", "input": "Wait. I. Smith", "expected": "Wait. I. Smith", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "ellipsis token is not a period (only this rule)", "input": "J... Smith", "expected": "J... Smith", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "double period is not a period (only this rule)", "input": "J.. Smith", "expected": "J.. Smith", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "number after an initial (only this rule)", "input": "J. 5", "expected": "J. 5", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "roman numeral is not an initial (only this rule)", "input": "Henry VIII. The", "expected": "Henry VIII. The", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "Russian initials", "input": "А. С. Пушкин", "expected": "А.\u202FС.\u00A0Пушкин", "lang": "ru" },
+        { "desc": "Russian initials, second poet", "input": "Н. А. Некрасов", "expected": "Н.\u202FА.\u00A0Некрасов", "lang": "ru" },
+        { "desc": "Russian Yo initial", "input": "Ё. Иванов", "expected": "Ё.\u00A0Иванов", "lang": "ru" },
+        { "desc": "Russian short sentence-final word (only this rule)", "input": "Да. Но", "expected": "Да. Но", "lang": "ru", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "Japanese: Latin initials, kana is not capitalized", "input": "J. K. ローリング", "expected": "J.\u202FK. ローリング", "lang": "ja" },
+        { "desc": "Japanese: sentence-final AI (only this rule)", "input": "I like AI. 次に", "expected": "I like AI. 次に", "lang": "ja", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "Korean: sentence-final AI (only this rule)", "input": "저는 AI. 다음은", "expected": "저는 AI. 다음은", "lang": "ko", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "Korean: Latin initials, hangul is not capitalized", "input": "J. K. 롤링", "expected": "J.\u202FK. 롤링", "lang": "ko" },
+        { "desc": "no language: language-free rule still applies", "input": "J. K. Smith", "expected": "J.\u202FK.\u00A0Smith" },
+        { "desc": "piece boundary after the initial's space declines", "segments": ["J. ", "Smith"], "expected": ["J. ", "Smith"], "lang": "en", "rules": { "base": "none", "formatInitials": true } }
       ]
     },
     {
@@ -743,8 +777,8 @@
         { "desc": "fraction then plus in a math zone", "input": "1/2 + 3", "expected": "1\u20442\u200A+\u200A3", "lang": "en", "rules": { "base": "math" } },
         { "desc": "percent then plus in a math zone", "input": "50% + 3", "expected": "%\u202F50\u200A+\u200A3", "lang": "en", "rules": { "base": "math" } },
         { "desc": "temperature then plus in a math zone", "input": "20oC + 3", "expected": "20\u202F\u00B0C\u200A+\u200A3", "lang": "en", "rules": { "base": "math" } },
-        { "desc": "initial before a greek shortcode", "input": "J\\alpha. Smith", "expected": "J\u03B1.\u00A0Smith", "lang": "en" },
-        { "desc": "initial around a greek shortcode and a letter", "input": "J\\pi\u00E9. Smith", "expected": "J\u03C0\u00E9.\u00A0Smith", "lang": "en" }
+        { "desc": "greek shortcode merges into the preceding capital", "input": "J\\alpha. Smith", "expected": "J\u03B1. Smith", "lang": "en" },
+        { "desc": "greek shortcode and a letter merge into the preceding capital", "input": "J\\pi\u00E9. Smith", "expected": "J\u03C0\u00E9. Smith", "lang": "en" }
       ]
     },
     {

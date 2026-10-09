@@ -28,6 +28,7 @@ const shapeShortcodes = { "\\square": "\u25A1", "\\blacksquare": "\u25A0", "\\ci
 
 const isWhitespace = (char) => /[\s\u00A0\t]/.test(char);
 const isDash = (tokens, i, rules) => tokens[i]?.type === "punct" && /^(-|--|\u2013|\u2014)$/.test(tokens[i].value) && !(rules.placeArrows && tokens[i].value === "-" && tokens[i + 1]?.type === "sym" && tokens[i + 1].value === ">");
+const isInitial = (word, dot) => word?.type === "word" && word.value.length === 1 && /\p{Lu}/u.test(word.value) && dot?.type === "punct" && dot.value === ".";
 
 function resetCarry(carry) {
   carry.stack = undefined;
@@ -319,24 +320,16 @@ function formatString(text, rules, lang, carry) {
           if (next2?.type === "num") replaceRange(tokens, i, i + 1, "№\u202F\u2060");
           else if (next2?.type === "ws" && next3?.type === "num") replaceRange(tokens, i, i + 2, "№\u202F");
         }
+      } else if (rules.formatInitials && isInitial(t, next)) {
+        const sp = tokens[i + 2];
+        const after = tokens[i + 3];
+        if (sp?.type === "ws" && after?.type === "word") {
+          if (isInitial(after, tokens[i + 4])) sp.value = "\u202F";
+          else if (/^\p{Lu}/u.test(after.value) && (t.value !== "I" || (tokens[i - 1]?.type === "ws" && isInitial(tokens[i - 3], tokens[i - 2])))) sp.value = "\u00A0";
+        }
       } else if (rules.placeNbsp && shortWords[lang]?.has(t.value.toLowerCase())) {
         if (next?.type === "ws") next.value = "\u00A0";
         else if (next?.type === "punct" && next.value === "," && next2?.type === "ws") next2.value = "\u00A0";
-      } else if (rules.formatInitials && t.value.length <= 3 && /^[A-ZА-Я]/u.test(t.value) && next?.type === "punct" && next.value === ".") {
-        const afterDot = nextOf(tokens, i + 1);
-        const nextIsInitial = afterDot?.token.type === "word" && afterDot.token.value.length === 1 && /^[A-ZА-Я]/u.test(afterDot.token.value) && tokens[afterDot.index + 1]?.type === "punct" && tokens[afterDot.index + 1]?.value === ".";
-
-        if (nextIsInitial) {
-          next.value = ".\u202F";
-          for (let j = i + 2; j < afterDot.index; j++) {
-            tokens[j].value = "";
-          }
-        } else if (tokens[i + 2]?.type === "ws" && afterDot?.token.type === "word") {
-          next.value = ".";
-          for (let j = i + 2; j < afterDot.index; j++) {
-            tokens[j].value = "\u00A0";
-          }
-        }
       }
     } else if (t.type === "sym") {
       if (rules.placeArrows && t.value === "<" && next?.type === "punct" && next.value === "-" && next2?.type === "sym" && next2.value === ">") {
