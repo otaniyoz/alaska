@@ -600,6 +600,32 @@
       ]
     },
     {
+      "name": "number-nbsp-word",
+      "description": "placeNumberNbspWord glues only a single regular space after a number that ends in a digit; newlines, repeated spaces, other space characters and numbers with trailing punctuation are left alone",
+      "cases": [
+        { "desc": "decimal number", "input": "3.5 kg", "expected": "3.5\u00A0kg", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "digit group: only the last space glues", "input": "1 000 km", "expected": "1 000\u00A0km", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "Russian", "input": "5 января", "expected": "5\u00A0января", "lang": "ru", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "Korean counter", "input": "3 개", "expected": "3\u00A0개", "lang": "ko", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "Japanese", "input": "5 メートル", "expected": "5\u00A0メートル", "lang": "ja", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "no language: language-free rule still applies", "input": "5 meters", "expected": "5\u00A0meters", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "already no-break space", "input": "5\u00A0meters", "expected": "5\u00A0meters", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "newline is left alone", "input": "5\nmeters", "expected": "5\nmeters", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "paragraph break is left alone", "input": "5\n\nmeters", "expected": "5\n\nmeters", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "CRLF is left alone", "input": "5\r\nmeters", "expected": "5\r\nmeters", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "repeated spaces are not collapsed", "input": "5  meters", "expected": "5  meters", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "tab is left alone", "input": "5\tmeters", "expected": "5\tmeters", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "narrow no-break space is left alone", "input": "5\u202Fkm", "expected": "5\u202Fkm", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "hair space is left alone", "input": "5\u200Ameters", "expected": "5\u200Ameters", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "thin space is left alone", "input": "5\u2009km", "expected": "5\u2009km", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "ideographic space is left alone", "input": "5\u3000メートル", "expected": "5\u3000メートル", "lang": "ja", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "number with trailing period (sentence end) is left alone", "input": "in 2024. We", "expected": "in 2024. We", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "number with trailing comma is left alone", "input": "5, then", "expected": "5, then", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "decimal then sentence end is left alone", "input": "5.5. Then", "expected": "5.5. Then", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "piece boundary after the space declines", "segments": ["5 ", "meters"], "expected": ["5 ", "meters"], "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } }
+      ]
+    },
+    {
       "name": "initials",
       "description": "An initial is one capital letter plus a period. Whitespace between initials becomes U+202F; whitespace before a following capitalized word becomes U+00A0. Whole words (Mr., Yes., AI.) are not initials, a lone I is skipped unless chained, and no spaces are ever inserted",
       "cases": [

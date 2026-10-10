@@ -265,7 +265,7 @@ function formatString(text, rules, lang, carry) {
         }
       }
     } else if (t.type === "num") {
-      if (rules.placeNumberNbspWord && next?.type === "ws" && next2?.type === "word") next.value = "\u00A0";
+      if (rules.placeNumberNbspWord && next?.type === "ws" && next.value === "\u0020" && next2?.type === "word" && /\d$/.test(t.value)) next.value = "\u00A0";
 
       if (rules.placeOrdinals && next?.type === "word" && /^(st|nd|rd|th)$/i.test(next.value)) {
         replaceTokens(tokens, i, i + 1, t.value + ordinalMap[next.value.toLowerCase()]);
