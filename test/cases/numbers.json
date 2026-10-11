@@ -43,6 +43,19 @@
       ]
     },
     {
+      "name": "temperature-guards",
+      "description": "The unit must follow a number ending in a digit and may be followed directly only by a Han, Kana or Hangul letter; a capital after the degree sign is not an initial",
+      "cases": [
+        { "desc": "sentence-final temperature is not read as an initial", "input": "It was 20oC. Then we left.", "expected": "It was 20\u202F\u00B0C. Then we left.", "lang": "en" },
+        { "desc": "a capital after a degree sign is not an initial (only this rule)", "input": "20\u202F\u00B0C. Then", "expected": "20\u202F\u00B0C. Then", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "number ending in a period is not a temperature", "input": "5.oC", "expected": "5.oC", "lang": "en" },
+        { "desc": "Latin letter after the unit is not a temperature", "input": "20oCa", "expected": "20oCa", "lang": "en" },
+        { "desc": "Cyrillic letter after the unit is not a temperature", "input": "20oC\u0432", "expected": "20oC\u0432", "lang": "ru" },
+        { "desc": "Han letters after the unit", "input": "20oC以下", "expected": "20\u202F\u00B0C以下", "lang": "ja" },
+        { "desc": "prolonged sound mark counts as Kana (needs script extensions)", "input": "20oC\u30FC", "expected": "20\u202F\u00B0C\u30FC", "lang": "ja" }
+      ]
+    },
+    {
       "name": "percent",
       "description": "Places % sign before the number with a narrow no-break space",
       "cases": [

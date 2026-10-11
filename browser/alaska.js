@@ -7,6 +7,7 @@ const commonRules = Object.fromEntries("placeNumberNbspWord placeThreeStops plac
 const mathRules = { placeArithmeticalSymbols: true, placeEmdash: false, placeNumericRange: false, placeHyphen: false };
 
 const ordinalMap = { st: "ˢᵗ", nd: "ⁿᵈ", rd: "ʳᵈ", th: "ᵗʰ" };
+const temperatureUnit = /^o[CF](?=$|[\p{scx=Han}\p{scx=Hiragana}\p{scx=Katakana}\p{scx=Hangul}])/u;
 const shortWords = {
   en: new Set("a an at by for in of on or the to and but nor yet so as if".split(" ")),
   ru: new Set("а в во и к не на о об от по с со у из за до для или но же то бы ли".split(" ")),
@@ -312,15 +313,15 @@ function formatString(text, rules, lang, carry) {
     } else if (t.type === "word") {
       if (rules.placeArithmeticalSymbols) applyArithmeticOp(tokens, i, arithmeticOps);
 
-      if (rules.placeTemperatureSign && (t.value === "oC" || t.value === "oF") && prev?.type === "num") {
-        replaceTokens(tokens, i - 1, i, prev.value + "\u202F\u00B0" + t.value[1]);
+      if (rules.placeTemperatureSign && prev?.type === "num" && /\d$/.test(prev.value) && temperatureUnit.test(t.value)) {
+        replaceTokens(tokens, i - 1, i, prev.value + "\u202F\u00B0" + t.value.slice(1));
         i++;
       } else if (rules.placeNumeroSign && /^no$/i.test(t.value)) {
         if (next?.type === "punct" && next.value === ".") {
           if (next2?.type === "num") replaceRange(tokens, i, i + 1, "№\u202F\u2060");
           else if (next2?.type === "ws" && next3?.type === "num") replaceRange(tokens, i, i + 2, "№\u202F");
         }
-      } else if (rules.formatInitials && isInitial(t, next)) {
+      } else if (rules.formatInitials && isInitial(t, next) && prev?.value !== "\u00B0") {
         const sp = tokens[i + 2];
         const after = tokens[i + 3];
         if (sp?.type === "ws" && after?.type === "word") {

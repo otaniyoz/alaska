@@ -20,6 +20,8 @@
     { "rule": "placeNbsp", "input": "it is a test", "expected": "it is a\u00A0test", "langDependent": true },
     { "rule": "placeHyphen", "input": "well-known", "expected": "well\u2060-\u2060known" },
     { "rule": "placeTemperatureSign", "input": "100oC", "expected": "100\u202F\u00B0C" },
+    { "rule": "placeTemperatureSign", "input": "20oCです", "expected": "20\u202F\u00B0Cです" },
+    { "rule": "placeTemperatureSign", "input": "20oF입니다", "expected": "20\u202F\u00B0F입니다" },
     { "rule": "placeOrdinals", "input": "1st", "expected": "1ˢᵗ" },
     { "rule": "placeMultiplicationSign", "input": "3 x 4", "expected": "3\u200A\u00D7\u200A4", "off": "3\u00A0x 4" },
     { "rule": "formatInitials", "input": "J. Smith", "expected": "J.\u00A0Smith" },

@@ -7,6 +7,7 @@
         { "desc": "date with hyphens gets en dashes", "input": "2024-01-15", "expected": "2024\u2060\u2013\u206001\u2060\u2013\u206015", "lang": "en" },
         { "desc": "phone number gets an en dash", "input": "555-1234", "expected": "555\u2060\u2013\u20601234", "lang": "en" },
         { "desc": "rub followed by a number is read as a currency code", "input": "rub 5", "expected": "\u20BD\u202F5", "lang": "en" },
+        { "desc": "letter and digit before the unit are read as a number and a temperature", "input": "A1oC", "expected": "A1\u202F\u00B0C", "lang": "en" },
         { "desc": "no. followed by a number is read as a numero sign", "input": "no. 5 people", "expected": "\u2116\u202F5\u00A0people", "lang": "en" },
         { "desc": "capital letter before a capitalized word is read as an initial", "input": "Plan B. Then", "expected": "Plan B.\u00A0Then", "lang": "en" },
         { "desc": "initial rule also joins across a line break", "input": "Plan B.\nThen", "expected": "Plan B.\u00A0Then", "lang": "en" },
@@ -15,6 +16,8 @@
         { "desc": "ja: hyphenated phone number gets en dashes", "input": "03-1234-5678", "expected": "03\u2060\u2013\u20601234\u2060\u2013\u20605678", "lang": "ja" },
         { "desc": "ko: hyphenated phone number gets en dashes", "input": "02-123-4567", "expected": "02\u2060\u2013\u2060123\u2060\u2013\u20604567", "lang": "ko" },
         { "desc": "ja: doubled ellipsis character becomes two dot runs", "input": "\u2026\u2026", "expected": "\u2060.\u2060.\u2060.\u2060\u2060.\u2060.\u2060.\u2060", "lang": "ja" },
+        { "desc": "ja: temperature gets a narrow no-break space, convention is none", "input": "気温は20oC", "expected": "気温は20\u202F\u00B0C", "lang": "ja" },
+        { "desc": "ko: temperature gets a narrow no-break space, convention is none", "input": "오늘은 20oC", "expected": "오늘은 20\u202F\u00B0C", "lang": "ko" },
         { "desc": "apostrophe at the end of an inline piece is read as a closing quote", "segments": ["it'", "s"], "expected": ["it\u2060\u2019", "s"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } }
       ]
     }
