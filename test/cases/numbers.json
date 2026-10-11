@@ -1,0 +1,65 @@
+{
+  "groups": [
+    {
+      "name": "multiplication-chain",
+      "description": "Multiple x operators in a row \u2014 second x must still be processed after first is mutated",
+      "cases": [
+        { "desc": "triple multiplication", "input": "5 x 5 x 5", "expected": "5\u200A\u00D7\u200A5\u200A\u00D7\u200A5", "lang": "en" }
+      ]
+    },
+    {
+      "name": "number-interactions",
+      "description": "Number rules firing on the same token stream",
+      "cases": [
+        { "desc": "numero followed by ordinal", "input": "No. 1st", "expected": "\u2116\u202F1\u02E2\u1D57", "lang": "en" },
+        { "desc": "temperature and percent in same string", "input": "100oC at 50%", "expected": "100\u202F\u00B0C at\u00A0%\u202F50", "lang": "en" }
+      ]
+    },
+    {
+      "name": "ordinals",
+      "description": "Converts ordinal suffixes to superscript",
+      "cases": [
+        { "desc": "1st", "input": "1st", "expected": "1\u02E2\u1D57", "lang": "en" },
+        { "desc": "2nd", "input": "2nd", "expected": "2\u207F\u1D48", "lang": "en" },
+        { "desc": "3rd", "input": "3rd", "expected": "3\u02B3\u1D48", "lang": "en" },
+        { "desc": "4th", "input": "4th", "expected": "4\u1D57\u02B0", "lang": "en" }
+      ]
+    },
+    {
+      "name": "fractions",
+      "description": "Replaces / between two numbers with a fraction slash",
+      "cases": [
+        { "desc": "half", "input": "1/2", "expected": "1\u20442", "lang": "en" },
+        { "desc": "three-quarter", "input": "3/4", "expected": "3\u20444", "lang": "en" }
+      ]
+    },
+    {
+      "name": "temperature",
+      "description": "Formats temperature values with a narrow no-break space and degree sign",
+      "cases": [
+        { "desc": "Celsius", "input": "100oC", "expected": "100\u202F\u00B0C", "lang": "en" },
+        { "desc": "Fahrenheit", "input": "72oF", "expected": "72\u202F\u00B0F", "lang": "en" },
+        { "desc": "negative", "input": "-18oC", "expected": "\u221218\u202F\u00B0C", "lang": "en" }
+      ]
+    },
+    {
+      "name": "percent",
+      "description": "Places % sign before the number with a narrow no-break space",
+      "cases": [
+        { "desc": "percent after number", "input": "50%", "expected": "%\u202F50", "lang": "en" },
+        { "desc": "percent after 100", "input": "100%", "expected": "%\u202F100", "lang": "en" },
+        { "desc": "leading percent before a number also gets the narrow space", "input": "%50", "expected": "%\u202F50", "lang": "en", "rules": { "base": "none", "placePercentSign": true } }
+      ]
+    },
+    {
+      "name": "currency",
+      "description": "Places currency symbol before the number with a narrow no-break space; converts ISO codes",
+      "cases": [
+        { "desc": "symbol before number", "input": "$100", "expected": "$\u202F100", "lang": "en" },
+        { "desc": "ISO code before number", "input": "USD 100", "expected": "$\u202F100", "lang": "en" },
+        { "desc": "number then ISO code", "input": "100 USD", "expected": "$\u202F100", "lang": "en" },
+        { "desc": "euro symbol", "input": "\u20AC200", "expected": "\u20AC\u202F200", "lang": "en" }
+      ]
+    }
+  ]
+}

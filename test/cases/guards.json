@@ -1,0 +1,22 @@
+{
+  "groups": [
+    {
+      "name": "prose-guards",
+      "description": "Identifiers and data shapes pass through unchanged",
+      "cases": [
+        { "desc": "numeric date with slashes", "input": "12/05/2024", "expected": "12/05/2024", "lang": "en" },
+        { "desc": "host path with numbers", "input": "example.com/2024/05", "expected": "example.com/2024/05", "lang": "en" },
+        { "desc": "url", "input": "https://x.com/2024/05/12", "expected": "https://x.com/2024/05/12", "lang": "en" },
+        { "desc": "word then number after hyphen", "input": "COVID-19", "expected": "COVID-19", "lang": "en" },
+        { "desc": "letter number letter after hyphen", "input": "H-1B", "expected": "H-1B", "lang": "en" },
+        { "desc": "version string", "input": "v1.2.3", "expected": "v1.2.3", "lang": "en" },
+        { "desc": "slash between letters", "input": "a/b", "expected": "a/b", "lang": "en" },
+        { "desc": "and/or", "input": "and/or", "expected": "and/or", "lang": "en" },
+        { "desc": "hash number", "input": "#1", "expected": "#1", "lang": "en" },
+        { "desc": "space before slash", "input": "12 /5", "expected": "12 /5", "lang": "en" },
+        { "desc": "space after slash", "input": "12/ 5", "expected": "12/ 5", "lang": "en" },
+        { "desc": "fraction with trailing comma", "input": "12/5,", "expected": "12\u20445,", "lang": "en" }
+      ]
+    }
+  ]
+}

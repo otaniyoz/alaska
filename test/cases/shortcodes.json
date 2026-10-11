@@ -1,0 +1,151 @@
+{
+  "groups": [
+    {
+      "name": "math-shortcodes",
+      "description": "Expands backslash shortcodes to Unicode math symbols",
+      "cases": [
+        { "desc": "plus-minus", "input": "\\pm", "expected": "\u00B1", "lang": "en" },
+        { "desc": "infinity", "input": "\\infty", "expected": "\u221E", "lang": "en" },
+        { "desc": "diameter", "input": "\\dia", "expected": "\u2300", "lang": "en" },
+        { "desc": "degree", "input": "\\deg", "expected": "\u00B0", "lang": "en" },
+        { "desc": "not-equal", "input": "\\neq", "expected": "\u2260", "lang": "en" }
+      ]
+    },
+    {
+      "name": "greek-shortcodes",
+      "description": "LaTeX-named Greek shortcodes; case-sensitive; epsilon, phi and the var* names map to the Unicode letter and its variant symbol. Representatives only: the table in src/core.js is the source of truth",
+      "cases": [
+        { "desc": "representatives: lowercase and uppercase", "input": "\\alpha \\pi \\Gamma \\Omega", "expected": "α π Γ Ω", "lang": "en" },
+        { "desc": "epsilon and phi are the Unicode letters", "input": "\\epsilon \\phi", "expected": "\u03B5 \u03C6", "lang": "en" },
+        { "desc": "var variants", "input": "\\varepsilon \\vartheta \\varkappa \\varpi \\varrho \\varsigma \\varphi \\digamma", "expected": "\u03F5 \u03D1 \u03F0 \u03D6 \u03F1 \u03C2 \u03D5 \u03DD", "lang": "en" },
+        { "desc": "case matters", "input": "\\delta \\Delta", "expected": "\u03B4 \u0394", "lang": "en" },
+        { "desc": "not LaTeX names stay as written", "input": "\\Alpha \\omicron \\Omicron", "expected": "\\Alpha \\omicron \\Omicron", "lang": "en" },
+        { "desc": "unknown shortcode stays as written", "input": "\\Foo \\alphabet", "expected": "\\Foo \\alphabet", "lang": "en" },
+        { "desc": "adjacent shortcodes", "input": "\\alpha\\beta", "expected": "\u03B1\u03B2", "lang": "en" },
+        { "desc": "after a digit", "input": "2\\pi r", "expected": "2\u03C0 r", "lang": "en" },
+        { "desc": "longest name wins over \\P", "input": "\\Pi \\P", "expected": "\u03A0 \u00B6", "lang": "en" },
+        { "desc": "language independent", "input": "\\pi", "expected": "\u03C0", "lang": "de" },
+        { "desc": "no language", "input": "\\pi", "expected": "\u03C0" }
+      ]
+    },
+    {
+      "name": "ornament-shortcodes",
+      "description": "Ornamentation shortcodes follow LaTeX where a name exists; case-sensitive; \\dagger and \\ddagger were renamed to \\dag and \\ddag",
+      "cases": [
+        { "desc": "section sign", "input": "\\S", "expected": "\u00A7", "lang": "en" },
+        { "desc": "section sign with a number", "input": "\\S 5", "expected": "\u00A7 5", "lang": "en" },
+        { "desc": "section sign by long name", "input": "\\section", "expected": "\u00A7", "lang": "en" },
+        { "desc": "paragraph sign", "input": "\\P", "expected": "\u00B6", "lang": "en" },
+        { "desc": "dagger", "input": "\\dag", "expected": "\u2020", "lang": "en" },
+        { "desc": "double dagger", "input": "\\ddag", "expected": "\u2021", "lang": "en" },
+        { "desc": "old dagger name is not recognised", "input": "\\dagger \\ddagger", "expected": "\\dagger \\ddagger", "lang": "en" },
+        { "desc": "lowercase s and p are not section and paragraph", "input": "\\s \\p", "expected": "\\s \\p", "lang": "en" },
+        { "desc": "dinkus and asterism", "input": "\\dinkus \\asterism", "expected": "\u2217\u2060\u2217\u2060\u2217 \u2042", "lang": "en" }
+      ]
+    },
+    {
+      "name": "shape-shortcodes",
+      "description": "Shape shortcodes: white shapes use the plain name, filled ones the black prefix; U+FE0E follows the five glyphs platforms may draw as colour emoji; star, diamond, doublecircle and tainome are the documented deviations. Other entries are table data (src/core.js shapeShortcodes is the source of truth)",
+      "cases": [
+        { "desc": "square", "input": "\\square", "expected": "\u25A1", "lang": "en" },
+        { "desc": "blacksquare", "input": "\\blacksquare", "expected": "\u25A0", "lang": "en" },
+        { "desc": "doublecircle", "input": "\\doublecircle", "expected": "\u25CE", "lang": "en" },
+        { "desc": "tainome", "input": "\\tainome", "expected": "\u25C9", "lang": "en" },
+        { "desc": "blacktriangleleft", "input": "\\blacktriangleleft", "expected": "\u25C0\uFE0E", "lang": "en" },
+        { "desc": "blacktriangleright", "input": "\\blacktriangleright", "expected": "\u25B6\uFE0E", "lang": "en" },
+        { "desc": "diamond", "input": "\\diamond", "expected": "\u25C7", "lang": "en" },
+        { "desc": "star", "input": "\\star", "expected": "\u2606", "lang": "en" },
+        { "desc": "blackheart", "input": "\\blackheart", "expected": "\u2665\uFE0E", "lang": "en" },
+        { "desc": "blackspade", "input": "\\blackspade", "expected": "\u2660\uFE0E", "lang": "en" },
+        { "desc": "blackclub", "input": "\\blackclub", "expected": "\u2663\uFE0E", "lang": "en" }
+      ]
+    },
+    {
+      "name": "shape-interactions",
+      "description": "Shapes next to quotes, other shapes and near-miss names",
+      "cases": [
+        { "desc": "quoted shape", "input": "\"\\star\"", "expected": "\u2018\u2060\u2606\u2060\u2019", "lang": "en" },
+        { "desc": "adjacent shapes", "input": "\\star\\star", "expected": "\u2606\u2606", "lang": "en" },
+        { "desc": "different shapes adjacent", "input": "\\heart\\blackheart", "expected": "\u2661\u2665\uFE0E", "lang": "en" },
+        { "desc": "prefix of a longer name is not expanded", "input": "\\squarex", "expected": "\\squarex", "lang": "en" },
+        { "desc": "uppercase name is not recognised", "input": "\\STAR", "expected": "\\STAR", "lang": "en" },
+        { "desc": "shortcode names are case-sensitive for the black variants", "input": "\\Blackstar", "expected": "\\Blackstar", "lang": "en" },
+        { "desc": "triangle does not clash with triangleleft", "input": "\\triangle \\triangleleft", "expected": "\u25B3 \u25C1", "lang": "en" },
+        { "desc": "language independent", "input": "\\square", "expected": "\u25A1", "lang": "de" },
+        { "desc": "no language", "input": "\\square", "expected": "\u25A1" }
+      ]
+    },
+    {
+      "name": "shortcode-isolation",
+      "description": "Each shortcode category is gated only by its own flag, not by the others",
+      "cases": [
+        { "desc": "math shortcode ignored when only emoticons on", "input": "\\pm", "expected": "\\pm", "lang": "en", "rules": { "base": "none", "placeEmoticons": true } },
+        { "desc": "emoticon ignored when only math on", "input": "\\shrug", "expected": "\\shrug", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true } },
+        { "desc": "ornament ignored when only arrows on", "input": "\\dinkus", "expected": "\\dinkus", "lang": "en", "rules": { "base": "none", "placeArrows": true } },
+        { "desc": "arrow shortcode ignored when only ornamentation on", "input": "\\arrn", "expected": "\\arrn", "lang": "en", "rules": { "base": "none", "placeTypographyOrnamentation": true } },
+        { "desc": "greek ignored when every other shortcode category is on", "input": "\\alpha \\Omega", "expected": "\\alpha \\Omega", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true, "placeTypographyOrnamentation": true, "placeEmoticons": true, "placeArrows": true, "placeShapes": true } },
+        { "desc": "former math greek shortcode ignored when only math on", "input": "\\pi", "expected": "\\pi", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true } },
+        { "desc": "greek expands when only greek on", "input": "\\pi", "expected": "\u03C0", "lang": "en", "rules": { "base": "none", "placeGreekSymbols": true } },
+        { "desc": "math ignored when only greek on", "input": "\\pm", "expected": "\\pm", "lang": "en", "rules": { "base": "none", "placeGreekSymbols": true } },
+        { "desc": "dia expands when only math on", "input": "\\dia", "expected": "\u2300", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true } },
+        { "desc": "dia ignored when only ornamentation on", "input": "\\dia", "expected": "\\dia", "lang": "en", "rules": { "base": "none", "placeTypographyOrnamentation": true } },
+        { "desc": "section sign ignored when only greek on", "input": "\\S \\P", "expected": "\\S \\P", "lang": "en", "rules": { "base": "none", "placeGreekSymbols": true } },
+        { "desc": "dag ignored when only math on", "input": "\\dag", "expected": "\\dag", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true } },
+        { "desc": "east arrow ignored when only greek on", "input": "\\arre \\arrw", "expected": "\\arre \\arrw", "lang": "en", "rules": { "base": "none", "placeGreekSymbols": true } },
+        { "desc": "east arrow expands when only arrows on", "input": "\\arre \\arrw", "expected": "\u2192 \u2190", "lang": "en", "rules": { "base": "none", "placeArrows": true } },
+        { "desc": "both-way arrows ignored when only shapes on", "input": "\\arrlr \\arrud", "expected": "\\arrlr \\arrud", "lang": "en", "rules": { "base": "none", "placeShapes": true } },
+        { "desc": "both-way arrows expand when only arrows on", "input": "\\arrlr \\arrud", "expected": "\u2194 \u2195", "lang": "en", "rules": { "base": "none", "placeArrows": true } },
+        { "desc": "shape ignored when only ornamentation on", "input": "\\square", "expected": "\\square", "lang": "en", "rules": { "base": "none", "placeTypographyOrnamentation": true } },
+        { "desc": "ornament ignored when only shapes on", "input": "\\dinkus", "expected": "\\dinkus", "lang": "en", "rules": { "base": "none", "placeShapes": true } },
+        { "desc": "tainome ignored when only ornamentation on", "input": "\\tainome", "expected": "\\tainome", "lang": "en", "rules": { "base": "none", "placeTypographyOrnamentation": true } },
+        { "desc": "tainome expands when only shapes on", "input": "\\tainome", "expected": "\u25C9", "lang": "en", "rules": { "base": "none", "placeShapes": true } },
+        { "desc": "shape ignored when only greek on", "input": "\\star", "expected": "\\star", "lang": "en", "rules": { "base": "none", "placeGreekSymbols": true } }
+      ]
+    },
+    {
+      "name": "copyright",
+      "description": "Replaces (c), (tm), (r), (p) with the appropriate symbols",
+      "cases": [
+        { "desc": "copyright", "input": "(c)", "expected": "\u00A9", "lang": "en" },
+        { "desc": "trademark", "input": "(tm)", "expected": "\u2122", "lang": "en" },
+        { "desc": "registered", "input": "(r)", "expected": "\u00AE", "lang": "en" },
+        { "desc": "phonogram", "input": "(p)", "expected": "\u2117", "lang": "en" }
+      ]
+    },
+    {
+      "name": "numero",
+      "description": "Replaces No. with the \u2116 sign",
+      "cases": [
+        { "desc": "No. with space before number", "input": "No. 1", "expected": "\u2116\u202F1", "lang": "en" },
+        { "desc": "No. without space", "input": "No.1", "expected": "\u2116\u202F\u20601", "lang": "en" }
+      ]
+    },
+    {
+      "name": "arrows",
+      "description": "ASCII arrow substitution and compass-direction shortcodes",
+      "cases": [
+        { "desc": "right arrow", "input": "item -> next", "expected": "item \u2192 next", "lang": "en" },
+        { "desc": "left arrow", "input": "item <- next", "expected": "item \u2190 next", "lang": "en" },
+        { "desc": "arrow wins over numeric-range hyphen", "input": "10->20", "expected": "10\u219220", "lang": "en" },
+        { "desc": "arrow keeps surrounding multi-spaces", "input": "item  ->  next", "expected": "item  \u2192  next", "lang": "en" },
+        { "desc": "north shortcode", "input": "\\arrn", "expected": "\u2191", "lang": "en" },
+        { "desc": "south shortcode", "input": "\\arrs", "expected": "\u2193", "lang": "en" },
+        { "desc": "northeast shortcode", "input": "\\arrne", "expected": "\u2197", "lang": "en" },
+        { "desc": "southeast shortcode", "input": "\\arrse", "expected": "\u2198", "lang": "en" },
+        { "desc": "southwest shortcode", "input": "\\arrsw", "expected": "\u2199", "lang": "en" },
+        { "desc": "northwest shortcode", "input": "\\arrnw", "expected": "\u2196", "lang": "en" },
+        { "desc": "east shortcode", "input": "\\arre", "expected": "\u2192", "lang": "en" },
+        { "desc": "west shortcode", "input": "\\arrw", "expected": "\u2190", "lang": "en" },
+        { "desc": "shortcodes next to each other", "input": "\\arrn\\arre\\arrs\\arrw", "expected": "\u2191\u2192\u2193\u2190", "lang": "en" },
+        { "desc": "east does not clash with north-east", "input": "\\arre \\arrne", "expected": "\u2192 \u2197", "lang": "en" },
+        { "desc": "both-way arrow", "input": "item <-> next", "expected": "item \u2194 next", "lang": "en" },
+        { "desc": "both-way arrow wins over numeric-range hyphen", "input": "10<->20", "expected": "10\u219420", "lang": "en" },
+        { "desc": "both-way arrow inside a longer run", "input": "<<->", "expected": "<\u2194", "lang": "en" },
+        { "desc": "left arrow followed by a spaced greater-than is not both-way", "input": "<- >", "expected": "\u2190 >", "lang": "en" },
+        { "desc": "left-right shortcode", "input": "\\arrlr", "expected": "\u2194", "lang": "en" },
+        { "desc": "up-down shortcode", "input": "\\arrud", "expected": "\u2195", "lang": "en" },
+        { "desc": "left-right does not clash with west", "input": "\\arrlr \\arrw", "expected": "\u2194 \u2190", "lang": "en" }
+      ]
+    }
+  ]
+}

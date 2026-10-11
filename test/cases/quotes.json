@@ -1,0 +1,40 @@
+{
+  "groups": [
+    {
+      "name": "quotes-edge-cases",
+      "description": "Apostrophes at word end, single outer quotes, and opening quote after punctuation with no space",
+      "cases": [
+        { "desc": "possessive apostrophe at word end", "input": "dogs' day", "expected": "dogs\u2060\u2019 day", "lang": "en" },
+        { "desc": "single outer quotes in English", "input": "'hello'", "expected": "\u2018\u2060hello\u2060\u2019", "lang": "en" },
+        { "desc": "opening quote after punctuation with no space", "input": "said,\"hello\"", "expected": "said,\u2018\u2060hello\u2060\u2019", "lang": "en" }
+      ]
+    },
+    {
+      "name": "quotes-closing-after-comma",
+      "description": "Quote immediately after a comma should close if same char is open on the stack",
+      "cases": [
+        { "desc": "closing single quote directly after comma", "input": "'hello,' he said", "expected": "\u2018\u2060hello,\u2060\u2019 he said", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "closing double quote directly after comma", "input": "\"hello,\" he said", "expected": "\u2018\u2060hello,\u2060\u2019 he said", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "dialogue with apostrophe and comma-preceded closing quote", "input": "Rick says, 'You're a good friend, Cliff,' Cliff replies.", "expected": "Rick says, \u2018\u2060You\u2019re a good friend, Cliff,\u2060\u2019 Cliff replies.", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "nested single inside double still opens after comma", "input": "\"She said,'hi'\"", "expected": "\u2018\u2060She said,\u201C\u2060hi\u2060\u201D\u2060\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } }
+      ]
+    },
+    {
+      "name": "quotes-en",
+      "description": "Converts straight quotes to curly quotes; outer level uses single, inner uses double",
+      "cases": [
+        { "desc": "outer double quotes", "input": "\"hello\"", "expected": "\u2018\u2060hello\u2060\u2019", "lang": "en" },
+        { "desc": "nested quotes", "input": "\"she said 'hi'\"", "expected": "\u2018\u2060she said \u201C\u2060hi\u2060\u201D\u2060\u2019", "lang": "en" },
+        { "desc": "apostrophe", "input": "it's", "expected": "it\u2019s", "lang": "en" }
+      ]
+    },
+    {
+      "name": "quotes-nested-same-char",
+      "description": "Nested quotes that reuse the same character must reopen (not close) when preceded by whitespace and immediately followed by a word",
+      "cases": [
+        { "desc": "minimal same-char nesting", "input": "'a 'b' c'", "expected": "\u2018\u2060a \u201C\u2060b\u2060\u201D c\u2060\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "reported case: single quote nested inside single quote", "input": "She said, 'I heard him whisper 'not today' before he left.'", "expected": "She said, \u2018\u2060I heard him whisper \u201C\u2060not today\u2060\u201D before he left.\u2060\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "groups": [
+    {
+      "name": "arithmetic",
+      "description": "Unary minus in prose; multiplication sign; equals in a math zone",
+      "cases": [
+        { "desc": "unary minus", "input": "-5", "expected": "\u22125", "lang": "en" },
+        { "desc": "multiplication x", "input": "3 x 4", "expected": "3\u200A\u00D7\u200A4", "lang": "en" },
+        { "desc": "equals", "input": "2 = 2", "expected": "2\u200A=\u200A2", "lang": "en", "rules": { "base": "math" } }
+      ]
+    },
+    {
+      "name": "arithmetic-complex",
+      "description": "Math zone: unary minus on the rhs of a binary op; unary minus before parenthesis",
+      "cases": [
+        { "desc": "binary op followed by unary minus \u2014 thin spaces omitted on +, minus converted", "input": "3 + -5", "expected": "3 + \u22125", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "unary minus before open parenthesis", "input": "-(5)", "expected": "\u2212(5)", "lang": "en", "rules": { "base": "math" } }
+      ]
+    },
+    {
+      "name": "math-zone",
+      "description": "base: math applies mathRules: operators with hair spaces; no em dash, numeric range or hyphen rules",
+      "cases": [
+        { "desc": "word minus number", "input": "x - 5", "expected": "x\u200A\u2212\u200A5", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "word plus word with short-word nbsp", "input": "a + b", "expected": "a\u00A0+\u200Ab", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "parenthesized sum times word", "input": "(a + b) * c", "expected": "(a\u00A0+\u200Ab)\u200A\u22C5\u200Ac", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "slash and equals", "input": "x / y = z", "expected": "x\u200A\u2215\u200Ay\u200A=\u200Az", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "after closing bracket", "input": "f(x) - 1", "expected": "f(x)\u200A\u2212\u200A1", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "unary minus before a word stays", "input": "-x", "expected": "-x", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "compound word keeps its hyphen", "input": "well-known", "expected": "well-known", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "numeric range is not formatted", "input": "10-20", "expected": "10-20", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "prose rules keep em dash off the operator", "input": "value - 5", "expected": "value\u200A\u2212\u200A5", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "prose binary minus stays untouched", "input": "3 - 4", "expected": "3 - 4", "lang": "en" },
+        { "desc": "prose plus stays untouched", "input": "3 + 4", "expected": "3 + 4", "lang": "en" },
+        { "desc": "operator missing from arithmeticOps is left alone", "input": "x < y", "expected": "x < y", "lang": "en", "rules": { "base": "math" } }
+      ]
+    }
+  ]
+}

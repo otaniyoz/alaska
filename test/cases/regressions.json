@@ -1,0 +1,29 @@
+{
+  "groups": [
+    {
+      "name": "idempotence-regressions",
+      "description": "Inputs that changed on the second pass before the idempotence rework",
+      "cases": [
+        { "desc": "number, space, dot, ordinal suffix", "input": "1 .th", "expected": "1 .th", "lang": "en" },
+        { "desc": "double dash before comma", "input": "a --, b", "expected": "a\u00A0\u2014 , b", "lang": "en" },
+        { "desc": "percent chain", "input": "1%%", "expected": "1%%", "lang": "en" },
+        { "desc": "percent then currency code", "input": "2%USD", "expected": "%\u202F$\u202F2", "lang": "en" },
+        { "desc": "percent then comma then hyphen", "input": "2%,-", "expected": "%\u202F2,\u2060\u2013\u2060", "lang": "en" },
+        { "desc": "percent between digits", "input": "1%20%", "expected": "1%20%", "lang": "en" },
+        { "desc": "percent, dot, digit", "input": "1%.2%", "expected": "1%.2%", "lang": "en" },
+        { "desc": "percent before ellipsis", "input": "2%...1", "expected": "%\u202F2\u2060.\u2060.\u2060.\u20601", "lang": "en" },
+        { "desc": "line-start dash before arrow", "input": "-  ->", "expected": "\u2014 \u2192", "lang": "en" },
+        { "desc": "double dash before arrow", "input": "--->", "expected": "\u00A0\u2014 \u2192", "lang": "en" },
+        { "desc": "line-start dash before minus", "input": "-\n-20", "expected": "\u2014 \u221220", "lang": "en" },
+        { "desc": "dash before math shortcode that expands to a letter", "input": "x - \\pi", "expected": "x\u00A0\u2014 \u03C0", "lang": "en" },
+        { "desc": "dash before an emoticon", "input": "x - \\crying", "expected": "x - (\u2060\u22A4\u2060_\u2060\u22A4\u2060)", "lang": "en" },
+        { "desc": "ordinal then plus in a math zone", "input": "1st + 2", "expected": "1\u02E2\u1D57\u200A+\u200A2", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "fraction then plus in a math zone", "input": "1/2 + 3", "expected": "1\u20442\u200A+\u200A3", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "percent then plus in a math zone", "input": "50% + 3", "expected": "%\u202F50\u200A+\u200A3", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "temperature then plus in a math zone", "input": "20oC + 3", "expected": "20\u202F\u00B0C\u200A+\u200A3", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "greek shortcode merges into the preceding capital", "input": "J\\alpha. Smith", "expected": "J\u03B1. Smith", "lang": "en" },
+        { "desc": "greek shortcode and a letter merge into the preceding capital", "input": "J\\pi\u00E9. Smith", "expected": "J\u03C0\u00E9. Smith", "lang": "en" }
+      ]
+    }
+  ]
+}

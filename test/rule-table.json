@@ -1,0 +1,33 @@
+{
+  "description": "One row per rule behavior. Isolation: only the rule on (base none) must give expected. Negation: every other rule on (base all, or math for placeArithmeticalSymbols) and this rule off must give off, which defaults to input, and off must differ from expected. Matrix: unless langDependent, the isolation result must be identical for en, ru, ja, ko and no language",
+  "rows": [
+    { "rule": "placeNumberNbspWord", "input": "5 meters", "expected": "5\u00A0meters" },
+    { "rule": "placeThreeStops", "input": "wait...", "expected": "wait\u2060.\u2060.\u2060.\u2060" },
+    { "rule": "placeFractions", "input": "1/2", "expected": "1\u20442" },
+    { "rule": "placeArithmeticalSymbols", "input": "3 - 4", "expected": "3\u200A\u2212\u200A4", "negationBase": "math" },
+    { "rule": "placeMinusSign", "input": "-5", "expected": "\u22125" },
+    { "rule": "placeEmdash", "input": "x - y", "expected": "x\u00A0\u2014 y" },
+    { "rule": "placeNumericRange", "input": "10-20", "expected": "10\u2060\u2013\u206020" },
+    { "rule": "placeCopyright", "input": "(c)", "expected": "\u00A9" },
+    { "rule": "placeNumeroSign", "input": "No. 1", "expected": "\u2116\u202F1" },
+    { "rule": "placeMathematicalSymbols", "input": "\\pm", "expected": "\u00B1" },
+    { "rule": "placeGreekSymbols", "input": "\\alpha", "expected": "α" },
+    { "rule": "placeTypographyOrnamentation", "input": "\\dinkus", "expected": "\u2217\u2060\u2217\u2060\u2217" },
+    { "rule": "placeEmoticons", "input": "\\shrug", "expected": "\u00AF\u2060\\\u2060_\u2060(\u2060ツ\u2060)\u2060_\u2060/\u2060\u00AF" },
+    { "rule": "placeCurrencySign", "input": "USD 100", "expected": "$\u202F100" },
+    { "rule": "placePercentSign", "input": "50%", "expected": "%\u202F50" },
+    { "rule": "placePercentSign", "input": "%50", "expected": "%\u202F50" },
+    { "rule": "placeNbsp", "input": "it is a test", "expected": "it is a\u00A0test", "langDependent": true },
+    { "rule": "placeHyphen", "input": "well-known", "expected": "well\u2060-\u2060known" },
+    { "rule": "placeTemperatureSign", "input": "100oC", "expected": "100\u202F\u00B0C" },
+    { "rule": "placeOrdinals", "input": "1st", "expected": "1ˢᵗ" },
+    { "rule": "placeMultiplicationSign", "input": "3 x 4", "expected": "3\u200A\u00D7\u200A4", "off": "3\u00A0x 4" },
+    { "rule": "formatInitials", "input": "J. Smith", "expected": "J.\u00A0Smith" },
+    { "rule": "placeTypographicQuotes", "input": "\"hello\"", "expected": "\u2018\u2060hello\u2060\u2019", "langDependent": true },
+    { "rule": "placeArrows", "input": "item -> next", "expected": "item \u2192 next" },
+    { "rule": "placeArrows", "input": "item <- next", "expected": "item \u2190 next" },
+    { "rule": "placeArrows", "input": "item <-> next", "expected": "item \u2194 next" },
+    { "rule": "placeArrows", "input": "\\arrn", "expected": "\u2191" },
+    { "rule": "placeShapes", "input": "\\square", "expected": "\u25A1" }
+  ]
+}

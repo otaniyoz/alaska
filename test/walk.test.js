@@ -1,3 +1,4 @@
+import process from "node:process";
 import { formatHtml } from "../cli/walk.js";
 
 const cases = [
@@ -256,6 +257,121 @@ const cases = [
     input: `<span class="alaska" lang="en">"a</span> <span class="alaska" lang="en">"b</span>`,
     expected: `<span class="alaska" lang="en">\u2018\u2060a</span> <span class="alaska" lang="en">\u2018\u2060b</span>`,
   },
+  {
+    desc: "doctype is passed through",
+    input: `<div class="alaska"><!DOCTYPE html>50%</div>`,
+    expected: `<div class="alaska"><!DOCTYPE html>%\u202F50</div>`,
+  },
+  {
+    desc: "comment contents are not formatted",
+    input: `<div class="alaska"><!-- 50% -->50%</div>`,
+    expected: `<div class="alaska"><!-- 50% -->%\u202F50</div>`,
+  },
+  {
+    desc: "processing instruction is passed through",
+    input: `<div class="alaska"><?xml?>50%</div>`,
+    expected: `<div class="alaska"><?xml?>%\u202F50</div>`,
+  },
+  {
+    desc: "lone < in text is kept",
+    input: `<div class="alaska">a < b 50%</div>`,
+    expected: `<div class="alaska">a < b %\u202F50</div>`,
+  },
+  {
+    desc: "trailing < at end of input is kept",
+    input: `<div class="alaska">50% <`,
+    expected: `<div class="alaska">%\u202F50 <`,
+  },
+  {
+    desc: "unterminated comment does not throw",
+    input: `<div class="alaska"><!-- x`,
+    expected: `<div class="alaska"><!-- x`,
+  },
+  {
+    desc: "unterminated script does not throw",
+    input: `<div class="alaska"><script>50%`,
+    expected: `<div class="alaska"><script>50%`,
+  },
+  {
+    desc: "unterminated start tag does not throw",
+    input: `<div class="alaska"`,
+    expected: `<div class="alaska"`,
+  },
+  {
+    desc: "class attribute with spaces around =",
+    input: `<div class = "alaska">50%</div>`,
+    expected: `<div class = "alaska">%\u202F50</div>`,
+  },
+  {
+    desc: "class attribute in single quotes",
+    input: `<div class='alaska'>50%</div>`,
+    expected: `<div class='alaska'>%\u202F50</div>`,
+  },
+  {
+    desc: "unquoted class attribute",
+    input: `<div class=alaska>50%</div>`,
+    expected: `<div class=alaska>%\u202F50</div>`,
+  },
+  {
+    desc: "data-* attribute that is not a rule name is ignored",
+    input: `<div class="alaska" data-foo="x">50%</div>`,
+    expected: `<div class="alaska" data-foo="x">%\u202F50</div>`,
+  },
+  {
+    desc: "rule attribute with a non-empty non-boolean value turns the rule on",
+    input: `<div class="alaska" data-place-percent-sign="0">50%</div>`,
+    expected: `<div class="alaska" data-place-percent-sign="0">%\u202F50</div>`,
+  },
+  {
+    desc: "bare rule attribute turns the rule off",
+    input: `<div class="alaska" data-place-percent-sign>50%</div>`,
+    expected: `<div class="alaska" data-place-percent-sign>50%</div>`,
+  },
+  {
+    desc: "decimal reference to a space counts as whitespace",
+    input: `<div class="alaska" lang="en">said&#32;"hi"</div>`,
+    expected: `<div class="alaska" lang="en">said&#32;\u2018\u2060hi\u2060\u2019</div>`,
+  },
+  {
+    desc: "hex reference to a space counts as whitespace",
+    input: `<div class="alaska" lang="en">said&#x20;"hi"</div>`,
+    expected: `<div class="alaska" lang="en">said&#x20;\u2018\u2060hi\u2060\u2019</div>`,
+  },
+  {
+    desc: "stray </br> is kept and does not disturb the stack",
+    input: `<div class="alaska">a</br>50%</div>`,
+    expected: `<div class="alaska">a</br>%\u202F50</div>`,
+  },
+  {
+    desc: "explicit empty lang resets to no language",
+    input: `<div class="alaska" lang="en"><p lang="">"hi"</p></div>`,
+    expected: `<div class="alaska" lang="en"><p lang="">"hi"</p></div>`,
+  },
+  {
+    desc: "lang ru is inherited by nested elements",
+    input: `<div class="alaska" lang="ru"><p>"привет"</p></div>`,
+    expected: `<div class="alaska" lang="ru"><p>\u00AB\u2060привет\u2060\u00BB</p></div>`,
+  },
+  {
+    desc: "nested .alaska applies its own lang and data-* to its subtree only",
+    input: `<div class="alaska" lang="en"><p class="alaska" lang="ru" data-place-percent-sign="false">"мир" 50%</p> 50%</div>`,
+    expected: `<div class="alaska" lang="en"><p class="alaska" lang="ru" data-place-percent-sign="false">\u00AB\u2060мир\u2060\u00BB 50%</p> %\u202F50</div>`,
+  },
+  {
+    desc: "explicit true on a rule attribute turns the rule on",
+    input: `<div class="alaska" data-place-arithmetical-symbols="true">3 + 4</div>`,
+    expected: `<div class="alaska" data-place-arithmetical-symbols="true">3\u200A+\u200A4</div>`,
+  },
+  {
+    desc: "unquoted attribute value stops before />",
+    input: `<div class="alaska"><span class=alaska-skip/>50%</div>`,
+    expected: `<div class="alaska"><span class=alaska-skip/>50%</div>`,
+  },
+  {
+    desc: "start tag cut off after trailing whitespace does not throw",
+    input: `<div class="alaska" `,
+    expected: `<div class="alaska" `,
+  },
 ];
 
 let pass = 0;
@@ -275,4 +391,4 @@ for (const { desc, input, expected } of cases) {
   }
 }
 
-if (fail > 0) Deno.exit(1);
+if (fail > 0) process.exitCode = 1;

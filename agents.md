@@ -6,20 +6,23 @@ Deno. No dependencies. No network.
 
 Alaska is not smart. It does not guess, repair or interpret text. It does a small set of simple things and does them well. When an input is ambiguous or an edge case has no clear answer, do less: leave the text as written. A missed edit is acceptable; a wrong edit is not. This applies to new rules, to tightening existing ones, and to language handling: an unsupported or missing `lang` means no language-dependent rule fires.
 
+The languages are `en` and `ru` today; `ja` and `ko` are planned. When planning or revising any behavior, think in terms of all four. Language-free rules (`placeNumberNbspWord`, `placeThreeStops`, `placeEmdash`, `placeNumericRange` and the rest) currently apply to every language, `ja` and `ko` included, and `test/rule-table.json` pins that. Before adding `ja` or `ko`, decide per language-free rule whether it stays on for them. Known hazards, pinned in `test/cases/limitations.json`: hyphenated phone numbers get en dashes, and a doubled `{U+2026}` becomes two runs of dots.
+
 Alaska should be reasonably fast. Recent versions of Alaska have been clocking around 400ms on our bench; we want to make sure it doesn't go up over %5 without good reason. `bench.txt` is Gutenberg's plain-text version of Ulysses.
 
 ## Commands
 
 Run everything from the repo root. All paths in tasks and scripts are relative to the working directory.
 
-| Command                                                   | Does                                                                                                                                                                                    |
-| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `deno task build`                                         | `deno lint -q`, `deno fmt -q`, `test/test.js`, `test/walk.test.js`, `test/fuzz.js 3000 1`, then `build.js`. Stops at the first failure                                                  |
-| `deno task fuzz [iterations] [seed]`                      | Seeded idempotence fuzz (default 5000 iterations, seed 1). Prints shrunk failing inputs and exits 1 on any. Run 100000+ iterations over several seeds after any change to `src/core.js` |
-| `deno task bench`                                         | Runs `bench/bench.js` on `bench/bench.txt`: 1000 runs of `formatString` with `commonRules` and `en`. Appends `<ISO time> bench.js <ms>ms` to `bench/history` on every run               |
-| `deno run -R test/test.js`                                | Core tests only. Every case is also run through a second pass and must be idempotent                                                                                                    |
-| `deno run -R test/walk.test.js`                           | HTML rewriter tests only                                                                                                                                                                |
-| `deno run -R -W cli/cli.js <files> [--exclude <pattern>]` | The CLI                                                                                                                                                                                 |
+| Command                                                   | Does                                                                                                                                                                                                          |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `deno task build`                                         | `deno lint -q`, `deno fmt -q`, `test/test.js`, `test/carry.api.test.js`, `test/walk.test.js`, `test/fuzz.js 3000 1`, then `build.js`. Stops at the first failure                                              |
+| `deno task fuzz [iterations] [seed]`                      | Seeded idempotence fuzz (default 5000 iterations, seed 1). Prints shrunk failing inputs and exits 1 on any. Run 100000+ iterations over several seeds after any change to `src/core.js`                       |
+| `deno task bench`                                         | Runs `bench/bench.js` on `bench/bench.txt`: 1000 runs of `formatString` with `commonRules` and `en`. Appends `<ISO time> bench.js <ms>ms` to `bench/history` on every run                                     |
+| `deno run -R test/test.js`                                | Core tests: validates the fixtures, then runs `test/cases/*.json` and `test/rule-table.json` (isolation, negation, five-language matrix). Every case is also run through a second pass and must be idempotent |
+| `deno run -R test/carry.api.test.js`                      | Carry API checks that are not string cases: oversize input, empty text, `resetCarry`                                                                                                                          |
+| `deno run -R test/walk.test.js`                           | HTML rewriter tests only                                                                                                                                                                                      |
+| `deno run -R -W cli/cli.js <files> [--exclude <pattern>]` | The CLI                                                                                                                                                                                                       |
 
 Test files print one `x ...` block per failure (input, expected, actual as JSON) and exit 1. Passing is silent.
 
@@ -34,8 +37,11 @@ cli/walk.js         streaming HTML rewriter; exports { formatHtml }
 cli/cli.js          file/glob CLI over formatHtml
 build.js            bundles src/core.js + src/dom.js into browser/alaska.js
 browser/alaska.js   generated build artifact. Never edit by hand; excluded from lint
-test/test.js        runs test/test.json against formatString
-test/test.json      core test cases
+test/test.js        runner: loads, validates and runs the fixtures through harness.js
+test/harness.js     fixture loading and validation, case and rule-table checks, failure output
+test/cases/*.json   core test cases, one file per topic (dashes, numbers, math, quotes, spacing, shortcodes, languages, carry, guards, regressions, limitations)
+test/rule-table.json  one row per rule: isolation, negation and language matrix
+test/carry.api.test.js  carry API checks that are not string cases
 test/fuzz.js        seeded idempotence fuzz with shrinking (mulberry32); runs prose and math rules, segmented runs with one carry, and split-equivalence checks for quotes and minus
 test/walk.test.js   HTML rewriter cases
 bench/bench.js      benchmark; bench/bench.txt input; bench/history appended output
@@ -94,21 +100,25 @@ Reads `src/core.js` and `src/dom.js`, strips with regexes (the first `export {..
 
 1. Add the name to the string list in `commonRules` in `src/core.js`. This makes it default-on (unless it is math-only, like `placeArithmeticalSymbols`) and whitelists its `data-*` attribute in dom.js and walk.js.
 2. Implement it in the branch of the main pass that matches the token type it starts from. Mind precedence and stale `next` references.
-3. Add three kinds of tests to `test/test.json`:
-   - `rule-isolation`: the rule alone (`"rules": { "base": "none", "<rule>": true }`).
-   - `rule-negation`: everything on except the rule (`"base": "all", "<rule>": false`), expecting unchanged output.
-   - A behavior group with edge cases and interactions. Shortcode categories additionally need a `shortcode-isolation` case showing each category responds only to its own flag.
+3. Add tests:
+   - A row in `test/rule-table.json`. The harness fails if a rule has no row. It runs the rule alone (`expected`), everything else on with the rule off (`off`, default the input; `off` must differ from `expected`), and, unless the row is `"langDependent": true`, the same isolation run for `en`, `ru`, `ja`, `ko` and no language, which must all agree. For a math-only rule set `"negationBase": "math"`.
+   - A behavior group with edge cases and interactions in the matching `test/cases/*.json` file. Shortcode categories additionally need a `shortcode-isolation` case showing each category responds only to its own flag.
 4. Add a row to the rules table in `readme.md` using codepoint notation.
 5. Run `deno task build`, then `deno task fuzz 100000 <seed>` for several seeds. Add any shrunk failure it finds as a regular case in the `idempotence-regressions` group.
 
 ## Tests
 
-`test/test.json` is `{ "groups": [{ "name", "description", "cases": [...] }] }`. A case is `{ "desc", "input", "expected", "lang", "rules" }`, or `{ "desc", "segments", "expected", "lang", "langs", "rules" }` where `segments` are formatted in order with one carry, `expected` is an array, and `langs` optionally overrides `lang` per segment. Every case is reformatted once more (segments with a fresh carry) and must not change.
+`test/cases/*.json` are `{ "groups": [{ "name", "description", "cases": [...] }] }`, one file per topic. A case is `{ "desc", "input", "expected", "lang", "rules" }`, or `{ "desc", "segments", "expected", "lang", "langs", "rules" }` where `segments` are formatted in order with one carry, `expected` is an array, and `langs` optionally overrides `lang` per segment. Every case is reformatted once more (segments with a fresh carry) and must not change.
 
 - `rules` is optional: `{ "base": "all" | "none" | "math", ...overrides }`. `base` defaults to `"all"` (`commonRules`, the prose defaults); `"none"` sets all rules false first; `"math"` is `commonRules` plus `mathRules`. Overrides are rule names mapped to booleans.
 - `lang` is passed to `formatString` as-is.
+- `test/harness.js` fails the run, before running any case, on: an unknown rule name or case key, a missing `expected` or one of the wrong shape, a duplicate case (same input, segments, lang and rules), a duplicate `desc` in a group, a missing group description, and any raw non-ASCII character that is not a letter (write symbols and spacing as `\uXXXX`).
+- A case is kept only if it pins a behavior documented in `readme.md` or `bugs.md`, a distinct branch, a fuzz regression, or a carry or walk contract. Do not restate a rule-table row or repeat an input across groups.
+- Language-dependent behavior gets one group per language in `languages.json`. `de`, `ja` and `ko` currently pin "unsupported, unchanged"; those cases change on purpose when support lands.
+- `limitations.json` pins the behavior listed in `bugs.md`. Fixing a limitation means changing its test on purpose.
+- Coverage gate: with `test/test.js` and `test/carry.api.test.js`, only the `if (!info) continue;` guard in the quote branch and the `if (!tokens[j].value) continue;` guard in the carry snapshot of `src/core.js` (defensive, no input reaches them) may stay unreached; with `test/walk.test.js` alone nothing in `cli/walk.js` may. Merge per-process V8 coverage by source offset, not by line percentage. Do not delete the two guards to raise a percentage: they make a bug skip an edit instead of throwing at render time.
 
-`test/walk.test.js` holds an array of `{ desc, input, expected }` for `formatHtml` and always runs with default rules. Every case must also be idempotent: `formatHtml(formatHtml(x)) === formatHtml(x)`. Cover HTML structure changes (new end-tag handling, new skipped elements) and `data-math` there, not in test.json.
+`test/walk.test.js` holds an array of `{ desc, input, expected }` for `formatHtml` and always runs with default rules. Every case must also be idempotent: `formatHtml(formatHtml(x)) === formatHtml(x)`. Cover HTML structure changes (new end-tag handling, new skipped elements) and `data-math` there, not in `test/cases`.
 
 dom.js has no automated tests. Keep its behavior in step with walk.js by reading both.
 
@@ -116,6 +126,7 @@ dom.js has no automated tests. Keep its behavior in step with walk.js by reading
 
 Symbols, punctuation, spacing characters and glyphs are written as `\uXXXX` escapes (or `\u{XXXXX}` above U+FFFF) in source, tests and generated docs input. Docs prose uses `{U+XXXX}` notation. Natural-language word lists (`shortWords.ru`) and natural-language test text stay literal.
 
+- The test harness rejects raw non-letter, non-ASCII characters in fixtures.
 - Never write raw NBSP, narrow NBSP, hair space, word joiner, curly quotes, dashes or lookalike glyphs. Never let a formatter or editor normalize them.
 - Before touching a line that contains such characters, print the exact codepoints (for example `grep -nP '[^\x00-\x7F]' <file>`) and verify the change.
 - Lines you add or modify follow the policy. Do not rewrite unrelated lines to conform unless the task is that migration.
