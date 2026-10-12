@@ -30,14 +30,16 @@
     },
     {
       "name": "ornament-shortcodes",
-      "description": "Ornamentation shortcodes follow LaTeX where a name exists; case-sensitive; \\dagger and \\ddagger were renamed to \\dag and \\ddag",
+      "description": "Ornamentation shortcodes follow LaTeX where a name exists; case-sensitive; \\dagger and \\ddagger were renamed to \\dag and \\ddag; \\section was removed: it is the LaTeX sectioning command and duplicated \\S",
       "cases": [
         { "desc": "section sign", "input": "\\S", "expected": "\u00A7", "lang": "en" },
         { "desc": "section sign with a number", "input": "\\S 5", "expected": "\u00A7 5", "lang": "en" },
-        { "desc": "section sign by long name", "input": "\\section", "expected": "\u00A7", "lang": "en" },
+        { "desc": "\\section is a LaTeX command, not a symbol: stays as written", "input": "\\section{Intro}", "expected": "\\section{Intro}", "lang": "en", "rules": { "base": "none", "placeTypographyOrnamentation": true } },
         { "desc": "paragraph sign", "input": "\\P", "expected": "\u00B6", "lang": "en" },
         { "desc": "dagger", "input": "\\dag", "expected": "\u2020", "lang": "en" },
         { "desc": "double dagger", "input": "\\ddag", "expected": "\u2021", "lang": "en" },
+        { "desc": "bullet", "input": "\\bullet", "expected": "\u2022", "lang": "en" },
+        { "desc": "shortcode ends at a digit", "input": "\\dag1", "expected": "\u20201", "lang": "en" },
         { "desc": "old dagger name is not recognised", "input": "\\dagger \\ddagger", "expected": "\\dagger \\ddagger", "lang": "en" },
         { "desc": "lowercase s and p are not section and paragraph", "input": "\\s \\p", "expected": "\\s \\p", "lang": "en" },
         { "desc": "dinkus and asterism", "input": "\\dinkus \\asterism", "expected": "\u2217\u2060\u2217\u2060\u2217 \u2042", "lang": "en" }
