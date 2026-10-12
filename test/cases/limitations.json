@@ -18,7 +18,10 @@
         { "desc": "ja: doubled ellipsis character becomes two dot runs", "input": "\u2026\u2026", "expected": "\u2060.\u2060.\u2060.\u2060\u2060.\u2060.\u2060.\u2060", "lang": "ja" },
         { "desc": "ja: temperature gets a narrow no-break space, convention is none", "input": "気温は20oC", "expected": "気温は20\u202F\u00B0C", "lang": "ja" },
         { "desc": "ko: temperature gets a narrow no-break space, convention is none", "input": "오늘은 20oC", "expected": "오늘은 20\u202F\u00B0C", "lang": "ko" },
-        { "desc": "apostrophe at the end of an inline piece is read as a closing quote", "segments": ["it'", "s"], "expected": ["it\u2060\u2019", "s"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } }
+        { "desc": "apostrophe at the end of an inline piece is read as a closing quote", "segments": ["it'", "s"], "expected": ["it\u2060\u2019", "s"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "number absorbed by the currency rule is not multiplied", "input": "$5 x 3", "expected": "$\u202F5 x 3", "lang": "en" },
+        { "desc": "number absorbed by the temperature rule is not multiplied", "input": "20oC x 3", "expected": "20\u202F\u00B0C x 3", "lang": "en" },
+        { "desc": "operator in its own inline piece is not seen", "segments": ["3 ", "x", " 4"], "expected": ["3 ", "x", " 4"], "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } }
       ]
     }
   ]

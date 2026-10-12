@@ -282,20 +282,19 @@ function formatString(text, rules, lang, carry) {
 
       if (rules.placeArithmeticalSymbols) applyArithmeticOp(tokens, i, arithmeticOps);
 
-      if (rules.placeMultiplicationSign) {
-        const xTok = nextOf(tokens, i);
-        if (xTok?.token.type === "word" && xTok.token.value.toLowerCase() === "x") {
-          const numTok = nextOf(tokens, xTok.index);
-          if (numTok?.token.type === "num") {
-            for (let j = i + 1; j < xTok.index; j++) {
-              tokens[j].value = "\u200A";
-            }
-            xTok.token.value = "×";
-            xTok.token.type = "other";
-            for (let j = xTok.index + 1; j < numTok.index; j++) {
-              tokens[j].value = "\u200A";
+      if (rules.placeMultiplicationSign && /\d$/.test(t.value)) {
+        const op = nextOf(tokens, i);
+        const letter = op?.token.type === "word" && op.token.value.toLowerCase() === "x";
+        const rhs = letter || (op?.token.type === "other" && op.token.value === "\u00D7") ? nextOf(tokens, op.index) : null;
+        if (rhs?.token.type === "num" && !(letter && t.value === "0" && op.index === i + 1)) {
+          const space = rules.placeArithmeticalSymbols ? "\u200A" : "\u202F";
+          for (const [from, to] of [[i + 1, op.index], [op.index + 1, rhs.index]]) {
+            for (let j = from; j < to; j++) {
+              if (tokens[j].value === "\u0020" || tokens[j].value === "\u00A0") tokens[j].value = space;
             }
           }
+          op.token.value = "\u00D7";
+          op.token.type = "other";
         }
       }
     } else if (t.type === "curr" && rules.placeCurrencySign) {

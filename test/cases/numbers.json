@@ -4,7 +4,35 @@
       "name": "multiplication-chain",
       "description": "Multiple x operators in a row \u2014 second x must still be processed after first is mutated",
       "cases": [
-        { "desc": "triple multiplication", "input": "5 x 5 x 5", "expected": "5\u200A\u00D7\u200A5\u200A\u00D7\u200A5", "lang": "en" }
+        { "desc": "triple multiplication", "input": "5 x 5 x 5", "expected": "5\u202F\u00D7\u202F5\u202F\u00D7\u202F5", "lang": "en" }
+      ]
+    },
+    {
+      "name": "multiplication-sign",
+      "description": "An x, X or typed multiplication sign between two numbers: the glyph always becomes U+00D7, a single regular or no-break space on each side becomes U+202F (U+200A in a math zone), spaces are never inserted, and a tight 0x prefix is declined",
+      "cases": [
+        { "desc": "typed sign with spaces", "input": "3 \u00D7 4", "expected": "3\u202F\u00D7\u202F4", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "capital X", "input": "3 X 4", "expected": "3\u202F\u00D7\u202F4", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "tight letter becomes the sign, no spaces inserted", "input": "1920x1080", "expected": "1920\u00D71080", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "tight typed sign is left alone", "input": "3\u00D74", "expected": "3\u00D74", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "space only on the left", "input": "3 x4", "expected": "3\u202F\u00D74", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "no-break spaces become narrow", "input": "3\u00A0x\u00A04", "expected": "3\u202F\u00D7\u202F4", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "already formatted is unchanged", "input": "3\u202F\u00D7\u202F4", "expected": "3\u202F\u00D7\u202F4", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "hair spaces in prose are left alone", "input": "3\u200A\u00D7\u200A4", "expected": "3\u200A\u00D7\u200A4", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "repeated spaces are left alone", "input": "5   x   5", "expected": "5   \u00D7   5", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "newline before the operator is left alone", "input": "5\nx 5", "expected": "5\n\u00D7\u202F5", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "mixed letter and typed sign chain", "input": "5 x 5 \u00D7 5", "expected": "5\u202F\u00D7\u202F5\u202F\u00D7\u202F5", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "hex prefix is declined", "input": "0x10", "expected": "0x10", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "uppercase hex prefix is declined", "input": "0X1F", "expected": "0X1F", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "spaced zero is multiplied", "input": "0 x 10", "expected": "0\u202F\u00D7\u202F10", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "left number ending in a period is declined", "input": "3. x 4", "expected": "3. x 4", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "word on the left is declined", "input": "a x 4", "expected": "a x 4", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "word on the right is declined", "input": "3 \u00D7 b", "expected": "3 \u00D7 b", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "Cyrillic letter is not the operator", "input": "3 \u0445 4", "expected": "3 \u0445 4", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "math zone keeps hair spaces (letter)", "input": "3 x 4", "expected": "3\u200A\u00D7\u200A4", "lang": "en", "rules": { "base": "math", "placeMultiplicationSign": true } },
+        { "desc": "math zone keeps hair spaces (typed sign)", "input": "3 \u00D7 4", "expected": "3\u200A\u00D7\u200A4", "lang": "en", "rules": { "base": "math", "placeMultiplicationSign": true } },
+        { "desc": "with every rule on, number-nbsp-word does not win", "input": "3 x 4", "expected": "3\u202F\u00D7\u202F4", "lang": "en" },
+        { "desc": "with every rule on, percent moves and the product is still found", "input": "5% x 3", "expected": "%\u202F5\u202F\u00D7\u202F3", "lang": "en" }
       ]
     },
     {
