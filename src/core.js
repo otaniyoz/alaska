@@ -1,9 +1,8 @@
 const MAX_INPUT_LENGTH = 2_000_000;
 
-const commonRules = Object.fromEntries("placeNumberNbspWord placeThreeStops placeFractions placeArithmeticalSymbols placeMinusSign placeEmdash placeNumericRange placeCopyright placeNumeroSign placeMathematicalSymbols placeGreekSymbols placeTypographyOrnamentation placeEmoticons placeCurrencySign placePercentSign placeNbsp placeHyphen placeTemperatureSign placeOrdinals placeMultiplicationSign formatInitials placeTypographicQuotes placeArrows placeShapes".split(" ").map((k) => [k, k !== "placeArithmeticalSymbols"]));
+const commonRules = Object.fromEntries("placeNumberNbspWord placeThreeStops placeFractions placeArithmeticalSymbols placeMinusSign placeEmdash placeNumericRange placeCopyright placeNumeroSign placeMathematicalSymbols placeGreekSymbols placeTypographyOrnamentation placeEmoticons placeCurrencySign placePercentSign placeNbsp placeHyphen placeTemperatureSign placeMultiplicationSign formatInitials placeTypographicQuotes placeArrows placeShapes".split(" ").map((k) => [k, k !== "placeArithmeticalSymbols"]));
 const mathRules = { placeArithmeticalSymbols: true, placeEmdash: false, placeNumericRange: false, placeHyphen: false };
 
-const ordinalMap = { st: "ˢᵗ", nd: "ⁿᵈ", rd: "ʳᵈ", th: "ᵗʰ" };
 const temperatureUnit = /^o[CF](?=$|[\p{scx=Han}\p{scx=Hiragana}\p{scx=Katakana}\p{scx=Hangul}])/u;
 const shortWords = {
   en: new Set("a an at by for in of on or the to and but nor yet so as if".split(" ")),
@@ -267,11 +266,6 @@ function formatString(text, rules, lang, carry) {
       }
     } else if (t.type === "num") {
       if (rules.placeNumberNbspWord && next?.type === "ws" && next.value === "\u0020" && next2?.type === "word" && /\d$/.test(t.value)) next.value = "\u00A0";
-
-      if (rules.placeOrdinals && next?.type === "word" && /^(st|nd|rd|th)$/i.test(next.value)) {
-        replaceTokens(tokens, i, i + 1, t.value + ordinalMap[next.value.toLowerCase()]);
-        continue;
-      }
 
       if (rules.placeFractions && next?.type === "punct" && next.value === "/" && next2?.type === "num" && prev?.value !== "/" && next3?.value !== "/") {
         if (next3?.type === "ws") next3.value = "\u00A0";

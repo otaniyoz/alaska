@@ -22,7 +22,6 @@
     { "rule": "placeTemperatureSign", "input": "100oC", "expected": "100\u202F\u00B0C" },
     { "rule": "placeTemperatureSign", "input": "20oCです", "expected": "20\u202F\u00B0Cです" },
     { "rule": "placeTemperatureSign", "input": "20oF입니다", "expected": "20\u202F\u00B0F입니다" },
-    { "rule": "placeOrdinals", "input": "1st", "expected": "1ˢᵗ" },
     { "rule": "placeMultiplicationSign", "input": "3 x 4", "expected": "3\u202F\u00D7\u202F4", "off": "3\u00A0x 4" },
     { "rule": "formatInitials", "input": "J. Smith", "expected": "J.\u00A0Smith" },
     { "rule": "placeTypographicQuotes", "input": "\"hello\"", "expected": "\u2018\u2060hello\u2060\u2019", "langDependent": true },

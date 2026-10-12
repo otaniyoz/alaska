@@ -39,18 +39,7 @@
       "name": "number-interactions",
       "description": "Number rules firing on the same token stream",
       "cases": [
-        { "desc": "numero followed by ordinal", "input": "No. 1st", "expected": "\u2116\u202F1\u02E2\u1D57", "lang": "en" },
         { "desc": "temperature and percent in same string", "input": "100oC at 50%", "expected": "100\u202F\u00B0C at\u00A0%\u202F50", "lang": "en" }
-      ]
-    },
-    {
-      "name": "ordinals",
-      "description": "Converts ordinal suffixes to superscript",
-      "cases": [
-        { "desc": "1st", "input": "1st", "expected": "1\u02E2\u1D57", "lang": "en" },
-        { "desc": "2nd", "input": "2nd", "expected": "2\u207F\u1D48", "lang": "en" },
-        { "desc": "3rd", "input": "3rd", "expected": "3\u02B3\u1D48", "lang": "en" },
-        { "desc": "4th", "input": "4th", "expected": "4\u1D57\u02B0", "lang": "en" }
       ]
     },
     {
