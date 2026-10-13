@@ -23,7 +23,7 @@ const mathShortcodes = { "\\pm": "\u00B1", "\\prime": "\u2032", "\\dprime": "\u2
 const greekShortcodes = { "\\alpha": "\u03B1", "\\beta": "\u03B2", "\\gamma": "\u03B3", "\\delta": "\u03B4", "\\epsilon": "\u03B5", "\\varepsilon": "\u03F5", "\\zeta": "\u03B6", "\\eta": "\u03B7", "\\theta": "\u03B8", "\\vartheta": "\u03D1", "\\iota": "\u03B9", "\\kappa": "\u03BA", "\\varkappa": "\u03F0", "\\lambda": "\u03BB", "\\mu": "\u03BC", "\\nu": "\u03BD", "\\xi": "\u03BE", "\\pi": "\u03C0", "\\varpi": "\u03D6", "\\rho": "\u03C1", "\\varrho": "\u03F1", "\\sigma": "\u03C3", "\\varsigma": "\u03C2", "\\tau": "\u03C4", "\\upsilon": "\u03C5", "\\phi": "\u03C6", "\\varphi": "\u03D5", "\\chi": "\u03C7", "\\psi": "\u03C8", "\\omega": "\u03C9", "\\digamma": "\u03DD", "\\Gamma": "\u0393", "\\Delta": "\u0394", "\\Theta": "\u0398", "\\Lambda": "\u039B", "\\Xi": "\u039E", "\\Pi": "\u03A0", "\\Sigma": "\u03A3", "\\Upsilon": "\u03A5", "\\Phi": "\u03A6", "\\Psi": "\u03A8", "\\Omega": "\u03A9" };
 const ornamentShortcodes = { "\\dinkus": "\u2217\u2060\u2217\u2060\u2217", "\\asterism": "\u2042", "\\dag": "\u2020", "\\ddag": "\u2021", "\\bullet": "\u2022", "\\S": "\u00A7", "\\P": "\u00B6" };
 const emoticonShortcodes = { "\\shrug": "\u00AF\u2060\\\u2060_\u2060(\u2060\u30C4\u2060)\u2060_\u2060/\u2060\u00AF", "\\crying": "(\u2060\u22A4\u2060_\u2060\u22A4\u2060)", "\\dying": "(\u2060\u00D7\u2060_\u2060\u00D7\u2060)", "\\nervous": "(\u2060-\u2060_\u2060-\u2060;\u2060)", "\\cute": "(\u2060^\u2060.\u2060^\u2060)", "\\happy": "(\u2060^\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060^\u2060)", "\\surprised": "(\u2060\u00A0\u2060\u2D54\u2060.\u2060\u2D54\u2060\u00A0\u2060)", "\\angry": "(\u2060>\u2060_\u2060<\u2060)" };
-const arrowShortcodes = { "\\arrn": "\u2191", "\\arrs": "\u2193", "\\arrne": "\u2197", "\\arrse": "\u2198", "\\arrsw": "\u2199", "\\arrnw": "\u2196", "\\arre": "\u2192", "\\arrw": "\u2190", "\\arrlr": "\u2194", "\\arrud": "\u2195" };
+const arrowShortcodes = { "\\arrn": "\u2191", "\\arrs": "\u2193", "\\arrne": "\u2197", "\\arrse": "\u2198", "\\arrsw": "\u2199", "\\arrnw": "\u2196", "\\arre": "\u2192", "\\arrw": "\u2190", "\\arrwe": "\u2194", "\\arrns": "\u2195" };
 const shapeShortcodes = { "\\square": "\u25A1", "\\blacksquare": "\u25A0", "\\circle": "\u25CB", "\\blackcircle": "\u25CF", "\\doublecircle": "\u25CE", "\\tainome": "\u25C9", "\\triangle": "\u25B3", "\\blacktriangle": "\u25B2", "\\triangledown": "\u25BD", "\\blacktriangledown": "\u25BC", "\\triangleleft": "\u25C1", "\\blacktriangleleft": "\u25C0\uFE0E", "\\triangleright": "\u25B7", "\\blacktriangleright": "\u25B6\uFE0E", "\\diamond": "\u25C7", "\\blackdiamond": "\u25C6", "\\lozenge": "\u25CA", "\\blacklozenge": "\u29EB", "\\star": "\u2606", "\\blackstar": "\u2605", "\\heart": "\u2661", "\\blackheart": "\u2665\uFE0E", "\\hexagon": "\u2B21", "\\blackhexagon": "\u2B22", "\\pentagon": "\u2B20", "\\blackpentagon": "\u2B1F", "\\spade": "\u2664", "\\blackspade": "\u2660\uFE0E", "\\club": "\u2667", "\\blackclub": "\u2663\uFE0E" };
 
 const isWhitespace = (char) => /[\s\u00A0\t]/.test(char);
@@ -219,7 +219,7 @@ function formatString(text, rules, lang, carry) {
     const before = prev ?? carried;
 
     if (t.type === "punct") {
-      if (rules.placeArrows && t.value === "-" && next?.type === "sym" && next.value === ">") {
+      if (rules.placeArrows && t.value === "-" && next?.type === "sym" && next.value === ">" && !(next2?.type === "sym" && next2.value === ">")) {
         replaceRange(tokens, i, i + 1, "\u2192");
       } else if (rules.placeNumericRange && t.value === "-" && prev?.type === "num" && (next?.type === "num" || !next || next.type === "ws")) {
         t.value = "\u2060\u2013\u2060";
@@ -228,7 +228,7 @@ function formatString(text, rules, lang, carry) {
         t.type = "other";
       } else if (rules.placeThreeStops && (t.value === "..." || t.value === "…")) {
         t.value = "\u2060.\u2060.\u2060.\u2060";
-      } else if (rules.placeEmdash && t.value === "--" && !isDash(tokens, i - 1, rules) && !isDash(tokens, i + 1, rules)) {
+      } else if (rules.placeEmdash && t.value === "--" && !(prev?.type === "sym" && prev.value === "<") && !(next?.type === "sym" && next.value === ">") && !isDash(tokens, i - 1, rules) && !isDash(tokens, i + 1, rules)) {
         const from = prev?.type === "ws" ? i - 1 : i;
         replaceTokens(tokens, from, next?.type === "ws" ? i + 1 : i, "\u00A0\u2014\u0020");
         i = from + 2;
@@ -328,7 +328,7 @@ function formatString(text, rules, lang, carry) {
     } else if (t.type === "sym") {
       if (rules.placeArrows && t.value === "<" && next?.type === "punct" && next.value === "-" && next2?.type === "sym" && next2.value === ">") {
         replaceRange(tokens, i, i + 2, "\u2194");
-      } else if (rules.placeArrows && t.value === "<" && next?.type === "punct" && next.value === "-") {
+      } else if (rules.placeArrows && t.value === "<" && next?.type === "punct" && next.value === "-" && !(prev?.type === "sym" && prev.value === "<") && !(next2?.type === "num" || next2?.type === "curr" || (next2?.type === "sym" && next2.value === "%"))) {
         replaceRange(tokens, i, i + 1, "\u2190");
       } else if (rules.placePercentSign && t.value === "%") {
         if (prev?.type === "num") {

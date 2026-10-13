@@ -20,7 +20,9 @@
         { "desc": "percent then plus in a math zone", "input": "50% + 3", "expected": "%\u202F50\u200A+\u200A3", "lang": "en", "rules": { "base": "math" } },
         { "desc": "temperature then plus in a math zone", "input": "20oC + 3", "expected": "20\u202F\u00B0C\u200A+\u200A3", "lang": "en", "rules": { "base": "math" } },
         { "desc": "greek shortcode merges into the preceding capital", "input": "J\\alpha. Smith", "expected": "J\u03B1. Smith", "lang": "en" },
-        { "desc": "greek shortcode and a letter merge into the preceding capital", "input": "J\\pi\u00E9. Smith", "expected": "J\u03C0\u00E9. Smith", "lang": "en" }
+        { "desc": "greek shortcode and a letter merge into the preceding capital", "input": "J\\pi\u00E9. Smith", "expected": "J\u03C0\u00E9. Smith", "lang": "en" },
+        { "desc": "left arrow before a percent number", "input": "<-2%", "expected": "<-%\u202F2", "lang": "en" },
+        { "desc": "left arrow before a percent number in a math zone", "input": "<-2%", "expected": "<-%\u202F2", "lang": "en", "rules": { "base": "math" } }
       ]
     }
   ]

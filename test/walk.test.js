@@ -372,6 +372,41 @@ const cases = [
     input: `<div class="alaska" `,
     expected: `<div class="alaska" `,
   },
+  {
+    desc: "arrow in text",
+    input: `<div class="alaska">a -> b</div>`,
+    expected: `<div class="alaska">a \u2192 b</div>`,
+  },
+  {
+    desc: "limitation: arrow written with a character reference is not formed",
+    input: `<div class="alaska">a -&gt; b</div>`,
+    expected: `<div class="alaska">a -&gt; b</div>`,
+  },
+  {
+    desc: "limitation: left arrow written with a character reference is not formed",
+    input: `<div class="alaska">a &lt;- b</div>`,
+    expected: `<div class="alaska">a &lt;- b</div>`,
+  },
+  {
+    desc: "limitation: literal <- is not formed as an arrow",
+    input: `<div class="alaska">a <- b</div>`,
+    expected: `<div class="alaska">a <- b</div>`,
+  },
+  {
+    desc: "limitation: double dash before a character reference for > still gets an em dash",
+    input: `<div class="alaska">a --&gt; b</div>`,
+    expected: `<div class="alaska">a\u00A0\u2014 &gt; b</div>`,
+  },
+  {
+    desc: "limitation: double dash after a character reference for < still gets an em dash",
+    input: `<div class="alaska">a &lt;-- b</div>`,
+    expected: `<div class="alaska">a &lt;\u00A0\u2014 b</div>`,
+  },
+  {
+    desc: "limitation: literal <- at the start of a line gets the line-start dash",
+    input: `<div class="alaska">a\n<- b</div>`,
+    expected: `<div class="alaska">a\n<\u2014 b</div>`,
+  },
 ];
 
 let pass = 0;

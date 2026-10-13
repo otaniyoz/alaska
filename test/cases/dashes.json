@@ -62,7 +62,9 @@
         { "desc": "minus after opening bracket", "input": "(-5)", "expected": "(\u22125)", "lang": "en" },
         { "desc": "minus before bracket stays in prose", "input": "-(5)", "expected": "-(5)", "lang": "en" },
         { "desc": "hyphen between word and number stays", "input": "a-5", "expected": "a-5", "lang": "en" },
-        { "desc": "hyphen after merged temperature", "input": "20oC-warm", "expected": "20\u202F\u00B0C\u2060-\u2060warm", "lang": "en" }
+        { "desc": "hyphen after merged temperature", "input": "20oC-warm", "expected": "20\u202F\u00B0C\u2060-\u2060warm", "lang": "en" },
+        { "desc": "double dash glued to a greater-than is not an em dash", "input": "a --> b", "expected": "a --> b", "lang": "en", "rules": { "base": "none", "placeEmdash": true } },
+        { "desc": "double dash glued to a less-than is not an em dash", "input": "a <-- b", "expected": "a <-- b", "lang": "en", "rules": { "base": "none", "placeEmdash": true } }
       ]
     }
   ]
