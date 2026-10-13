@@ -46,6 +46,21 @@
       ]
     },
     {
+      "name": "emoticon-shortcodes",
+      "description": "Emoticon shortcodes: every name expands, the characters are joined by U+2060 between each pair and not at either end; names are case-sensitive and end at the first character that is not an ASCII letter; language independent. The table in src/core.js (emoticonShortcodes) is the source of truth",
+      "cases": [
+        { "desc": "all eight names", "input": "\\shrug \\crying \\dying \\nervous \\cute \\happy \\surprised \\angry", "expected": "\u00AF\u2060\\\u2060_\u2060(\u2060\u30C4\u2060)\u2060_\u2060/\u2060\u00AF (\u2060\u22A4\u2060_\u2060\u22A4\u2060) (\u2060\u00D7\u2060_\u2060\u00D7\u2060) (\u2060-\u2060_\u2060-\u2060;\u2060) (\u2060^\u2060.\u2060^\u2060) (\u2060^\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060^\u2060) (\u2060\u00A0\u2060\u2D54\u2060.\u2060\u2D54\u2060\u00A0\u2060) (\u2060>\u2060_\u2060<\u2060)", "lang": "en" },
+        { "desc": "all eight names in a math zone", "input": "\\shrug \\crying \\dying \\nervous \\cute \\happy \\surprised \\angry", "expected": "\u00AF\u2060\\\u2060_\u2060(\u2060\u30C4\u2060)\u2060_\u2060/\u2060\u00AF (\u2060\u22A4\u2060_\u2060\u22A4\u2060) (\u2060\u00D7\u2060_\u2060\u00D7\u2060) (\u2060-\u2060_\u2060-\u2060;\u2060) (\u2060^\u2060.\u2060^\u2060) (\u2060^\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060^\u2060) (\u2060\u00A0\u2060\u2D54\u2060.\u2060\u2D54\u2060\u00A0\u2060) (\u2060>\u2060_\u2060<\u2060)", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "Japanese text directly after the name", "input": "\\shrugです", "expected": "\u00AF\u2060\\\u2060_\u2060(\u2060\u30C4\u2060)\u2060_\u2060/\u2060\u00AFです", "lang": "ja" },
+        { "desc": "Korean text directly after the name", "input": "\\crying입니다", "expected": "(\u2060\u22A4\u2060_\u2060\u22A4\u2060)입니다", "lang": "ko" },
+        { "desc": "Cyrillic text directly after the name", "input": "\\shrugбла", "expected": "\u00AF\u2060\\\u2060_\u2060(\u2060\u30C4\u2060)\u2060_\u2060/\u2060\u00AFбла", "lang": "ru" },
+        { "desc": "unknown and wrong-case names stay as written", "input": "\\shrugs \\Shrug", "expected": "\\shrugs \\Shrug", "lang": "en" },
+        { "desc": "adjacent expansions", "input": "\\cute\\cute", "expected": "(\u2060^\u2060.\u2060^\u2060)(\u2060^\u2060.\u2060^\u2060)", "lang": "en" },
+        { "desc": "a spaced hyphen before an emoticon is not an em dash", "input": "x - \\shrug", "expected": "x - \u00AF\u2060\\\u2060_\u2060(\u2060\u30C4\u2060)\u2060_\u2060/\u2060\u00AF", "lang": "en" },
+        { "desc": "quoted emoticon", "input": "\"\\shrug\"", "expected": "\u2018\u2060\u00AF\u2060\\\u2060_\u2060(\u2060\u30C4\u2060)\u2060_\u2060/\u2060\u00AF\u2060\u2019", "lang": "en" }
+      ]
+    },
+    {
       "name": "shape-shortcodes",
       "description": "Shape shortcodes: white shapes use the plain name, filled ones the black prefix; U+FE0E follows the five glyphs platforms may draw as colour emoji; star, diamond, doublecircle and tainome are the documented deviations. Other entries are table data (src/core.js shapeShortcodes is the source of truth)",
       "cases": [
