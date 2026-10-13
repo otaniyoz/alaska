@@ -13,11 +13,11 @@
     },
     {
       "name": "greek-shortcodes",
-      "description": "LaTeX-named Greek shortcodes; case-sensitive; epsilon, phi and the var* names map to the Unicode letter and its variant symbol. Representatives only: the table in src/core.js is the source of truth",
+      "description": "LaTeX-named Greek shortcodes; case-sensitive; \\epsilon and \\phi give the LaTeX forms (lunate U+03F5, stroked U+03D5); \\varepsilon and \\varphi give the letters U+03B5 and U+03C6, as in LaTeX and unicode-math. Representatives only: the table in src/core.js is the source of truth",
       "cases": [
         { "desc": "representatives: lowercase and uppercase", "input": "\\alpha \\pi \\Gamma \\Omega", "expected": "α π Γ Ω", "lang": "en" },
-        { "desc": "epsilon and phi are the Unicode letters", "input": "\\epsilon \\phi", "expected": "\u03B5 \u03C6", "lang": "en" },
-        { "desc": "var variants", "input": "\\varepsilon \\vartheta \\varkappa \\varpi \\varrho \\varsigma \\varphi \\digamma", "expected": "\u03F5 \u03D1 \u03F0 \u03D6 \u03F1 \u03C2 \u03D5 \u03DD", "lang": "en" },
+        { "desc": "epsilon and phi are the LaTeX forms (lunate epsilon, stroked phi)", "input": "\\epsilon \\phi", "expected": "\u03F5 \u03D5", "lang": "en" },
+        { "desc": "var variants", "input": "\\varepsilon \\vartheta \\varkappa \\varpi \\varrho \\varsigma \\varphi \\digamma", "expected": "\u03B5 \u03D1 \u03F0 \u03D6 \u03F1 \u03C2 \u03C6 \u03DD", "lang": "en" },
         { "desc": "case matters", "input": "\\delta \\Delta", "expected": "\u03B4 \u0394", "lang": "en" },
         { "desc": "not LaTeX names stay as written", "input": "\\Alpha \\omicron \\Omicron", "expected": "\\Alpha \\omicron \\Omicron", "lang": "en" },
         { "desc": "unknown shortcode stays as written", "input": "\\Foo \\alphabet", "expected": "\\Foo \\alphabet", "lang": "en" },
