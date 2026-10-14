@@ -31,6 +31,7 @@
     { "rule": "placeArrows", "input": "item <- next", "expected": "item \u2190 next" },
     { "rule": "placeArrows", "input": "item <-> next", "expected": "item \u2194 next" },
     { "rule": "placeArrows", "input": "\\arrn", "expected": "\u2191" },
-    { "rule": "placeShapes", "input": "\\square", "expected": "\u25A1" }
+    { "rule": "placeShapes", "input": "\\square", "expected": "\u25A1" },
+    { "rule": "placeShapes", "input": "\\squareです \\star입니다", "expected": "\u25A1です \u2606입니다" }
   ]
 }

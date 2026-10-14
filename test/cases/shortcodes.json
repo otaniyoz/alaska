@@ -62,19 +62,24 @@
     },
     {
       "name": "shape-shortcodes",
-      "description": "Shape shortcodes: white shapes use the plain name, filled ones the black prefix; U+FE0E follows the five glyphs platforms may draw as colour emoji; star, diamond, doublecircle and tainome are the documented deviations. Other entries are table data (src/core.js shapeShortcodes is the source of truth)",
+      "description": "Shape shortcodes: white shapes use the plain name, filled ones the black prefix; the suits are named *suit and follow the same pattern (so \\spadesuit and \\clubsuit are outlined, unlike LaTeX); U+FE0E follows the six glyphs platforms may draw as colour emoji; star, diamond, doublecircle and fisheye are the documented deviations, and star and diamond are operators in a math zone (see shape-math-variants). Other entries are table data (src/core.js shapeShortcodes is the source of truth)",
       "cases": [
         { "desc": "square", "input": "\\square", "expected": "\u25A1", "lang": "en" },
         { "desc": "blacksquare", "input": "\\blacksquare", "expected": "\u25A0", "lang": "en" },
         { "desc": "doublecircle", "input": "\\doublecircle", "expected": "\u25CE", "lang": "en" },
-        { "desc": "tainome", "input": "\\tainome", "expected": "\u25C9", "lang": "en" },
+        { "desc": "fisheye", "input": "\\fisheye", "expected": "\u25C9", "lang": "en" },
         { "desc": "blacktriangleleft", "input": "\\blacktriangleleft", "expected": "\u25C0\uFE0E", "lang": "en" },
         { "desc": "blacktriangleright", "input": "\\blacktriangleright", "expected": "\u25B6\uFE0E", "lang": "en" },
         { "desc": "diamond", "input": "\\diamond", "expected": "\u25C7", "lang": "en" },
         { "desc": "star", "input": "\\star", "expected": "\u2606", "lang": "en" },
-        { "desc": "blackheart", "input": "\\blackheart", "expected": "\u2665\uFE0E", "lang": "en" },
-        { "desc": "blackspade", "input": "\\blackspade", "expected": "\u2660\uFE0E", "lang": "en" },
-        { "desc": "blackclub", "input": "\\blackclub", "expected": "\u2663\uFE0E", "lang": "en" }
+        { "desc": "heartsuit", "input": "\\heartsuit", "expected": "\u2661", "lang": "en" },
+        { "desc": "spadesuit", "input": "\\spadesuit", "expected": "\u2664", "lang": "en" },
+        { "desc": "clubsuit", "input": "\\clubsuit", "expected": "\u2667", "lang": "en" },
+        { "desc": "diamondsuit", "input": "\\diamondsuit", "expected": "\u2662", "lang": "en" },
+        { "desc": "blackheartsuit", "input": "\\blackheartsuit", "expected": "\u2665\uFE0E", "lang": "en" },
+        { "desc": "blackspadesuit", "input": "\\blackspadesuit", "expected": "\u2660\uFE0E", "lang": "en" },
+        { "desc": "blackclubsuit", "input": "\\blackclubsuit", "expected": "\u2663\uFE0E", "lang": "en" },
+        { "desc": "blackdiamondsuit", "input": "\\blackdiamondsuit", "expected": "\u2666\uFE0E", "lang": "en" }
       ]
     },
     {
@@ -83,13 +88,27 @@
       "cases": [
         { "desc": "quoted shape", "input": "\"\\star\"", "expected": "\u2018\u2060\u2606\u2060\u2019", "lang": "en" },
         { "desc": "adjacent shapes", "input": "\\star\\star", "expected": "\u2606\u2606", "lang": "en" },
-        { "desc": "different shapes adjacent", "input": "\\heart\\blackheart", "expected": "\u2661\u2665\uFE0E", "lang": "en" },
+        { "desc": "different shapes adjacent", "input": "\\heartsuit\\blackheartsuit", "expected": "\u2661\u2665\uFE0E", "lang": "en" },
         { "desc": "prefix of a longer name is not expanded", "input": "\\squarex", "expected": "\\squarex", "lang": "en" },
         { "desc": "uppercase name is not recognised", "input": "\\STAR", "expected": "\\STAR", "lang": "en" },
         { "desc": "shortcode names are case-sensitive for the black variants", "input": "\\Blackstar", "expected": "\\Blackstar", "lang": "en" },
         { "desc": "triangle does not clash with triangleleft", "input": "\\triangle \\triangleleft", "expected": "\u25B3 \u25C1", "lang": "en" },
+        { "desc": "removed suit and tainome names are no longer shortcodes", "input": "\\heart \\spade \\club \\blackheart \\blackspade \\blackclub \\tainome", "expected": "\\heart \\spade \\club \\blackheart \\blackspade \\blackclub \\tainome", "lang": "en" },
         { "desc": "language independent", "input": "\\square", "expected": "\u25A1", "lang": "de" },
         { "desc": "no language", "input": "\\square", "expected": "\u25A1" }
+      ]
+    },
+    {
+      "name": "shape-math-variants",
+      "description": "\\star and \\diamond give the operators U+22C6 and U+22C4 when placeShapes and placeArithmeticalSymbols are both on (a math zone) and the glyphs U+2606 and U+25C7 otherwise; the filled variants do not change",
+      "cases": [
+        { "desc": "shapes and arithmetic on: operators", "input": "\\star \\diamond", "expected": "\u22C6 \u22C4", "lang": "en", "rules": { "base": "none", "placeShapes": true, "placeArithmeticalSymbols": true } },
+        { "desc": "math zone: operators", "input": "\\star \\diamond", "expected": "\u22C6 \u22C4", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "shapes only: prose glyphs", "input": "\\star \\diamond", "expected": "\u2606 \u25C7", "lang": "en", "rules": { "base": "none", "placeShapes": true } },
+        { "desc": "arithmetic only: shortcodes stay as written", "input": "\\star \\diamond", "expected": "\\star \\diamond", "lang": "en", "rules": { "base": "none", "placeArithmeticalSymbols": true } },
+        { "desc": "math zone with shapes off: shortcodes stay as written", "input": "\\star \\diamond", "expected": "\\star \\diamond", "lang": "en", "rules": { "base": "math", "placeShapes": false } },
+        { "desc": "math zone: filled variants are unchanged", "input": "\\blackstar \\blackdiamond", "expected": "\u2605 \u25C6", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "math zone: spaced hyphen before an operator is declined", "input": "x - \\star", "expected": "x - \u22C6", "lang": "en", "rules": { "base": "math" } }
       ]
     },
     {
@@ -114,8 +133,8 @@
         { "desc": "both-way arrows expand when only arrows on", "input": "\\arrwe \\arrns", "expected": "\u2194 \u2195", "lang": "en", "rules": { "base": "none", "placeArrows": true } },
         { "desc": "shape ignored when only ornamentation on", "input": "\\square", "expected": "\\square", "lang": "en", "rules": { "base": "none", "placeTypographyOrnamentation": true } },
         { "desc": "ornament ignored when only shapes on", "input": "\\dinkus", "expected": "\\dinkus", "lang": "en", "rules": { "base": "none", "placeShapes": true } },
-        { "desc": "tainome ignored when only ornamentation on", "input": "\\tainome", "expected": "\\tainome", "lang": "en", "rules": { "base": "none", "placeTypographyOrnamentation": true } },
-        { "desc": "tainome expands when only shapes on", "input": "\\tainome", "expected": "\u25C9", "lang": "en", "rules": { "base": "none", "placeShapes": true } },
+        { "desc": "fisheye ignored when only ornamentation on", "input": "\\fisheye", "expected": "\\fisheye", "lang": "en", "rules": { "base": "none", "placeTypographyOrnamentation": true } },
+        { "desc": "fisheye expands when only shapes on", "input": "\\fisheye", "expected": "\u25C9", "lang": "en", "rules": { "base": "none", "placeShapes": true } },
         { "desc": "shape ignored when only greek on", "input": "\\star", "expected": "\\star", "lang": "en", "rules": { "base": "none", "placeGreekSymbols": true } }
       ]
     },

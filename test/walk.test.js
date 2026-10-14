@@ -128,6 +128,16 @@ const cases = [
     expected: `<div class="alaska" data-math="true"><p data-math="false">x\u00A0\u2014 5</p></div>`,
   },
   {
+    desc: "data-math true turns the star and diamond shortcodes into operators",
+    input: `<div class="alaska" data-math="true">\\star \\diamond</div>`,
+    expected: `<div class="alaska" data-math="true">\u22C6 \u22C4</div>`,
+  },
+  {
+    desc: "data-math false under a true ancestor restores the prose star",
+    input: `<div class="alaska" data-math="true"><p data-math="false">\\star</p></div>`,
+    expected: `<div class="alaska" data-math="true"><p data-math="false">\u2606</p></div>`,
+  },
+  {
     desc: "explicit data-place attribute on the same element wins over the overlay",
     input: `<div class="alaska" data-math="true" data-place-arithmetical-symbols="false">x - 5</div>`,
     expected: `<div class="alaska" data-math="true" data-place-arithmetical-symbols="false">x - 5</div>`,
