@@ -33,7 +33,7 @@
     },
     {
       "name": "ornament-shortcodes",
-      "description": "Ornamentation shortcodes follow LaTeX where a name exists; case-sensitive; \\dagger and \\ddagger were renamed to \\dag and \\ddag; \\section was removed: it is the LaTeX sectioning command and duplicated \\S",
+      "description": "Ornamentation shortcodes follow LaTeX where a name exists; case-sensitive; \\dagger and \\ddagger were renamed to \\dag and \\ddag; \\section was removed: it is the LaTeX sectioning command and duplicated \\S; \\copyright is the LaTeX name, while \\registered, \\trademark and \\phonogram are deliberately short and differ from the LaTeX text commands \\textregistered, \\texttrademark and \\textcircledP; the ASCII forms (c), (tm), (r) and (p) are not converted",
       "cases": [
         { "desc": "section sign", "input": "\\S", "expected": "\u00A7", "lang": "en" },
         { "desc": "section sign with a number", "input": "\\S 5", "expected": "\u00A7 5", "lang": "en" },
@@ -45,6 +45,9 @@
         { "desc": "shortcode ends at a digit", "input": "\\dag1", "expected": "\u20201", "lang": "en" },
         { "desc": "old dagger name is not recognised", "input": "\\dagger \\ddagger", "expected": "\\dagger \\ddagger", "lang": "en" },
         { "desc": "lowercase s and p are not section and paragraph", "input": "\\s \\p", "expected": "\\s \\p", "lang": "en" },
+        { "desc": "copyright, registered, trademark and phonogram", "input": "\\copyright \\registered \\trademark \\phonogram", "expected": "\u00A9 \u00AE \u2122 \u2117", "lang": "en" },
+        { "desc": "near-miss names stay as written", "input": "\\Copyright \\copyrights \\phonograms \\textregistered", "expected": "\\Copyright \\copyrights \\phonograms \\textregistered", "lang": "en" },
+        { "desc": "ASCII forms are not converted", "input": "(c) (C) (tm) (TM) (r) (R) (p) (P)", "expected": "(c) (C) (tm) (TM) (r) (R) (p) (P)", "lang": "en" },
         { "desc": "dinkus and asterism", "input": "\\dinkus \\asterism", "expected": "\u2217\u2060\u2217\u2060\u2217 \u2042", "lang": "en" }
       ]
     },
@@ -140,17 +143,9 @@
         { "desc": "ornament ignored when only shapes on", "input": "\\dinkus", "expected": "\\dinkus", "lang": "en", "rules": { "base": "none", "placeShapes": true } },
         { "desc": "fisheye ignored when only ornamentation on", "input": "\\fisheye", "expected": "\\fisheye", "lang": "en", "rules": { "base": "none", "placeTypographyOrnamentation": true } },
         { "desc": "fisheye expands when only shapes on", "input": "\\fisheye", "expected": "\u25C9", "lang": "en", "rules": { "base": "none", "placeShapes": true } },
-        { "desc": "shape ignored when only greek on", "input": "\\star", "expected": "\\star", "lang": "en", "rules": { "base": "none", "placeGreekSymbols": true } }
-      ]
-    },
-    {
-      "name": "copyright",
-      "description": "Replaces (c), (tm), (r), (p) with the appropriate symbols",
-      "cases": [
-        { "desc": "copyright", "input": "(c)", "expected": "\u00A9", "lang": "en" },
-        { "desc": "trademark", "input": "(tm)", "expected": "\u2122", "lang": "en" },
-        { "desc": "registered", "input": "(r)", "expected": "\u00AE", "lang": "en" },
-        { "desc": "phonogram", "input": "(p)", "expected": "\u2117", "lang": "en" }
+        { "desc": "shape ignored when only greek on", "input": "\\star", "expected": "\\star", "lang": "en", "rules": { "base": "none", "placeGreekSymbols": true } },
+        { "desc": "copyright, registered, trademark and phonogram ignored when every other shortcode category is on", "input": "\\copyright \\registered \\trademark \\phonogram", "expected": "\\copyright \\registered \\trademark \\phonogram", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true, "placeGreekSymbols": true, "placeEmoticons": true, "placeArrows": true, "placeShapes": true } },
+        { "desc": "copyright expands when only ornamentation on", "input": "\\copyright", "expected": "\u00A9", "lang": "en", "rules": { "base": "none", "placeTypographyOrnamentation": true } }
       ]
     },
     {

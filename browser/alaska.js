@@ -3,7 +3,7 @@
 {
 const MAX_INPUT_LENGTH = 2_000_000;
 
-const commonRules = Object.fromEntries("placeNumberNbspWord placeThreeStops placeFractions placeArithmeticalSymbols placeMinusSign placeEmdash placeNumericRange placeCopyright placeNumeroSign placeMathematicalSymbols placeGreekSymbols placeTypographyOrnamentation placeEmoticons placeCurrencySign placePercentSign placeNbsp placeHyphen placeTemperatureSign placeMultiplicationSign formatInitials placeTypographicQuotes placeArrows placeShapes".split(" ").map((k) => [k, k !== "placeArithmeticalSymbols"]));
+const commonRules = Object.fromEntries("placeNumberNbspWord placeThreeStops placeFractions placeArithmeticalSymbols placeMinusSign placeEmdash placeNumericRange placeNumeroSign placeMathematicalSymbols placeGreekSymbols placeTypographyOrnamentation placeEmoticons placeCurrencySign placePercentSign placeNbsp placeHyphen placeTemperatureSign placeMultiplicationSign formatInitials placeTypographicQuotes placeArrows placeShapes".split(" ").map((k) => [k, k !== "placeArithmeticalSymbols"]));
 const mathRules = { placeArithmeticalSymbols: true, placeEmdash: false, placeNumericRange: false, placeHyphen: false };
 
 const temperatureUnit = /^o[CF](?=$|[\p{scx=Han}\p{scx=Hiragana}\p{scx=Katakana}\p{scx=Hangul}])/u;
@@ -21,7 +21,7 @@ const arithmeticOps = { "-": "−", "*": "⋅", "/": "∕", "+": "+", "=": "=" }
 const currencyWordMap = { usd: "$", eur: "€", gbp: "£", jpy: "¥", cny: "CN¥", rub: "₽", kzt: "₸" };
 const mathShortcodes = { "\\pm": "\u00B1", "\\prime": "\u2032", "\\dprime": "\u2033", "\\infty": "\u221E", "\\leq": "\u2A7D", "\\geq": "\u2A7E", "\\neq": "\u2260", "\\approx": "\u2248", "\\sqrt": "\u221A", "\\prod": "\u220F", "\\sum": "\u2211", "\\int": "\u222B", "\\partial": "\u2202", "\\therefore": "\u2234", "\\because": "\u2235", "\\forall": "\u2200", "\\exists": "\u2203", "\\in": "\u2208", "\\notin": "\u2209", "\\emptyset": "\u2205", "\\cup": "\u222A", "\\cap": "\u2229", "\\angle": "\u2220", "\\perp": "\u22A5", "\\parallel": "\u2225", "\\degree": "\u00B0", "\\times": "\u00D7" };
 const greekShortcodes = { "\\alpha": "\u03B1", "\\beta": "\u03B2", "\\gamma": "\u03B3", "\\delta": "\u03B4", "\\epsilon": "\u03F5", "\\varepsilon": "\u03B5", "\\zeta": "\u03B6", "\\eta": "\u03B7", "\\theta": "\u03B8", "\\vartheta": "\u03D1", "\\iota": "\u03B9", "\\kappa": "\u03BA", "\\varkappa": "\u03F0", "\\lambda": "\u03BB", "\\mu": "\u03BC", "\\nu": "\u03BD", "\\xi": "\u03BE", "\\pi": "\u03C0", "\\varpi": "\u03D6", "\\rho": "\u03C1", "\\varrho": "\u03F1", "\\sigma": "\u03C3", "\\varsigma": "\u03C2", "\\tau": "\u03C4", "\\upsilon": "\u03C5", "\\phi": "\u03D5", "\\varphi": "\u03C6", "\\chi": "\u03C7", "\\psi": "\u03C8", "\\omega": "\u03C9", "\\digamma": "\u03DD", "\\Gamma": "\u0393", "\\Delta": "\u0394", "\\Theta": "\u0398", "\\Lambda": "\u039B", "\\Xi": "\u039E", "\\Pi": "\u03A0", "\\Sigma": "\u03A3", "\\Upsilon": "\u03A5", "\\Phi": "\u03A6", "\\Psi": "\u03A8", "\\Omega": "\u03A9" };
-const ornamentShortcodes = { "\\dinkus": "\u2217\u2060\u2217\u2060\u2217", "\\asterism": "\u2042", "\\dag": "\u2020", "\\ddag": "\u2021", "\\bullet": "\u2022", "\\S": "\u00A7", "\\P": "\u00B6" };
+const ornamentShortcodes = { "\\dinkus": "\u2217\u2060\u2217\u2060\u2217", "\\asterism": "\u2042", "\\dag": "\u2020", "\\ddag": "\u2021", "\\bullet": "\u2022", "\\S": "\u00A7", "\\P": "\u00B6", "\\copyright": "\u00A9", "\\registered": "\u00AE", "\\trademark": "\u2122", "\\phonogram": "\u2117" };
 const emoticonShortcodes = { "\\shrug": "\u00AF\u2060\\\u2060_\u2060(\u2060\u30C4\u2060)\u2060_\u2060/\u2060\u00AF", "\\crying": "(\u2060\u22A4\u2060_\u2060\u22A4\u2060)", "\\dying": "(\u2060\u00D7\u2060_\u2060\u00D7\u2060)", "\\nervous": "(\u2060-\u2060_\u2060-\u2060;\u2060)", "\\cute": "(\u2060^\u2060.\u2060^\u2060)", "\\happy": "(\u2060^\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060_\u2060^\u2060)", "\\surprised": "(\u2060\u00A0\u2060\u2D54\u2060.\u2060\u2D54\u2060\u00A0\u2060)", "\\angry": "(\u2060>\u2060_\u2060<\u2060)" };
 const arrowShortcodes = { "\\arrn": "\u2191", "\\arrs": "\u2193", "\\arrne": "\u2197", "\\arrse": "\u2198", "\\arrsw": "\u2199", "\\arrnw": "\u2196", "\\arre": "\u2192", "\\arrw": "\u2190", "\\arrwe": "\u2194", "\\arrns": "\u2195" };
 const shapeShortcodes = { "\\square": "\u25A1", "\\blacksquare": "\u25A0", "\\circle": "\u25CB", "\\blackcircle": "\u25CF", "\\doublecircle": "\u25CE", "\\fisheye": "\u25C9", "\\triangle": "\u25B3", "\\blacktriangle": "\u25B2", "\\triangledown": "\u25BD", "\\blacktriangledown": "\u25BC", "\\triangleleft": "\u25C1", "\\blacktriangleleft": "\u25C0\uFE0E", "\\triangleright": "\u25B7", "\\blacktriangleright": "\u25B6\uFE0E", "\\diamond": "\u25C7", "\\blackdiamond": "\u25C6", "\\lozenge": "\u25CA", "\\blacklozenge": "\u29EB", "\\star": "\u2606", "\\blackstar": "\u2605", "\\hexagon": "\u2B21", "\\blackhexagon": "\u2B22", "\\pentagon": "\u2B20", "\\blackpentagon": "\u2B1F", "\\heartsuit": "\u2661", "\\blackheartsuit": "\u2665\uFE0E", "\\spadesuit": "\u2664", "\\blackspadesuit": "\u2660\uFE0E", "\\clubsuit": "\u2667", "\\blackclubsuit": "\u2663\uFE0E", "\\diamondsuit": "\u2662", "\\blackdiamondsuit": "\u2666\uFE0E" };
@@ -119,7 +119,7 @@ function tokenize(text) {
         pos++;
       }
       tokens.push({ type: "punct", value, start, end: pos });
-    } else if (/[%#@&*+=<>~№©℗™®]/.test(char)) {
+    } else if (/[%#@&*+=<>~\u2116]/.test(char)) {
       tokens.push({ type: "sym", value: char, start, end: pos + 1 });
       pos++;
     } else if (/[\p{L}]/u.test(char)) {
@@ -260,13 +260,6 @@ function formatString(text, rules, lang, carry) {
         }
       } else if (t.value === ")" && rules.placeArithmeticalSymbols) {
         applyArithmeticOp(tokens, i, arithmeticOps);
-      } else if (rules.placeCopyright && t.value === "(") {
-        if (next?.type === "word" && next2?.type === "punct" && next2.value === ")") {
-          const pattern = "(" + next.value.toLowerCase() + ")";
-          const map = { "(c)": "©", "(p)": "℗", "(tm)": "™", "(r)": "®" };
-          const replacement = map[pattern];
-          if (replacement) replaceRange(tokens, i, i + 2, replacement);
-        }
       }
     } else if (t.type === "num") {
       if (rules.placeNumberNbspWord && next?.type === "ws" && next.value === "\u0020" && next2?.type === "word" && /\d$/.test(t.value)) next.value = "\u00A0";
