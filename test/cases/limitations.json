@@ -14,6 +14,7 @@
         { "desc": "backslash plus a shortcode name in a Windows path is expanded", "input": "C:\\pi", "expected": "C:π", "lang": "en" },
         { "desc": "a path whose name is not a shortcode is left alone", "input": "C:\\temp", "expected": "C:\\temp", "lang": "en" },
         { "desc": "a path whose name is an emoticon shortcode is expanded", "input": "C:\\cute", "expected": "C:(\u2060^\u2060.\u2060^\u2060)", "lang": "en" },
+        { "desc": "a LaTeX command with an argument keeps its braces", "input": "\\sqrt{2}", "expected": "\u221A{2}", "lang": "en" },
         { "desc": "ja: hyphenated phone number gets en dashes", "input": "03-1234-5678", "expected": "03\u2060\u2013\u20601234\u2060\u2013\u20605678", "lang": "ja" },
         { "desc": "ko: hyphenated phone number gets en dashes", "input": "02-123-4567", "expected": "02\u2060\u2013\u2060123\u2060\u2013\u20604567", "lang": "ko" },
         { "desc": "ja: doubled ellipsis character becomes two dot runs", "input": "\u2026\u2026", "expected": "\u2060.\u2060.\u2060.\u2060\u2060.\u2060.\u2060.\u2060", "lang": "ja" },

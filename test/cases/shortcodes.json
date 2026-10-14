@@ -2,12 +2,15 @@
   "groups": [
     {
       "name": "math-shortcodes",
-      "description": "Expands backslash shortcodes to Unicode math symbols",
+      "description": "Expands backslash shortcodes to Unicode math symbols. Names follow LaTeX or unicode-math where one exists. Representatives only: the table in src/core.js (mathShortcodes) is the source of truth",
       "cases": [
         { "desc": "plus-minus", "input": "\\pm", "expected": "\u00B1", "lang": "en" },
         { "desc": "infinity", "input": "\\infty", "expected": "\u221E", "lang": "en" },
-        { "desc": "diameter", "input": "\\dia", "expected": "\u2300", "lang": "en" },
-        { "desc": "degree", "input": "\\deg", "expected": "\u00B0", "lang": "en" },
+        { "desc": "times", "input": "\\times", "expected": "\u00D7", "lang": "en" },
+        { "desc": "degree", "input": "\\degree", "expected": "\u00B0", "lang": "en" },
+        { "desc": "less-or-equal and greater-or-equal give the slanted forms U+2A7D and U+2A7E, not U+2264 and U+2265 (undecided until ja support)", "input": "\\leq \\geq", "expected": "\u2A7D \u2A7E", "lang": "en" },
+        { "desc": "triple and quadruple primes are typed as repeated primes", "input": "\\prime\\prime\\prime \\prime\\prime\\prime\\prime", "expected": "\u2032\u2032\u2032 \u2032\u2032\u2032\u2032", "lang": "en" },
+        { "desc": "removed and renamed names stay as written", "input": "\\deg \\dia \\tprime \\qprime", "expected": "\\deg \\dia \\tprime \\qprime", "lang": "en" },
         { "desc": "not-equal", "input": "\\neq", "expected": "\u2260", "lang": "en" }
       ]
     },
@@ -123,8 +126,10 @@
         { "desc": "former math greek shortcode ignored when only math on", "input": "\\pi", "expected": "\\pi", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true } },
         { "desc": "greek expands when only greek on", "input": "\\pi", "expected": "\u03C0", "lang": "en", "rules": { "base": "none", "placeGreekSymbols": true } },
         { "desc": "math ignored when only greek on", "input": "\\pm", "expected": "\\pm", "lang": "en", "rules": { "base": "none", "placeGreekSymbols": true } },
-        { "desc": "dia expands when only math on", "input": "\\dia", "expected": "\u2300", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true } },
-        { "desc": "dia ignored when only ornamentation on", "input": "\\dia", "expected": "\\dia", "lang": "en", "rules": { "base": "none", "placeTypographyOrnamentation": true } },
+        { "desc": "degree expands when only math on", "input": "\\degree", "expected": "\u00B0", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true } },
+        { "desc": "degree ignored when only ornamentation on", "input": "\\degree", "expected": "\\degree", "lang": "en", "rules": { "base": "none", "placeTypographyOrnamentation": true } },
+        { "desc": "times expands when only math on", "input": "3 \\times 4", "expected": "3 \u00D7 4", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true } },
+        { "desc": "times ignored when only multiplication on", "input": "3 \\times 4", "expected": "3 \\times 4", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
         { "desc": "section sign ignored when only greek on", "input": "\\S \\P", "expected": "\\S \\P", "lang": "en", "rules": { "base": "none", "placeGreekSymbols": true } },
         { "desc": "dag ignored when only math on", "input": "\\dag", "expected": "\\dag", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true } },
         { "desc": "east arrow ignored when only greek on", "input": "\\arre \\arrw", "expected": "\\arre \\arrw", "lang": "en", "rules": { "base": "none", "placeGreekSymbols": true } },

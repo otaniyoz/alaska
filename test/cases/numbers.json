@@ -31,6 +31,9 @@
         { "desc": "Cyrillic letter is not the operator", "input": "3 \u0445 4", "expected": "3 \u0445 4", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
         { "desc": "math zone keeps hair spaces (letter)", "input": "3 x 4", "expected": "3\u200A\u00D7\u200A4", "lang": "en", "rules": { "base": "math", "placeMultiplicationSign": true } },
         { "desc": "math zone keeps hair spaces (typed sign)", "input": "3 \u00D7 4", "expected": "3\u200A\u00D7\u200A4", "lang": "en", "rules": { "base": "math", "placeMultiplicationSign": true } },
+        { "desc": "times shortcode counts as a typed sign", "input": "3 \\times 4", "expected": "3\u202F\u00D7\u202F4", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true, "placeMultiplicationSign": true } },
+        { "desc": "times shortcode in a math zone keeps hair spaces", "input": "3 \\times 4", "expected": "3\u200A\u00D7\u200A4", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "tight times shortcode is left alone", "input": "3\\times4", "expected": "3\u00D74", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true, "placeMultiplicationSign": true } },
         { "desc": "with every rule on, number-nbsp-word does not win", "input": "3 x 4", "expected": "3\u202F\u00D7\u202F4", "lang": "en" },
         { "desc": "with every rule on, percent moves and the product is still found", "input": "5% x 3", "expected": "%\u202F5\u202F\u00D7\u202F3", "lang": "en" }
       ]
