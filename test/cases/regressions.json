@@ -16,7 +16,6 @@
         { "desc": "line-start dash before minus", "input": "-\n-20", "expected": "\u2014 \u221220", "lang": "en" },
         { "desc": "dash before math shortcode that expands to a letter", "input": "x - \\pi", "expected": "x\u00A0\u2014 \u03C0", "lang": "en" },
         { "desc": "dash before an emoticon", "input": "x - \\crying", "expected": "x - (\u2060\u22A4\u2060_\u2060\u22A4\u2060)", "lang": "en" },
-        { "desc": "fraction then plus in a math zone", "input": "1/2 + 3", "expected": "1\u20442\u200A+\u200A3", "lang": "en", "rules": { "base": "math" } },
         { "desc": "percent then plus in a math zone", "input": "50% + 3", "expected": "%\u202F50\u200A+\u200A3", "lang": "en", "rules": { "base": "math" } },
         { "desc": "temperature then plus in a math zone", "input": "20oC + 3", "expected": "20\u202F\u00B0C\u200A+\u200A3", "lang": "en", "rules": { "base": "math" } },
         { "desc": "greek shortcode merges into the preceding capital", "input": "J\\alpha. Smith", "expected": "J\u03B1. Smith", "lang": "en" },

@@ -13,9 +13,12 @@
         { "desc": "slash between letters", "input": "a/b", "expected": "a/b", "lang": "en" },
         { "desc": "and/or", "input": "and/or", "expected": "and/or", "lang": "en" },
         { "desc": "hash number", "input": "#1", "expected": "#1", "lang": "en" },
-        { "desc": "space before slash", "input": "12 /5", "expected": "12 /5", "lang": "en" },
-        { "desc": "space after slash", "input": "12/ 5", "expected": "12/ 5", "lang": "en" },
-        { "desc": "fraction with trailing comma", "input": "12/5,", "expected": "12\u20445,", "lang": "en" }
+        { "desc": "two numbers with a trailing comma", "input": "12/5,", "expected": "12/5,", "lang": "en" },
+        { "desc": "schedule", "input": "open 24/7", "expected": "open 24/7", "lang": "en" },
+        { "desc": "month and day", "input": "due 10/14", "expected": "due 10/14", "lang": "en" },
+        { "desc": "ru: two numbers around a slash", "input": "дом 12/3", "expected": "дом 12/3", "lang": "ru" },
+        { "desc": "ja: month and day before a weekday", "input": "10/14(月)に会議", "expected": "10/14(月)に会議", "lang": "ja" },
+        { "desc": "ko: month and day before a weekday", "input": "10/14(월) 회의", "expected": "10/14(월) 회의", "lang": "ko" }
       ]
     }
   ]

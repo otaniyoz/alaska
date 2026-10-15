@@ -46,14 +46,6 @@
       ]
     },
     {
-      "name": "fractions",
-      "description": "Replaces / between two numbers with a fraction slash",
-      "cases": [
-        { "desc": "half", "input": "1/2", "expected": "1\u20442", "lang": "en" },
-        { "desc": "three-quarter", "input": "3/4", "expected": "3\u20444", "lang": "en" }
-      ]
-    },
-    {
       "name": "temperature",
       "description": "Formats temperature values with a narrow no-break space and degree sign",
       "cases": [
