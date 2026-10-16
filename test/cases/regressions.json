@@ -21,7 +21,11 @@
         { "desc": "greek shortcode merges into the preceding capital", "input": "J\\alpha. Smith", "expected": "J\u03B1. Smith", "lang": "en" },
         { "desc": "greek shortcode and a letter merge into the preceding capital", "input": "J\\pi\u00E9. Smith", "expected": "J\u03C0\u00E9. Smith", "lang": "en" },
         { "desc": "left arrow before a percent number", "input": "<-2%", "expected": "<-%\u202F2", "lang": "en" },
-        { "desc": "left arrow before a percent number in a math zone", "input": "<-2%", "expected": "<-%\u202F2", "lang": "en", "rules": { "base": "math" } }
+        { "desc": "left arrow before a percent number in a math zone", "input": "<-2%", "expected": "<-%\u202F2", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "declined quote before an elision word whose closer becomes an apostrophe", "input": "-'em'", "expected": "-'em\u2019", "lang": "en" },
+        { "desc": "declined single quote before a number that percent and currency rules reshuffle", "input": "'%90%", "expected": "'%\u202F%\u202F90", "lang": "en" },
+        { "desc": "declined single quote before a number, sign then currency", "input": "'%5$", "expected": "'%\u202F$\u202F5", "lang": "en" },
+        { "desc": "single quote after an opener is not a declined opener", "input": "''5I'", "expected": "\u2018\u20195I\u2019", "lang": "en" }
       ]
     }
   ]

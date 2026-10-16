@@ -63,7 +63,7 @@
         { "desc": "unknown and wrong-case names stay as written", "input": "\\shrugs \\Shrug", "expected": "\\shrugs \\Shrug", "lang": "en" },
         { "desc": "adjacent expansions", "input": "\\cute\\cute", "expected": "(\u2060^\u2060.\u2060^\u2060)(\u2060^\u2060.\u2060^\u2060)", "lang": "en" },
         { "desc": "a spaced hyphen before an emoticon is not an em dash", "input": "x - \\shrug", "expected": "x - \u00AF\u2060\\\u2060_\u2060(\u2060\u30C4\u2060)\u2060_\u2060/\u2060\u00AF", "lang": "en" },
-        { "desc": "quoted emoticon", "input": "\"\\shrug\"", "expected": "\u2018\u2060\u00AF\u2060\\\u2060_\u2060(\u2060\u30C4\u2060)\u2060_\u2060/\u2060\u00AF\u2060\u2019", "lang": "en" }
+        { "desc": "quoted emoticon", "input": "\"\\shrug\"", "expected": "\u2018\u00AF\u2060\\\u2060_\u2060(\u2060\u30C4\u2060)\u2060_\u2060/\u2060\u00AF\u2019", "lang": "en" }
       ]
     },
     {
@@ -92,7 +92,7 @@
       "name": "shape-interactions",
       "description": "Shapes next to quotes, other shapes and near-miss names",
       "cases": [
-        { "desc": "quoted shape", "input": "\"\\star\"", "expected": "\u2018\u2060\u2606\u2060\u2019", "lang": "en" },
+        { "desc": "quoted shape", "input": "\"\\star\"", "expected": "\u2018\u2606\u2019", "lang": "en" },
         { "desc": "adjacent shapes", "input": "\\star\\star", "expected": "\u2606\u2606", "lang": "en" },
         { "desc": "different shapes adjacent", "input": "\\heartsuit\\blackheartsuit", "expected": "\u2661\u2665\uFE0E", "lang": "en" },
         { "desc": "prefix of a longer name is not expanded", "input": "\\squarex", "expected": "\\squarex", "lang": "en" },

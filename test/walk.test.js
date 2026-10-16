@@ -80,22 +80,32 @@ const cases = [
   {
     desc: "lang attribute drives English quote style",
     input: `<div class="alaska" lang="en">"hi"</div>`,
-    expected: `<div class="alaska" lang="en">\u2018\u2060hi\u2060\u2019</div>`,
+    expected: `<div class="alaska" lang="en">\u2018hi\u2019</div>`,
   },
   {
     desc: "lang attribute drives Russian guillemet quote style",
     input: `<div class="alaska" lang="ru">"привет"</div>`,
-    expected: `<div class="alaska" lang="ru">\u00AB\u2060привет\u2060\u00BB</div>`,
+    expected: `<div class="alaska" lang="ru">\u00ABпривет\u00BB</div>`,
   },
   {
     desc: "lang attribute inherited by nested element without its own lang",
     input: `<div class="alaska" lang="en"><p>"hi"</p></div>`,
-    expected: `<div class="alaska" lang="en"><p>\u2018\u2060hi\u2060\u2019</p></div>`,
+    expected: `<div class="alaska" lang="en"><p>\u2018hi\u2019</p></div>`,
   },
   {
-    desc: "lang en-US is English for quotes",
+    desc: "lang en-US gets American quote nesting",
     input: `<div class="alaska" lang="en-US">"hi"</div>`,
-    expected: `<div class="alaska" lang="en-US">\u2018\u2060hi\u2060\u2019</div>`,
+    expected: `<div class="alaska" lang="en-US">\u201Chi\u201D</div>`,
+  },
+  {
+    desc: "lang ko gets double quotes",
+    input: `<div class="alaska" lang="ko">"안녕"</div>`,
+    expected: `<div class="alaska" lang="ko">\u201C안녕\u201D</div>`,
+  },
+  {
+    desc: "lang ja leaves quotes untouched",
+    input: `<div class="alaska" lang="ja">"こんにちは"</div>`,
+    expected: `<div class="alaska" lang="ja">"こんにちは"</div>`,
   },
   {
     desc: "unsupported lang leaves quotes untouched",
@@ -185,17 +195,17 @@ const cases = [
   {
     desc: "closing quote after an inline element",
     input: `<div class="alaska" lang="en">"Hello <b>x</b>"</div>`,
-    expected: `<div class="alaska" lang="en">\u2018\u2060Hello <b>x</b>\u2060\u2019</div>`,
+    expected: `<div class="alaska" lang="en">\u2018Hello <b>x</b>\u2019</div>`,
   },
   {
     desc: "quote pairing restarts in each block",
     input: `<div class="alaska" lang="en"><p>"a</p><p>"b</p></div>`,
-    expected: `<div class="alaska" lang="en"><p>\u2018\u2060a</p><p>\u2018\u2060b</p></div>`,
+    expected: `<div class="alaska" lang="en"><p>\u2018a</p><p>\u2018b</p></div>`,
   },
   {
     desc: "separate inline pairs with a space between",
     input: `<div class="alaska" lang="en"><b>"a"</b> <i>"b"</i></div>`,
-    expected: `<div class="alaska" lang="en"><b>\u2018\u2060a\u2060\u2019</b> <i>\u2018\u2060b\u2060\u2019</i></div>`,
+    expected: `<div class="alaska" lang="en"><b>\u2018a\u2019</b> <i>\u2018b\u2019</i></div>`,
   },
   {
     desc: "apostrophe after an inline skip element",
@@ -205,7 +215,7 @@ const cases = [
   {
     desc: "br counts as a line break for quotes",
     input: `<div class="alaska" lang="en">a<br>"b"</div>`,
-    expected: `<div class="alaska" lang="en">a<br>\u2018\u2060b\u2060\u2019</div>`,
+    expected: `<div class="alaska" lang="en">a<br>\u2018b\u2019</div>`,
   },
   {
     desc: "br counts as a line break for the line-start dash",
@@ -235,12 +245,12 @@ const cases = [
   {
     desc: "block alaska-skip element resets the carry",
     input: `<div class="alaska" lang="en">"a<div class="alaska-skip">x</div>"b</div>`,
-    expected: `<div class="alaska" lang="en">\u2018\u2060a<div class="alaska-skip">x</div>\u2018\u2060b</div>`,
+    expected: `<div class="alaska" lang="en">\u2018a<div class="alaska-skip">x</div>\u2018b</div>`,
   },
   {
     desc: "nbsp reference counts as whitespace",
     input: `<div class="alaska" lang="en">said&nbsp;"hi"</div>`,
-    expected: `<div class="alaska" lang="en">said&nbsp;\u2018\u2060hi\u2060\u2019</div>`,
+    expected: `<div class="alaska" lang="en">said&nbsp;\u2018hi\u2019</div>`,
   },
   {
     desc: "other character reference counts as a word",
@@ -255,17 +265,17 @@ const cases = [
   {
     desc: "closing quote uses the opener's lang",
     input: `<div class="alaska" lang="en"><span lang="ru">"мир</span> hello"</div>`,
-    expected: `<div class="alaska" lang="en"><span lang="ru">\u00AB\u2060мир</span> hello\u2060\u00BB</div>`,
+    expected: `<div class="alaska" lang="en"><span lang="ru">\u00ABмир</span> hello\u00BB</div>`,
   },
   {
     desc: "carry does not leave an inactive root",
     input: `<p class="alaska" lang="en">"a</p><p class="alaska" lang="en">"b</p>`,
-    expected: `<p class="alaska" lang="en">\u2018\u2060a</p><p class="alaska" lang="en">\u2018\u2060b</p>`,
+    expected: `<p class="alaska" lang="en">\u2018a</p><p class="alaska" lang="en">\u2018b</p>`,
   },
   {
     desc: "inline roots do not share a carry",
     input: `<span class="alaska" lang="en">"a</span> <span class="alaska" lang="en">"b</span>`,
-    expected: `<span class="alaska" lang="en">\u2018\u2060a</span> <span class="alaska" lang="en">\u2018\u2060b</span>`,
+    expected: `<span class="alaska" lang="en">\u2018a</span> <span class="alaska" lang="en">\u2018b</span>`,
   },
   {
     desc: "doctype is passed through",
@@ -340,12 +350,12 @@ const cases = [
   {
     desc: "decimal reference to a space counts as whitespace",
     input: `<div class="alaska" lang="en">said&#32;"hi"</div>`,
-    expected: `<div class="alaska" lang="en">said&#32;\u2018\u2060hi\u2060\u2019</div>`,
+    expected: `<div class="alaska" lang="en">said&#32;\u2018hi\u2019</div>`,
   },
   {
     desc: "hex reference to a space counts as whitespace",
     input: `<div class="alaska" lang="en">said&#x20;"hi"</div>`,
-    expected: `<div class="alaska" lang="en">said&#x20;\u2018\u2060hi\u2060\u2019</div>`,
+    expected: `<div class="alaska" lang="en">said&#x20;\u2018hi\u2019</div>`,
   },
   {
     desc: "stray </br> is kept and does not disturb the stack",
@@ -360,12 +370,12 @@ const cases = [
   {
     desc: "lang ru is inherited by nested elements",
     input: `<div class="alaska" lang="ru"><p>"привет"</p></div>`,
-    expected: `<div class="alaska" lang="ru"><p>\u00AB\u2060привет\u2060\u00BB</p></div>`,
+    expected: `<div class="alaska" lang="ru"><p>\u00ABпривет\u00BB</p></div>`,
   },
   {
     desc: "nested .alaska applies its own lang and data-* to its subtree only",
     input: `<div class="alaska" lang="en"><p class="alaska" lang="ru" data-place-percent-sign="false">"мир" 50%</p> 50%</div>`,
-    expected: `<div class="alaska" lang="en"><p class="alaska" lang="ru" data-place-percent-sign="false">\u00AB\u2060мир\u2060\u00BB 50%</p> %\u202F50</div>`,
+    expected: `<div class="alaska" lang="en"><p class="alaska" lang="ru" data-place-percent-sign="false">\u00ABмир\u00BB 50%</p> %\u202F50</div>`,
   },
   {
     desc: "explicit true on a rule attribute turns the rule on",

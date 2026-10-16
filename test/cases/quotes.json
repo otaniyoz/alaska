@@ -4,27 +4,27 @@
       "name": "quotes-edge-cases",
       "description": "Apostrophes at word end, single outer quotes, and opening quote after punctuation with no space",
       "cases": [
-        { "desc": "possessive apostrophe at word end", "input": "dogs' day", "expected": "dogs\u2060\u2019 day", "lang": "en" },
-        { "desc": "single outer quotes in English", "input": "'hello'", "expected": "\u2018\u2060hello\u2060\u2019", "lang": "en" },
-        { "desc": "opening quote after punctuation with no space", "input": "said,\"hello\"", "expected": "said,\u2018\u2060hello\u2060\u2019", "lang": "en" }
+        { "desc": "possessive apostrophe at word end", "input": "dogs' day", "expected": "dogs\u2019 day", "lang": "en" },
+        { "desc": "single outer quotes in English", "input": "'hello'", "expected": "\u2018hello\u2019", "lang": "en" },
+        { "desc": "opening quote after punctuation with no space", "input": "said,\"hello\"", "expected": "said,\u2018hello\u2019", "lang": "en" }
       ]
     },
     {
       "name": "quotes-closing-after-comma",
       "description": "Quote immediately after a comma should close if same char is open on the stack",
       "cases": [
-        { "desc": "closing single quote directly after comma", "input": "'hello,' he said", "expected": "\u2018\u2060hello,\u2060\u2019 he said", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
-        { "desc": "closing double quote directly after comma", "input": "\"hello,\" he said", "expected": "\u2018\u2060hello,\u2060\u2019 he said", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
-        { "desc": "dialogue with apostrophe and comma-preceded closing quote", "input": "Rick says, 'You're a good friend, Cliff,' Cliff replies.", "expected": "Rick says, \u2018\u2060You\u2019re a good friend, Cliff,\u2060\u2019 Cliff replies.", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
-        { "desc": "nested single inside double still opens after comma", "input": "\"She said,'hi'\"", "expected": "\u2018\u2060She said,\u201C\u2060hi\u2060\u201D\u2060\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } }
+        { "desc": "closing single quote directly after comma", "input": "'hello,' he said", "expected": "\u2018hello,\u2019 he said", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "closing double quote directly after comma", "input": "\"hello,\" he said", "expected": "\u2018hello,\u2019 he said", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "dialogue with apostrophe and comma-preceded closing quote", "input": "Rick says, 'You're a good friend, Cliff,' Cliff replies.", "expected": "Rick says, \u2018You\u2019re a good friend, Cliff,\u2019 Cliff replies.", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "nested single inside double still opens after comma", "input": "\"She said,'hi'\"", "expected": "\u2018She said,\u201Chi\u201D\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } }
       ]
     },
     {
       "name": "quotes-en",
       "description": "Converts straight quotes to curly quotes; outer level uses single, inner uses double",
       "cases": [
-        { "desc": "outer double quotes", "input": "\"hello\"", "expected": "\u2018\u2060hello\u2060\u2019", "lang": "en" },
-        { "desc": "nested quotes", "input": "\"she said 'hi'\"", "expected": "\u2018\u2060she said \u201C\u2060hi\u2060\u201D\u2060\u2019", "lang": "en" },
+        { "desc": "outer double quotes", "input": "\"hello\"", "expected": "\u2018hello\u2019", "lang": "en" },
+        { "desc": "nested quotes", "input": "\"she said 'hi'\"", "expected": "\u2018she said \u201Chi\u201D\u2019", "lang": "en" },
         { "desc": "apostrophe", "input": "it's", "expected": "it\u2019s", "lang": "en" }
       ]
     },
@@ -32,8 +32,76 @@
       "name": "quotes-nested-same-char",
       "description": "Nested quotes that reuse the same character must reopen (not close) when preceded by whitespace and immediately followed by a word",
       "cases": [
-        { "desc": "minimal same-char nesting", "input": "'a 'b' c'", "expected": "\u2018\u2060a \u201C\u2060b\u2060\u201D c\u2060\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
-        { "desc": "reported case: single quote nested inside single quote", "input": "She said, 'I heard him whisper 'not today' before he left.'", "expected": "She said, \u2018\u2060I heard him whisper \u201C\u2060not today\u2060\u201D before he left.\u2060\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } }
+        { "desc": "minimal same-char nesting", "input": "'a 'b' c'", "expected": "\u2018a \u201Cb\u201D c\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "reported case: single quote nested inside single quote", "input": "She said, 'I heard him whisper 'not today' before he left.'", "expected": "She said, \u2018I heard him whisper \u201Cnot today\u201D before he left.\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } }
+      ]
+    },
+    {
+      "name": "quotes-apostrophes",
+      "description": "A straight single quote between Latin or Cyrillic letters, after a Latin or Cyrillic letter while no single quote is pending, before a decade like 90s, or before a lowercase elision word (em til tis twas cause bout round) is an apostrophe. 'n' written as a pair is left alone",
+      "cases": [
+        { "desc": "between letters", "input": "it's", "expected": "it\u2019s", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "name", "input": "O'Brien", "expected": "O\u2019Brien", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "ru: between Cyrillic letters", "input": "д'Артаньян", "expected": "д\u2019Артаньян", "lang": "ru", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "tight 'n' between words is an apostrophe twice", "input": "rock'n'roll", "expected": "rock\u2019n\u2019roll", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "possessive plural after a letter", "input": "dogs' day", "expected": "dogs\u2019 day", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "after a letter closes the quote while a single quote is pending", "input": "'hello' he said", "expected": "\u2018hello\u2019 he said", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "possessive plural inside a double quote inside a single quote", "input": "'He said \"the dogs' day\" ok'", "expected": "\u2018He said \u201Cthe dogs\u2019 day\u201D ok\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "decade", "input": "in the '90s he said \"hi\"", "expected": "in the \u201990s he said \u2018hi\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "elision em", "input": "give 'em hell", "expected": "give \u2019em hell", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "elision cause", "input": "I said 'cause I could", "expected": "I said \u2019cause I could", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "elision word quoted is a quote", "input": "the 'cause' of", "expected": "the \u2018cause\u2019 of", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "capitalised elision word is read as a quote", "input": "'Cause I said so,' he said", "expected": "\u2018Cause I said so,\u2019 he said", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "'n' pair is left alone", "input": "rock 'n' roll", "expected": "rock 'n' roll", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "'n' pair inside a quote leaves the quote intact", "input": "\"rock 'n' roll\"", "expected": "\u2018rock 'n' roll\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "'N' pair is left alone", "input": "rock 'N' roll", "expected": "rock 'N' roll", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } }
+      ]
+    },
+    {
+      "name": "quotes-numbers",
+      "description": "A quote after a digit with no same-character opener on top is a measurement or a stray mark and is left alone. A single quote that would open before a number (or a currency sign or percent sign followed by a number) is left alone, together with the quote that closes it, so such a pair never converts half",
+      "cases": [
+        { "desc": "feet and inches", "input": "She is 5'10\" tall", "expected": "She is 5'10\" tall", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "inches", "input": "a 12\" pipe", "expected": "a 12\" pipe", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "a number inside double quotes", "input": "\"2024\"", "expected": "\u20182024\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "a number inside single quotes opening before the digit is left alone", "input": "'1984' is a book", "expected": "'1984' is a book", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "a pair opening before a number is left alone as a pair", "input": "'99 problems'", "expected": "'99 problems'", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "a pair opening before a number inside another pair", "input": "'He read '1984' today'", "expected": "\u2018He read '1984' today\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "a pair opening before a currency sign", "input": "'$5 is cheap,' he said", "expected": "'$5 is cheap,' he said", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "a pair opening before a percent sign", "input": "'%5 is cheap,' he said", "expected": "'%5 is cheap,' he said", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "a single quote right after an opener converts, the marker is for whitespace and punctuation context only", "input": "\"'1984'\"", "expected": "\u2018\u201C1984\u201D\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "a double quote before a number still opens", "input": "\"99 problems\"", "expected": "\u201899 problems\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "apostrophe after a year is left alone", "input": "the 1990's", "expected": "the 1990's", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "a measurement inside a double quote leaves the pair intact", "input": "\"She said 5' tall\"", "expected": "\u2018She said 5' tall\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } }
+      ]
+    },
+    {
+      "name": "quotes-dashes",
+      "description": "After a dash (em dash, en dash or double hyphen) a quote opens when a word follows and closes otherwise. A single hyphen is not a dash here. After a double hyphen a closer is never left alone, because the em dash rule would put a space before it and the next pass would read it as an opener",
+      "cases": [
+        { "desc": "em dash then opener", "input": "He paused\u2014\"No,\" he said", "expected": "He paused\u2014\u2018No,\u2019 he said", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "em dash then closer", "input": "\"I\u2014\" he said", "expected": "\u2018I\u2014\u2019 he said", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "en dash then opener", "input": "He paused\u2013\"No,\" he said", "expected": "He paused\u2013\u2018No,\u2019 he said", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "double hyphen then opener", "input": "He paused--\"No,\" he said", "expected": "He paused--\u2018No,\u2019 he said", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "double hyphen then closer", "input": "\"I--\" he said", "expected": "\u2018I--\u2019 he said", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "single hyphen is not a dash", "input": "He paused-\"No\"", "expected": "He paused-\"No\"", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "same character nests after a dash", "input": "\"She said\u2014\"hello\" and left\"", "expected": "\u2018She said\u2014\u201Chello\u201D and left\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "ru: em dash then opener", "input": "Он сказал\u2014\"нет\"", "expected": "Он сказал\u2014\u00ABнет\u00BB", "lang": "ru", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "double hyphen then a closer with nothing open still converts", "input": "x--\" y", "expected": "x--\u2019 y", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "double hyphen then a closer with nothing open, every rule on", "input": "x--\"", "expected": "x\u00A0\u2014 \u2019", "lang": "en" }
+      ]
+    },
+    {
+      "name": "quotes-stray",
+      "description": "A quote with whitespace on both sides, and a closer with nothing open, are left alone and never touch the stack",
+      "cases": [
+        { "desc": "isolated quote", "input": "x \" y", "expected": "x \" y", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "closer with nothing open", "input": "said\" hi", "expected": "said\" hi", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "isolated quote does not disturb a later pair", "input": "x \" y \"z\"", "expected": "x \" y \u2018z\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "a quote that is a piece of its own still opens", "segments": ["said \"", "hi", "\""], "expected": ["said \u2018", "hi", "\u2019"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "quote after a digit across a piece boundary", "segments": ["5", "'10\""], "expected": ["5", "'10\""], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "dash in the previous piece", "segments": ["He paused\u2014", "\"No,\" he said"], "expected": ["He paused\u2014", "\u2018No,\u2019 he said"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "apostrophe at the end of a piece with no single quote pending", "segments": ["it'", "s"], "expected": ["it\u2019", "s"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } }
       ]
     }
   ]

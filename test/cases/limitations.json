@@ -20,12 +20,21 @@
         { "desc": "ja: doubled ellipsis character becomes two dot runs", "input": "\u2026\u2026", "expected": "\u2060.\u2060.\u2060.\u2060\u2060.\u2060.\u2060.\u2060", "lang": "ja" },
         { "desc": "ja: temperature gets a narrow no-break space, convention is none", "input": "気温は20oC", "expected": "気温は20\u202F\u00B0C", "lang": "ja" },
         { "desc": "ko: temperature gets a narrow no-break space, convention is none", "input": "오늘은 20oC", "expected": "오늘은 20\u202F\u00B0C", "lang": "ko" },
-        { "desc": "apostrophe at the end of an inline piece is read as a closing quote", "segments": ["it'", "s"], "expected": ["it\u2060\u2019", "s"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "apostrophe at the end of a piece is read as a closing quote while a single quote is pending", "segments": ["'it'", "s'"], "expected": ["\u2018it\u2019", "s\u2019"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "isolated quote in a piece of its own is read as an opener", "segments": ["x ", "\"", " y"], "expected": ["x ", "\u2018", " y"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "a single quote before a number is opened when the number is in the next piece", "segments": ["'", "1984'"], "expected": ["\u2018", "1984\u2019"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
         { "desc": "number absorbed by the currency rule is not multiplied", "input": "$5 x 3", "expected": "$\u202F5 x 3", "lang": "en" },
         { "desc": "number absorbed by the temperature rule is not multiplied", "input": "20oC x 3", "expected": "20\u202F\u00B0C x 3", "lang": "en" },
         { "desc": "operator in its own inline piece is not seen", "segments": ["3 ", "x", " 4"], "expected": ["3 ", "x", " 4"], "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
         { "desc": "tight <- between a letter and a word is read as an arrow", "input": "x<-y", "expected": "x\u2190y", "lang": "en", "rules": { "base": "none", "placeArrows": true } },
-        { "desc": "spaced <- is read as an arrow even when it means less-than-minus", "input": "x <- 5", "expected": "x \u2190 5", "lang": "en", "rules": { "base": "none", "placeArrows": true } }
+        { "desc": "spaced <- is read as an arrow even when it means less-than-minus", "input": "x <- 5", "expected": "x \u2190 5", "lang": "en", "rules": { "base": "none", "placeArrows": true } },
+        { "desc": "possessive plural inside a single quote closes it early (same glyphs, depth off)", "input": "'The dogs' owners left'", "expected": "\u2018The dogs\u2019 owners left\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "inch mark inside an open double quote is read as a closer", "input": "\"She is 5'10\" tall\"", "expected": "\u2018She is 5'10\u2019 tall\"", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "lowercase quote starting with an elision word is read as an elision, and its closer then opens", "input": "'round the world,' he said", "expected": "\u2019round the world,\u2018 he said", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "capitalised elision is read as an opener", "input": "'Twas the night", "expected": "\u2018Twas the night", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "elision-like year inside a single quote leaves that quote unclosed", "input": "'He said '99 was a year'", "expected": "\u2018He said '99 was a year'", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "quote with whitespace on one side only at the end of the text opens", "input": "x \"", "expected": "x \u2018", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "quote with whitespace on one side only at the start of the text opens", "input": "\" y", "expected": "\u2018 y", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } }
       ]
     }
   ]

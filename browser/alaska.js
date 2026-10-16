@@ -17,6 +17,28 @@ const normalizeLang = (lang) => {
   const code = typeof lang === "string" ? lang.split("-", 1)[0].toLowerCase() : "";
   return supportedLangs.has(code) ? code : undefined;
 };
+const quoteGlyphs = {
+  single: ["\u2018", "\u2019", "\u201C", "\u201D"],
+  double: ["\u201C", "\u201D", "\u2018", "\u2019"],
+  ru: ["\u00AB", "\u00BB", "\u201E", "\u201C"],
+};
+const doubleQuoteRegions = new Set(["us", "ca"]);
+const quoteStyle = (lang) => {
+  if (typeof lang !== "string") return undefined;
+  const [primary, ...subtags] = lang.toLowerCase().split("-");
+  if (primary === "ru") return "ru";
+  if (primary === "ko") return "double";
+  if (primary !== "en") return undefined;
+  for (const tag of subtags) {
+    if (tag.length === 1) break;
+    if (/^[a-z]{2}$/.test(tag)) return doubleQuoteRegions.has(tag) ? "double" : "single";
+  }
+  return "single";
+};
+const latinOrCyrillicEnd = /[\p{Script=Latin}\p{Script=Cyrillic}]$/u;
+const latinOrCyrillicStart = /^[\p{Script=Latin}\p{Script=Cyrillic}]/u;
+const elisionWords = new Set("em til tis twas cause bout round".split(" "));
+const dashes = new Set(["--", "\u2014", "\u2013"]);
 const arithmeticOps = { "-": "−", "*": "⋅", "/": "∕", "+": "+", "=": "=" };
 const currencyWordMap = { usd: "$", eur: "€", gbp: "£", jpy: "¥", cny: "CN¥", rub: "₽", kzt: "₸" };
 const mathShortcodes = { "\\pm": "\u00B1", "\\prime": "\u2032", "\\dprime": "\u2033", "\\infty": "\u221E", "\\leq": "\u2A7D", "\\geq": "\u2A7E", "\\neq": "\u2260", "\\approx": "\u2248", "\\sqrt": "\u221A", "\\prod": "\u220F", "\\sum": "\u2211", "\\int": "\u222B", "\\partial": "\u2202", "\\therefore": "\u2234", "\\because": "\u2235", "\\forall": "\u2200", "\\exists": "\u2203", "\\in": "\u2208", "\\notin": "\u2209", "\\emptyset": "\u2205", "\\cup": "\u222A", "\\cap": "\u2229", "\\angle": "\u2220", "\\perp": "\u22A5", "\\parallel": "\u2225", "\\degree": "\u00B0", "\\times": "\u00D7" };
@@ -56,6 +78,15 @@ function replaceRange(tokens, from, to, value) {
 
 function replaceTokens(tokens, from, to, value) {
   tokens.splice(from, to - from + 1, ...tokenize(value));
+}
+
+function numberAhead(tokens, i) {
+  for (let j = i + 1; j < tokens.length; j++) {
+    const t = tokens[j];
+    if (t.type === "num") return true;
+    if (t.type !== "curr" && t.type !== "ws" && !(t.type === "sym" && t.value === "%")) return false;
+  }
+  return false;
 }
 
 function applyArithmeticOp(tokens, before, opMap) {
@@ -143,8 +174,9 @@ function formatString(text, rules, lang, carry) {
     return text;
   }
 
+  const style = quoteStyle(lang);
   lang = normalizeLang(lang);
-  const quotes = rules.placeTypographicQuotes && lang !== undefined;
+  const quotes = rules.placeTypographicQuotes && style !== undefined;
   const tokens = tokenize(text);
   const carried = carry?.prev;
   const stack = carry ? (carry.stack ??= []) : [];
@@ -177,37 +209,48 @@ function formatString(text, rules, lang, carry) {
   }
   for (let i = 0; quotes && i < tokens.length; i++) {
     const t = tokens[i];
+    if (t.type !== "punct" || (t.value !== '"' && t.value !== "'")) continue;
     const prev = i > 0 ? tokens[i - 1] : carried;
     const next = tokens[i + 1];
+    const top = stack.length > 0 ? stack[stack.length - 1] : null;
+    const afterWord = prev?.type === "word" && latinOrCyrillicEnd.test(prev.value);
 
-    if (t.type === "punct" && t.value === "'") {
-      const prevIsLetter = prev?.type === "word";
-      const nextIsLetter = next?.type === "word";
-      const isApostrophe = prevIsLetter && nextIsLetter;
-
-      if (isApostrophe) {
+    if (t.value === "'") {
+      const next2 = tokens[i + 2];
+      const apostrophe = (afterWord && next?.type === "word" && latinOrCyrillicStart.test(next.value)) ||
+        (prev?.type !== "num" && next?.type === "num" && /^\d\d$/.test(next.value) && next2?.type === "word" && next2.value === "s") ||
+        (prev?.type !== "word" && next?.type === "word" && elisionWords.has(next.value) && next2?.value !== "'" && next2?.value !== "\u2019") ||
+        (afterWord && top?.char !== "'");
+      if (apostrophe) {
         t.quoteInfo = { isApostrophe: true };
         continue;
       }
-    }
-
-    if (t.type === "punct" && (t.value === '"' || t.value === "'")) {
-      const prevIsOpening = prev && prev?.quoteInfo?.isOpening;
-      const top = stack.length > 0 ? stack[stack.length - 1] : null;
-      const sameCharOnStack = top?.char === t.value;
-      const openContext = !prev || prev.type === "ws" || prevIsOpening || (prev.type === "punct" && /[,;:(\[]/.test(prev.value));
-      const reopensNested = sameCharOnStack && prev?.type === "ws" && next?.type === "word";
-      const isOpening = openContext && (!sameCharOnStack || reopensNested);
-
-      if (isOpening) {
-        const depth = stack.length;
-        stack.push({ depth, char: t.value, lang });
-        t.quoteInfo = { isOpening: true, depth, lang };
-      } else {
-        const opened = stack.pop();
-        const depth = opened ? opened.depth : 0;
-        t.quoteInfo = { isOpening: false, depth, lang: opened ? opened.lang : lang };
+      if (prev?.type !== "word" && next?.type === "word" && /^[nN]$/.test(next.value) && tokens[i + 2]?.type === "punct" && tokens[i + 2].value === "'" && tokens[i + 3]?.type !== "word") {
+        i += 2;
+        continue;
       }
+    }
+    if (prev?.type === "num" && top?.char !== t.value) continue;
+    if (prev?.type === "ws" && next?.type === "ws") continue;
+
+    const afterDash = prev?.type === "punct" && dashes.has(prev.value);
+    const openContext = !prev || prev.type === "ws" || prev.quoteInfo?.isOpening || (prev.type === "punct" && /[,;:(\[]/.test(prev.value));
+    if (t.value === "'" && openContext && !prev?.quoteInfo?.isOpening && !afterDash && numberAhead(tokens, i)) {
+      stack.push({ char: t.value, kept: true });
+      continue;
+    }
+    const sameCharOnStack = top?.char === t.value;
+    const isOpening = afterDash ? next?.type === "word" : openContext && (!sameCharOnStack || (prev?.type === "ws" && next?.type === "word"));
+
+    if (isOpening) {
+      let depth = 0;
+      for (const entry of stack) if (!entry.kept) depth++;
+      stack.push({ depth, char: t.value, style });
+      t.quoteInfo = { isOpening: true, depth, style };
+    } else {
+      const opened = stack.pop();
+      if (opened && !opened.kept) t.quoteInfo = { isOpening: false, depth: opened.depth, style: opened.style };
+      else if (prev?.value === "--" && prev.type === "punct") t.quoteInfo = { isOpening: false, depth: 0, style };
     }
   }
 
@@ -249,14 +292,8 @@ function formatString(text, rules, lang, carry) {
         if (info.isApostrophe) {
           t.value = "\u2019";
         } else {
-          const depth = info.depth;
-          if (info.isOpening) {
-            if (depth % 2 === 0) t.value = info.lang === "en" ? "\u2018\u2060" : "\u00AB\u2060";
-            else t.value = info.lang === "en" ? "\u201C\u2060" : "\u201E\u2060";
-          } else {
-            if (depth % 2 === 0) t.value = info.lang === "en" ? "\u2060\u2019" : "\u2060\u00BB";
-            else t.value = info.lang === "en" ? "\u2060\u201D" : "\u2060\u201C";
-          }
+          const glyph = quoteGlyphs[info.style][(info.depth % 2) * 2 + (info.isOpening ? 0 : 1)];
+          t.value = glyph;
         }
       } else if (t.value === ")" && rules.placeArithmeticalSymbols) {
         applyArithmeticOp(tokens, i, arithmeticOps);
