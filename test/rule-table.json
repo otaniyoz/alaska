@@ -2,6 +2,7 @@
   "description": "One row per rule behavior. Isolation: only the rule on (base none) must give expected. Negation: every other rule on (base all, or math for placeArithmeticalSymbols) and this rule off must give off, which defaults to input, and off must differ from expected. Matrix: unless langDependent, the isolation result must be identical for en, ru, ja, ko and no language",
   "rows": [
     { "rule": "placeNumberNbspWord", "input": "5 meters", "expected": "5\u00A0meters" },
+    { "rule": "placeNumberNbspWord", "input": "5 %", "expected": "5\u202F%" },
     { "rule": "placeThreeStops", "input": "wait...", "expected": "wait\u2060.\u2060.\u2060.\u2060" },
     { "rule": "placeArithmeticalSymbols", "input": "3 - 4", "expected": "3\u200A\u2212\u200A4", "negationBase": "math" },
     { "rule": "placeMinusSign", "input": "-5", "expected": "\u22125" },
@@ -17,8 +18,6 @@
     { "rule": "placeEmoticons", "input": "\\shrug", "expected": "\u00AF\u2060\\\u2060_\u2060(\u2060ツ\u2060)\u2060_\u2060/\u2060\u00AF" },
     { "rule": "placeEmoticons", "input": "\\shrugです \\crying입니다", "expected": "\u00AF\u2060\\\u2060_\u2060(\u2060\u30C4\u2060)\u2060_\u2060/\u2060\u00AFです (\u2060\u22A4\u2060_\u2060\u22A4\u2060)입니다" },
     { "rule": "placeCurrencySign", "input": "USD 100", "expected": "$\u202F100" },
-    { "rule": "placePercentSign", "input": "50%", "expected": "%\u202F50" },
-    { "rule": "placePercentSign", "input": "%50", "expected": "%\u202F50" },
     { "rule": "placeNbsp", "input": "it is a test", "expected": "it is a\u00A0test", "langDependent": true },
     { "rule": "placeHyphen", "input": "well-known", "expected": "well\u2060-\u2060known" },
     { "rule": "placeTemperatureSign", "input": "100oC", "expected": "100\u202F\u00B0C" },

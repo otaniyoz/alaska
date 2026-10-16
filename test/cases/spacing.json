@@ -19,7 +19,7 @@
     },
     {
       "name": "number-nbsp-word",
-      "description": "placeNumberNbspWord glues only a single regular space after a number that ends in a digit; newlines, repeated spaces, other space characters and numbers with trailing punctuation are left alone",
+      "description": "placeNumberNbspWord glues only a single regular space after a number that ends in a digit: to U+00A0 before a word, to U+202F before a % that is a unit (the % stays where the author put it). Newlines, repeated spaces, other space characters and numbers with trailing punctuation are left alone, and so is a % followed by a number or glued to a word (modulo, format specifiers)",
       "cases": [
         { "desc": "decimal number", "input": "3.5 kg", "expected": "3.5\u00A0kg", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
         { "desc": "digit group: only the last space glues", "input": "1 000 km", "expected": "1 000\u00A0km", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
@@ -40,7 +40,25 @@
         { "desc": "number with trailing period (sentence end) is left alone", "input": "in 2024. We", "expected": "in 2024. We", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
         { "desc": "number with trailing comma is left alone", "input": "5, then", "expected": "5, then", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
         { "desc": "decimal then sentence end is left alone", "input": "5.5. Then", "expected": "5.5. Then", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
-        { "desc": "piece boundary after the space declines", "segments": ["5 ", "meters"], "expected": ["5 ", "meters"], "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } }
+        { "desc": "piece boundary after the space declines", "segments": ["5 ", "meters"], "expected": ["5 ", "meters"], "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "percent: a spaced % gets a narrow no-break space", "input": "50 %", "expected": "50\u202f%", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "percent: decimal number", "input": "3.5 %", "expected": "3.5\u202f%", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "percent: sentence-final", "input": "up 50 %.", "expected": "up 50\u202f%.", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "percent: before a closing bracket", "input": "(50 %)", "expected": "(50\u202f%)", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "percent: a tight % is left alone, nothing is inserted or moved", "input": "50%", "expected": "50%", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "percent: no-break space is left alone", "input": "50\u00a0%", "expected": "50\u00a0%", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "percent: narrow no-break space is already formatted", "input": "50\u202f%", "expected": "50\u202f%", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "percent: repeated spaces are left alone", "input": "50  %", "expected": "50  %", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "percent: newline is left alone", "input": "50\n%", "expected": "50\n%", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "percent: number with trailing period is left alone", "input": "5. %", "expected": "5. %", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "percent: piece boundary after the space declines", "segments": ["50 ", "%"], "expected": ["50 ", "%"], "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "percent: a number after the % declines (modulo)", "input": "10 % 3", "expected": "10 % 3", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "percent: a tight number after the % declines", "input": "5 %5", "expected": "5 %5", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "percent: a tight word after the % declines (format specifier)", "input": "5 %d", "expected": "5 %d", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "percent: a number behind a currency code after the % declines on both passes", "input": "5 % 3 USD", "expected": "5 % $\u202f3", "lang": "en" },
+        { "desc": "percent: a tight word that another rule rewrites declines on both passes", "input": "5 %No. 4", "expected": "5 %\u2116\u202f4", "lang": "en" },
+        { "desc": "percent: every rule on", "input": "50 % of respondents", "expected": "50\u202f% of\u00a0respondents", "lang": "en" },
+        { "desc": "percent: math zone keeps the hair spaces of the operators", "input": "x = 50 %", "expected": "x\u200a=\u200a50\u202f%", "lang": "en", "rules": { "base": "math" } }
       ]
     },
     {

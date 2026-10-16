@@ -1,6 +1,6 @@
 const MAX_INPUT_LENGTH = 2_000_000;
 
-const commonRules = Object.fromEntries("placeNumberNbspWord placeThreeStops placeArithmeticalSymbols placeMinusSign placeEmdash placeNumericRange placeNumeroSign placeMathematicalSymbols placeGreekSymbols placeTypographyOrnamentation placeEmoticons placeCurrencySign placePercentSign placeNbsp placeHyphen placeTemperatureSign placeMultiplicationSign formatInitials placeTypographicQuotes placeArrows placeShapes".split(" ").map((k) => [k, k !== "placeArithmeticalSymbols"]));
+const commonRules = Object.fromEntries("placeNumberNbspWord placeThreeStops placeArithmeticalSymbols placeMinusSign placeEmdash placeNumericRange placeNumeroSign placeMathematicalSymbols placeGreekSymbols placeTypographyOrnamentation placeEmoticons placeCurrencySign placeNbsp placeHyphen placeTemperatureSign placeMultiplicationSign formatInitials placeTypographicQuotes placeArrows placeShapes".split(" ").map((k) => [k, k !== "placeArithmeticalSymbols"]));
 const mathRules = { placeArithmeticalSymbols: true, placeEmdash: false, placeNumericRange: false, placeHyphen: false };
 
 const temperatureUnit = /^o[CF](?=$|[\p{scx=Han}\p{scx=Hiragana}\p{scx=Katakana}\p{scx=Hangul}])/u;
@@ -84,6 +84,11 @@ function numberAhead(tokens, i) {
     if (t.type !== "curr" && t.type !== "ws" && !(t.type === "sym" && t.value === "%")) return false;
   }
   return false;
+}
+
+function isPercentUnit(tokens, i) {
+  const after = tokens[i + 1];
+  return !after || after.type === "punct" || (after.type === "ws" && !numberAhead(tokens, i + 1));
 }
 
 function applyArithmeticOp(tokens, before, opMap) {
@@ -296,7 +301,10 @@ function formatString(text, rules, lang, carry) {
         applyArithmeticOp(tokens, i, arithmeticOps);
       }
     } else if (t.type === "num") {
-      if (rules.placeNumberNbspWord && next?.type === "ws" && next.value === "\u0020" && next2?.type === "word" && /\d$/.test(t.value)) next.value = "\u00A0";
+      if (rules.placeNumberNbspWord && next?.type === "ws" && next.value === "\u0020" && /\d$/.test(t.value)) {
+        if (next2?.type === "word") next.value = "\u00A0";
+        else if (next2?.type === "sym" && next2.value === "%" && isPercentUnit(tokens, i + 2)) next.value = "\u202F";
+      }
 
       if (rules.placeArithmeticalSymbols) applyArithmeticOp(tokens, i, arithmeticOps);
 
@@ -351,20 +359,6 @@ function formatString(text, rules, lang, carry) {
         replaceRange(tokens, i, i + 2, "\u2194");
       } else if (rules.placeArrows && t.value === "<" && next?.type === "punct" && next.value === "-" && !(prev?.type === "sym" && prev.value === "<") && !(next2?.type === "num" || next2?.type === "curr" || (next2?.type === "sym" && next2.value === "%"))) {
         replaceRange(tokens, i, i + 1, "\u2190");
-      } else if (rules.placePercentSign && t.value === "%") {
-        if (prev?.type === "num") {
-          let j = i + 1;
-          while (tokens[j]?.type === "punct" && /^[.,]$/.test(tokens[j].value)) j++;
-          if (tokens[j]?.type === "sym" && tokens[j].value === "%") continue;
-          if (tokens[j]?.type === "num") {
-            tokens[j].type = "other";
-            continue;
-          }
-          replaceTokens(tokens, i - 1, i, "%\u202F" + prev.value);
-          while (tokens[i + 2]?.type === "punct" && /^[.,]$/.test(tokens[i + 2].value)) tokens[i + 1].value += tokens.splice(i + 2, 1)[0].value;
-        } else if (next?.type === "num") {
-          replaceTokens(tokens, i, i, "%\u202F");
-        }
       }
     }
   }

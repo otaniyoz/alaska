@@ -184,6 +184,7 @@
         { "desc": "old both-way names are no longer shortcodes", "input": "\\arrlr \\arrud", "expected": "\\arrlr \\arrud", "lang": "en", "rules": { "base": "none", "placeArrows": true } },
         { "desc": "ASCII long arrows are left alone", "input": "a --> b <-- c <--> d", "expected": "a --> b <-- c <--> d", "lang": "en", "rules": { "base": "none", "placeArrows": true, "placeEmdash": true } },
         { "desc": "<- tight before a number, currency sign or percent is not an arrow", "input": "x<-5 y<-$5 z<-5%", "expected": "x<-5 y<-$5 z<-5%", "lang": "en", "rules": { "base": "none", "placeArrows": true } },
+        { "desc": "<- tight before a percent sign is not an arrow", "input": "x<-%5", "expected": "x<-%5", "lang": "en", "rules": { "base": "none", "placeArrows": true } },
         { "desc": "->> and <<- are left alone", "input": "a ->> b <<- c", "expected": "a ->> b <<- c", "lang": "en", "rules": { "base": "none", "placeArrows": true, "placeEmdash": true } },
         { "desc": "ja: <- before a number next to CJK is not an arrow", "input": "値<-5 です", "expected": "値<-5 です", "lang": "ja", "rules": { "base": "none", "placeArrows": true } },
         { "desc": "ko: <- before a number next to Hangul is not an arrow", "input": "값<-5 입니다", "expected": "값<-5 입니다", "lang": "ko", "rules": { "base": "none", "placeArrows": true } },

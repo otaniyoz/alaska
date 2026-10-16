@@ -34,15 +34,7 @@
         { "desc": "times shortcode counts as a typed sign", "input": "3 \\times 4", "expected": "3\u202F\u00D7\u202F4", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true, "placeMultiplicationSign": true } },
         { "desc": "times shortcode in a math zone keeps hair spaces", "input": "3 \\times 4", "expected": "3\u200A\u00D7\u200A4", "lang": "en", "rules": { "base": "math" } },
         { "desc": "tight times shortcode is left alone", "input": "3\\times4", "expected": "3\u00D74", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true, "placeMultiplicationSign": true } },
-        { "desc": "with every rule on, number-nbsp-word does not win", "input": "3 x 4", "expected": "3\u202F\u00D7\u202F4", "lang": "en" },
-        { "desc": "with every rule on, percent moves and the product is still found", "input": "5% x 3", "expected": "%\u202F5\u202F\u00D7\u202F3", "lang": "en" }
-      ]
-    },
-    {
-      "name": "number-interactions",
-      "description": "Number rules firing on the same token stream",
-      "cases": [
-        { "desc": "temperature and percent in same string", "input": "100oC at 50%", "expected": "100\u202F\u00B0C at\u00A0%\u202F50", "lang": "en" }
+        { "desc": "with every rule on, number-nbsp-word does not win", "input": "3 x 4", "expected": "3\u202F\u00D7\u202F4", "lang": "en" }
       ]
     },
     {
@@ -65,15 +57,6 @@
         { "desc": "Cyrillic letter after the unit is not a temperature", "input": "20oC\u0432", "expected": "20oC\u0432", "lang": "ru" },
         { "desc": "Han letters after the unit", "input": "20oC以下", "expected": "20\u202F\u00B0C以下", "lang": "ja" },
         { "desc": "prolonged sound mark counts as Kana (needs script extensions)", "input": "20oC\u30FC", "expected": "20\u202F\u00B0C\u30FC", "lang": "ja" }
-      ]
-    },
-    {
-      "name": "percent",
-      "description": "Places % sign before the number with a narrow no-break space",
-      "cases": [
-        { "desc": "percent after number", "input": "50%", "expected": "%\u202F50", "lang": "en" },
-        { "desc": "percent after 100", "input": "100%", "expected": "%\u202F100", "lang": "en" },
-        { "desc": "leading percent before a number also gets the narrow space", "input": "%50", "expected": "%\u202F50", "lang": "en", "rules": { "base": "none", "placePercentSign": true } }
       ]
     },
     {
