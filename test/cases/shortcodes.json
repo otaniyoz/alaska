@@ -67,6 +67,17 @@
       ]
     },
     {
+      "name": "currency-shortcodes",
+      "description": "Currency shortcodes expand to the currency sign. \\pounds, \\yen and \\euro are LaTeX names; \\ruble and \\tenge are Alaska's own. Codes such as \\usd and \\eur are not shortcodes, and neither is a wrong-case name. Typed signs and ISO codes are never formatted by this rule. The table in src/core.js (currencyShortcodes) is the source of truth",
+      "cases": [
+        { "desc": "all five names", "input": "\\pounds \\yen \\euro \\ruble \\tenge", "expected": "\u00A3 \u00A5 \u20AC \u20BD \u20B8", "lang": "en" },
+        { "desc": "ends at a digit", "input": "\\ruble5", "expected": "\u20BD5", "lang": "en" },
+        { "desc": "codes, wrong case and near-miss names stay as written", "input": "\\usd \\eur \\rub \\Euro \\euros", "expected": "\\usd \\eur \\rub \\Euro \\euros", "lang": "en" },
+        { "desc": "the expanded sign takes the unit glue", "input": "100 \\euro", "expected": "100\u202F\u20AC", "lang": "en" },
+        { "desc": "quoted sign", "input": "\"\\euro\"", "expected": "\u2018\u20AC\u2019", "lang": "en" }
+      ]
+    },
+    {
       "name": "shape-shortcodes",
       "description": "Shape shortcodes: white shapes use the plain name, filled ones the black prefix; the suits are named *suit and follow the same pattern (so \\spadesuit and \\clubsuit are outlined, unlike LaTeX); U+FE0E follows the six glyphs platforms may draw as colour emoji; star, diamond, doublecircle and fisheye are the documented deviations, and star and diamond are operators in a math zone (see shape-math-variants). Other entries are table data (src/core.js shapeShortcodes is the source of truth)",
       "cases": [
@@ -145,6 +156,9 @@
         { "desc": "fisheye expands when only shapes on", "input": "\\fisheye", "expected": "\u25C9", "lang": "en", "rules": { "base": "none", "placeShapes": true } },
         { "desc": "shape ignored when only greek on", "input": "\\star", "expected": "\\star", "lang": "en", "rules": { "base": "none", "placeGreekSymbols": true } },
         { "desc": "copyright, registered, trademark and phonogram ignored when every other shortcode category is on", "input": "\\copyright \\registered \\trademark \\phonogram", "expected": "\\copyright \\registered \\trademark \\phonogram", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true, "placeGreekSymbols": true, "placeEmoticons": true, "placeArrows": true, "placeShapes": true } },
+        { "desc": "currency ignored when every other shortcode category is on", "input": "\\pounds \\yen \\euro \\ruble \\tenge", "expected": "\\pounds \\yen \\euro \\ruble \\tenge", "lang": "en", "rules": { "base": "none", "placeMathematicalSymbols": true, "placeGreekSymbols": true, "placeTypographyOrnamentation": true, "placeEmoticons": true, "placeArrows": true, "placeShapes": true } },
+        { "desc": "currency expands when only currency on", "input": "\\pounds \\yen \\euro \\ruble \\tenge", "expected": "\u00A3 \u00A5 \u20AC \u20BD \u20B8", "lang": "en", "rules": { "base": "none", "placeCurrencySymbols": true } },
+        { "desc": "math ignored when only currency on", "input": "\\pm \\yen", "expected": "\\pm \u00A5", "lang": "en", "rules": { "base": "none", "placeCurrencySymbols": true } },
         { "desc": "copyright expands when only ornamentation on", "input": "\\copyright", "expected": "\u00A9", "lang": "en", "rules": { "base": "none", "placeTypographyOrnamentation": true } }
       ]
     },

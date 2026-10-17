@@ -19,7 +19,7 @@
     },
     {
       "name": "number-nbsp-word",
-      "description": "placeNumberNbspWord glues only a single regular space after a number that ends in a digit: to U+00A0 before a word, to U+202F before a % that is a unit (the % stays where the author put it). Newlines, repeated spaces, other space characters and numbers with trailing punctuation are left alone, and so is a % followed by a number or glued to a word (modulo, format specifiers)",
+      "description": "placeNumberNbspWord glues only a single regular space after a number that ends in a digit: to U+00A0 before a word, to U+202F before a % or a currency sign that is a unit (the sign stays where the author put it). Newlines, repeated spaces, other space characters and numbers with trailing punctuation are left alone, and so is a % or currency sign followed by a number or glued to a word (modulo, format specifiers)",
       "cases": [
         { "desc": "decimal number", "input": "3.5 kg", "expected": "3.5\u00A0kg", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
         { "desc": "digit group: only the last space glues", "input": "1 000 km", "expected": "1 000\u00A0km", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
@@ -55,8 +55,18 @@
         { "desc": "percent: a number after the % declines (modulo)", "input": "10 % 3", "expected": "10 % 3", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
         { "desc": "percent: a tight number after the % declines", "input": "5 %5", "expected": "5 %5", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
         { "desc": "percent: a tight word after the % declines (format specifier)", "input": "5 %d", "expected": "5 %d", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
-        { "desc": "percent: a number behind a currency code after the % declines on both passes", "input": "5 % 3 USD", "expected": "5 % $\u202f3", "lang": "en" },
+        { "desc": "percent: a number behind a currency sign after the % declines", "input": "5 % $3", "expected": "5 % $3", "lang": "en" },
         { "desc": "percent: a tight word that another rule rewrites declines on both passes", "input": "5 %No. 4", "expected": "5 %\u2116\u202f4", "lang": "en" },
+        { "desc": "currency: a spaced sign after a number gets a narrow no-break space", "input": "100 \u20AC", "expected": "100\u202F\u20AC", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "currency: language independent (ru)", "input": "100 \u20BD", "expected": "100\u202F\u20BD", "lang": "ru", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "currency: before punctuation", "input": "(100 $), 5 \u00A3.", "expected": "(100\u202F$), 5\u202F\u00A3.", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "currency: a sign before the number is left alone", "input": "\u20AC 100", "expected": "\u20AC 100", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "currency: a tight sign is left alone, nothing is inserted or moved", "input": "100\u20AC", "expected": "100\u20AC", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "currency: a number after the sign declines", "input": "100 \u20AC 5", "expected": "100 \u20AC 5", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "currency: a tight number after the sign declines", "input": "100 \u20AC5", "expected": "100 \u20AC5", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "currency: a code is a word", "input": "100 USD", "expected": "100\u00A0USD", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "currency: the number after a sign is glued to a word", "input": "$5 million", "expected": "$5\u00A0million", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
+        { "desc": "currency: every rule on", "input": "100 \u20AC of costs", "expected": "100\u202F\u20AC of\u00A0costs", "lang": "en" },
         { "desc": "percent: every rule on", "input": "50 % of respondents", "expected": "50\u202f% of\u00a0respondents", "lang": "en" },
         { "desc": "percent: math zone keeps the hair spaces of the operators", "input": "x = 50 %", "expected": "x\u200a=\u200a50\u202f%", "lang": "en", "rules": { "base": "math" } }
       ]

@@ -6,7 +6,6 @@
       "cases": [
         { "desc": "date with hyphens gets en dashes", "input": "2024-01-15", "expected": "2024\u2060\u2013\u206001\u2060\u2013\u206015", "lang": "en" },
         { "desc": "phone number gets an en dash", "input": "555-1234", "expected": "555\u2060\u2013\u20601234", "lang": "en" },
-        { "desc": "rub followed by a number is read as a currency code", "input": "rub 5", "expected": "\u20BD\u202F5", "lang": "en" },
         { "desc": "letter and digit before the unit are read as a number and a temperature", "input": "A1oC", "expected": "A1\u202F\u00B0C", "lang": "en" },
         { "desc": "no. followed by a number is read as a numero sign", "input": "no. 5 people", "expected": "\u2116\u202F5\u00A0people", "lang": "en" },
         { "desc": "capital letter before a capitalized word is read as an initial", "input": "Plan B. Then", "expected": "Plan B.\u00A0Then", "lang": "en" },
@@ -23,9 +22,7 @@
         { "desc": "apostrophe at the end of a piece is read as a closing quote while a single quote is pending", "segments": ["'it'", "s'"], "expected": ["\u2018it\u2019", "s\u2019"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
         { "desc": "isolated quote in a piece of its own is read as an opener", "segments": ["x ", "\"", " y"], "expected": ["x ", "\u2018", " y"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
         { "desc": "a single quote before a number is opened when the number is in the next piece", "segments": ["'", "1984'"], "expected": ["\u2018", "1984\u2019"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
-        { "desc": "number absorbed by the currency rule is not multiplied", "input": "$5 x 3", "expected": "$\u202F5 x 3", "lang": "en" },
         { "desc": "number absorbed by the temperature rule is not multiplied", "input": "20oC x 3", "expected": "20\u202F\u00B0C x 3", "lang": "en" },
-        { "desc": "number absorbed by the currency rule does not get its % glued", "input": "$5 %", "expected": "$\u202F5 %", "lang": "en" },
         { "desc": "a % is not a left operand: percent before a plus in a math zone is not formatted", "input": "50% + 3", "expected": "50% + 3", "lang": "en", "rules": { "base": "math" } },
         { "desc": "spaced % before a word is read as a percent sign even when it is modulo", "input": "10 % y", "expected": "10\u202F% y", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
         { "desc": "operator in its own inline piece is not seen", "segments": ["3 ", "x", " 4"], "expected": ["3 ", "x", " 4"], "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
