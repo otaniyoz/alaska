@@ -125,17 +125,22 @@ const cases = [
   {
     desc: "data-math true applies the math overlay",
     input: `<div class="alaska" data-math="true">x - 5</div>`,
-    expected: `<div class="alaska" data-math="true">x\u200A\u2212\u200A5</div>`,
+    expected: `<div class="alaska" data-math="true">x \u2212 5</div>`,
   },
   {
     desc: "data-math inherits into descendants",
     input: `<div class="alaska" data-math="true"><p>x - 5</p></div>`,
-    expected: `<div class="alaska" data-math="true"><p>x\u200A\u2212\u200A5</p></div>`,
+    expected: `<div class="alaska" data-math="true"><p>x \u2212 5</p></div>`,
   },
   {
     desc: "data-math false under a true ancestor restores prose",
     input: `<div class="alaska" data-math="true"><p data-math="false">x - 5</p></div>`,
     expected: `<div class="alaska" data-math="true"><p data-math="false">x\u00A0\u2014 5</p></div>`,
+  },
+  {
+    desc: "data-math true turns the short-word no-break space off and false restores it",
+    input: `<div class="alaska" lang="en" data-math="true">a + b<p data-math="false">it is a test</p></div>`,
+    expected: `<div class="alaska" lang="en" data-math="true">a + b<p data-math="false">it is a\u00A0test</p></div>`,
   },
   {
     desc: "data-math true turns the star and diamond shortcodes into operators",
@@ -379,8 +384,8 @@ const cases = [
   },
   {
     desc: "explicit true on a rule attribute turns the rule on",
-    input: `<div class="alaska" data-place-arithmetical-symbols="true">3 + 4</div>`,
-    expected: `<div class="alaska" data-place-arithmetical-symbols="true">3\u200A+\u200A4</div>`,
+    input: `<div class="alaska" data-place-arithmetical-symbols="true">3 - 4</div>`,
+    expected: `<div class="alaska" data-place-arithmetical-symbols="true">3 \u2212 4</div>`,
   },
   {
     desc: "unquoted attribute value stops before />",

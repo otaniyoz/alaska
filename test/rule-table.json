@@ -5,7 +5,7 @@
     { "rule": "placeNumberNbspWord", "input": "5 %", "expected": "5\u202F%" },
     { "rule": "placeNumberNbspWord", "input": "100 \u20AC", "expected": "100\u202F\u20AC" },
     { "rule": "placeThreeStops", "input": "wait...", "expected": "wait\u2060.\u2060.\u2060.\u2060" },
-    { "rule": "placeArithmeticalSymbols", "input": "3 - 4", "expected": "3\u200A\u2212\u200A4", "negationBase": "math" },
+    { "rule": "placeArithmeticalSymbols", "input": "3 - 4", "expected": "3 \u2212 4", "negationBase": "math" },
     { "rule": "placeMinusSign", "input": "-5", "expected": "\u22125" },
     { "rule": "placeEmdash", "input": "x - y", "expected": "x\u00A0\u2014 y" },
     { "rule": "placeNumericRange", "input": "10-20", "expected": "10\u2060\u2013\u206020" },

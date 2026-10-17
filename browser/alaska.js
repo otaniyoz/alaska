@@ -4,7 +4,7 @@
 const MAX_INPUT_LENGTH = 2_000_000;
 
 const commonRules = Object.fromEntries("placeNumberNbspWord placeThreeStops placeArithmeticalSymbols placeMinusSign placeEmdash placeNumericRange placeNumeroSign placeMathematicalSymbols placeGreekSymbols placeTypographyOrnamentation placeEmoticons placeCurrencySymbols placeNbsp placeHyphen placeTemperatureSign placeMultiplicationSign formatInitials placeTypographicQuotes placeArrows placeShapes".split(" ").map((k) => [k, k !== "placeArithmeticalSymbols"]));
-const mathRules = { placeArithmeticalSymbols: true, placeEmdash: false, placeNumericRange: false, placeHyphen: false };
+const mathRules = { placeArithmeticalSymbols: true, placeEmdash: false, placeNumericRange: false, placeHyphen: false, placeNbsp: false };
 
 const temperatureUnit = /^o[CF](?=$|[\p{scx=Han}\p{scx=Hiragana}\p{scx=Katakana}\p{scx=Hangul}])/u;
 const shortWords = {
@@ -39,7 +39,7 @@ const latinOrCyrillicEnd = /[\p{Script=Latin}\p{Script=Cyrillic}]$/u;
 const latinOrCyrillicStart = /^[\p{Script=Latin}\p{Script=Cyrillic}]/u;
 const elisionWords = new Set("em til tis twas cause bout round".split(" "));
 const dashes = new Set(["--", "\u2014", "\u2013"]);
-const arithmeticOps = { "-": "−", "*": "⋅", "/": "∕", "+": "+", "=": "=" };
+const arithmeticOps = { "-": "\u2212", "*": "\u22C5", "/": "\u2215" };
 const mathShortcodes = { "\\pm": "\u00B1", "\\prime": "\u2032", "\\dprime": "\u2033", "\\infty": "\u221E", "\\leq": "\u2A7D", "\\geq": "\u2A7E", "\\neq": "\u2260", "\\approx": "\u2248", "\\sqrt": "\u221A", "\\prod": "\u220F", "\\sum": "\u2211", "\\int": "\u222B", "\\partial": "\u2202", "\\therefore": "\u2234", "\\because": "\u2235", "\\forall": "\u2200", "\\exists": "\u2203", "\\in": "\u2208", "\\notin": "\u2209", "\\emptyset": "\u2205", "\\cup": "\u222A", "\\cap": "\u2229", "\\angle": "\u2220", "\\perp": "\u22A5", "\\parallel": "\u2225", "\\degree": "\u00B0", "\\times": "\u00D7" };
 const greekShortcodes = { "\\alpha": "\u03B1", "\\beta": "\u03B2", "\\gamma": "\u03B3", "\\delta": "\u03B4", "\\epsilon": "\u03F5", "\\varepsilon": "\u03B5", "\\zeta": "\u03B6", "\\eta": "\u03B7", "\\theta": "\u03B8", "\\vartheta": "\u03D1", "\\iota": "\u03B9", "\\kappa": "\u03BA", "\\varkappa": "\u03F0", "\\lambda": "\u03BB", "\\mu": "\u03BC", "\\nu": "\u03BD", "\\xi": "\u03BE", "\\pi": "\u03C0", "\\varpi": "\u03D6", "\\rho": "\u03C1", "\\varrho": "\u03F1", "\\sigma": "\u03C3", "\\varsigma": "\u03C2", "\\tau": "\u03C4", "\\upsilon": "\u03C5", "\\phi": "\u03D5", "\\varphi": "\u03C6", "\\chi": "\u03C7", "\\psi": "\u03C8", "\\omega": "\u03C9", "\\digamma": "\u03DD", "\\Gamma": "\u0393", "\\Delta": "\u0394", "\\Theta": "\u0398", "\\Lambda": "\u039B", "\\Xi": "\u039E", "\\Pi": "\u03A0", "\\Sigma": "\u03A3", "\\Upsilon": "\u03A5", "\\Phi": "\u03A6", "\\Psi": "\u03A8", "\\Omega": "\u03A9" };
 const ornamentShortcodes = { "\\dinkus": "\u2217\u2060\u2217\u2060\u2217", "\\asterism": "\u2042", "\\dag": "\u2020", "\\ddag": "\u2021", "\\bullet": "\u2022", "\\S": "\u00A7", "\\P": "\u00B6", "\\copyright": "\u00A9", "\\registered": "\u00AE", "\\trademark": "\u2122", "\\phonogram": "\u2117" };
@@ -99,18 +99,11 @@ function applyArithmeticOp(tokens, before, opMap) {
   const op = tokens[before + 2];
   const ws2 = tokens[before + 3];
   const rhs = tokens[before + 4];
-
-  const valid = ws1?.type === "ws" && op && (op.type === "punct" || op.type === "sym") && ws2?.type === "ws" && (rhs?.type === "num" || rhs?.type === "word" || rhs?.value === "(");
-  if (!valid) return false;
-
+  if (ws1?.type !== "ws" || (op?.type !== "punct" && op?.type !== "sym") || ws2?.type !== "ws" || !(rhs?.type === "num" || rhs?.type === "word" || rhs?.value === "(")) return;
   const replacement = opMap[op.value];
-  if (!replacement) return false;
-
-  ws1.value = "\u200A";
-  if (replacement !== op.value) op.type = "other";
+  if (!replacement) return;
+  op.type = "other";
   op.value = replacement;
-  ws2.value = "\u200A";
-  return true;
 }
 
 function tokenize(text) {
@@ -265,7 +258,7 @@ function formatString(text, rules, lang, carry) {
       } else if (rules.placeNumericRange && t.value === "-" && prev?.type === "num" && (next?.type === "num" || !next || next.type === "ws")) {
         t.value = "\u2060\u2013\u2060";
       } else if (rules.placeMinusSign && t.value === "-" && (!before || before.type === "ws" || before.value === "(" || before.value === "[") && (next?.type === "num" || next?.type === "curr" || (rules.placeArithmeticalSymbols && next?.value === "("))) {
-        t.value = "\u2212";
+        t.value = next.type === "curr" ? "\u2212\u2060" : "\u2212";
         t.type = "other";
       } else if (rules.placeThreeStops && (t.value === "..." || t.value === "…")) {
         t.value = "\u2060.\u2060.\u2060.\u2060";
@@ -296,27 +289,32 @@ function formatString(text, rules, lang, carry) {
         applyArithmeticOp(tokens, i, arithmeticOps);
       }
     } else if (t.type === "num") {
-      if (rules.placeNumberNbspWord && next?.type === "ws" && next.value === "\u0020" && /\d$/.test(t.value)) {
-        if (next2?.type === "word") next.value = "\u00A0";
-        else if ((next2?.type === "curr" || (next2?.type === "sym" && next2.value === "%")) && isUnitSign(tokens, i + 2)) next.value = "\u202F";
-      }
-
-      if (rules.placeArithmeticalSymbols) applyArithmeticOp(tokens, i, arithmeticOps);
-
+      let mul;
       if (rules.placeMultiplicationSign && /\d$/.test(t.value)) {
         const op = nextOf(tokens, i);
         const letter = op?.token.type === "word" && op.token.value.toLowerCase() === "x";
         const rhs = letter || (op?.token.type === "other" && op.token.value === "\u00D7") ? nextOf(tokens, op.index) : null;
-        if (rhs?.token.type === "num" && !(letter && t.value === "0" && op.index === i + 1)) {
-          const space = rules.placeArithmeticalSymbols ? "\u200A" : "\u202F";
-          for (const [from, to] of [[i + 1, op.index], [op.index + 1, rhs.index]]) {
+        if (rhs?.token.type === "num" && !(letter && t.value === "0" && op.index === i + 1)) mul = { op, rhs };
+      }
+
+      if (rules.placeNumberNbspWord && next?.type === "ws" && next.value === "\u0020" && /\d$/.test(t.value)) {
+        if (next2?.type === "word") {
+          if (next2 !== mul?.op.token) next.value = "\u00A0";
+        } else if ((next2?.type === "curr" || (next2?.type === "sym" && next2.value === "%")) && isUnitSign(tokens, i + 2)) next.value = "\u202F";
+      }
+
+      if (rules.placeArithmeticalSymbols) applyArithmeticOp(tokens, i, arithmeticOps);
+
+      if (mul) {
+        if (!rules.placeArithmeticalSymbols) {
+          for (const [from, to] of [[i + 1, mul.op.index], [mul.op.index + 1, mul.rhs.index]]) {
             for (let j = from; j < to; j++) {
-              if (tokens[j].value === "\u0020" || tokens[j].value === "\u00A0") tokens[j].value = space;
+              if (tokens[j].value === "\u0020" || tokens[j].value === "\u00A0") tokens[j].value = "\u202F";
             }
           }
-          op.token.value = "\u00D7";
-          op.token.type = "other";
         }
+        mul.op.token.value = "\u00D7";
+        mul.op.token.type = "other";
       }
     } else if (t.type === "word") {
       if (rules.placeArithmeticalSymbols) applyArithmeticOp(tokens, i, arithmeticOps);

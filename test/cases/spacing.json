@@ -68,7 +68,7 @@
         { "desc": "currency: the number after a sign is glued to a word", "input": "$5 million", "expected": "$5\u00A0million", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
         { "desc": "currency: every rule on", "input": "100 \u20AC of costs", "expected": "100\u202F\u20AC of\u00A0costs", "lang": "en" },
         { "desc": "percent: every rule on", "input": "50 % of respondents", "expected": "50\u202f% of\u00a0respondents", "lang": "en" },
-        { "desc": "percent: math zone keeps the hair spaces of the operators", "input": "x = 50 %", "expected": "x\u200a=\u200a50\u202f%", "lang": "en", "rules": { "base": "math" } }
+        { "desc": "percent: math zone keeps the author's spaces around operators", "input": "x = 50 %", "expected": "x = 50\u202f%", "lang": "en", "rules": { "base": "math" } }
       ]
     },
     {

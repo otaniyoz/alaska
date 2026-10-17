@@ -5,7 +5,7 @@
       "description": "Unary minus in prose; multiplication sign; equals in a math zone",
       "cases": [
         { "desc": "unary minus", "input": "-5", "expected": "\u22125", "lang": "en" },
-        { "desc": "equals", "input": "2 = 2", "expected": "2\u200A=\u200A2", "lang": "en", "rules": { "base": "math" } }
+        { "desc": "equals and plus keep their spacing", "input": "2 = 2 + 3", "expected": "2 = 2 + 3", "lang": "en", "rules": { "base": "math" } }
       ]
     },
     {
@@ -20,18 +20,37 @@
       "name": "math-zone",
       "description": "base: math applies mathRules: operators with hair spaces; no em dash, numeric range or hyphen rules",
       "cases": [
-        { "desc": "word minus number", "input": "x - 5", "expected": "x\u200A\u2212\u200A5", "lang": "en", "rules": { "base": "math" } },
-        { "desc": "word plus word with short-word nbsp", "input": "a + b", "expected": "a\u00A0+\u200Ab", "lang": "en", "rules": { "base": "math" } },
-        { "desc": "parenthesized sum times word", "input": "(a + b) * c", "expected": "(a\u00A0+\u200Ab)\u200A\u22C5\u200Ac", "lang": "en", "rules": { "base": "math" } },
-        { "desc": "slash and equals", "input": "x / y = z", "expected": "x\u200A\u2215\u200Ay\u200A=\u200Az", "lang": "en", "rules": { "base": "math" } },
-        { "desc": "after closing bracket", "input": "f(x) - 1", "expected": "f(x)\u200A\u2212\u200A1", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "word minus number", "input": "x - 5", "expected": "x \u2212 5", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "short-word nbsp is off in a zone", "input": "a + b", "expected": "a + b", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "parenthesized sum times word", "input": "(a + b) * c", "expected": "(a + b) \u22C5 c", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "slash and equals", "input": "x / y = z", "expected": "x \u2215 y = z", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "after closing bracket", "input": "f(x) - 1", "expected": "f(x) \u2212 1", "lang": "en", "rules": { "base": "math" } },
         { "desc": "unary minus before a word stays", "input": "-x", "expected": "-x", "lang": "en", "rules": { "base": "math" } },
         { "desc": "compound word keeps its hyphen", "input": "well-known", "expected": "well-known", "lang": "en", "rules": { "base": "math" } },
         { "desc": "numeric range is not formatted", "input": "10-20", "expected": "10-20", "lang": "en", "rules": { "base": "math" } },
-        { "desc": "prose rules keep em dash off the operator", "input": "value - 5", "expected": "value\u200A\u2212\u200A5", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "prose rules keep em dash off the operator", "input": "value - 5", "expected": "value \u2212 5", "lang": "en", "rules": { "base": "math" } },
         { "desc": "prose binary minus stays untouched", "input": "3 - 4", "expected": "3 - 4", "lang": "en" },
         { "desc": "prose plus stays untouched", "input": "3 + 4", "expected": "3 + 4", "lang": "en" },
         { "desc": "operator missing from arithmeticOps is left alone", "input": "x < y", "expected": "x < y", "lang": "en", "rules": { "base": "math" } }
+      ]
+    },
+    {
+      "name": "math-zone-spacing",
+      "description": "A binary operator in a zone changes its glyph only: the author's whitespace is kept as written, nothing breaking or non-breaking is introduced. A unary minus is the glued form: U+2212 binds to a number, letter or opening bracket by its line-break class, and a word joiner binds it to a currency sign. Language-free",
+      "cases": [
+        { "desc": "newline before the operator is kept", "input": "a = b\n- c", "expected": "a = b\n\u2212 c", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "newline after the operator is kept", "input": "a -\nb", "expected": "a \u2212\nb", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "repeated spaces and a tab are kept", "input": "x  -  5\ty\t*\t2", "expected": "x  \u2212  5\ty\t\u22C5\t2", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "an author's no-break space is kept", "input": "x\u00A0-\u00A05", "expected": "x\u00A0\u2212\u00A05", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "a hair space is kept", "input": "x\u200A-\u200A5", "expected": "x\u200A\u2212\u200A5", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "a short word followed by repeated spaces is kept", "input": "a  - b", "expected": "a  \u2212 b", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "ru: Cyrillic variables keep their spaces", "input": "\u0441 - \u0443 = \u0430", "expected": "\u0441 \u2212 \u0443 = \u0430", "lang": "ru", "rules": { "base": "math" } },
+        { "desc": "ja: Latin variables", "input": "a - b * c", "expected": "a \u2212 b \u22C5 c", "lang": "ja", "rules": { "base": "math" } },
+        { "desc": "ko: Latin variables", "input": "a / b - c", "expected": "a \u2215 b \u2212 c", "lang": "ko", "rules": { "base": "math" } },
+        { "desc": "no language", "input": "a - b", "expected": "a \u2212 b", "rules": { "base": "math" } },
+        { "desc": "unary minus before a currency sign in a zone is glued", "input": "x = -$5", "expected": "x = \u2212\u2060$5", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "unary minus before a bracket in a zone is not given a joiner", "input": "x = -(a + b)", "expected": "x = \u2212(a + b)", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "unary minus before a number is not given a joiner", "input": "x = -5", "expected": "x = \u22125", "lang": "en", "rules": { "base": "math" } }
       ]
     }
   ]
