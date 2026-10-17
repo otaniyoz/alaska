@@ -7,6 +7,7 @@
     { "rule": "placeThreeStops", "input": "wait...", "expected": "wait\u2060.\u2060.\u2060.\u2060" },
     { "rule": "placeArithmeticalSymbols", "input": "3 - 4", "expected": "3 \u2212 4", "negationBase": "math" },
     { "rule": "placeMinusSign", "input": "-5", "expected": "\u22125" },
+    { "rule": "placeMinusSign", "input": "\"-5\"", "expected": "\"\u22125\"", "off": "\u2018-5\u2019" },
     { "rule": "placeEmdash", "input": "x - y", "expected": "x\u00A0\u2014 y" },
     { "rule": "placeNumericRange", "input": "10-20", "expected": "10\u2060\u2013\u206020" },
     { "rule": "placeNumeroSign", "input": "No. 1", "expected": "\u2116\u202F1" },

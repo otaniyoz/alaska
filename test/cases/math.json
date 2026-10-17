@@ -25,7 +25,7 @@
         { "desc": "parenthesized sum times word", "input": "(a + b) * c", "expected": "(a + b) \u22C5 c", "lang": "en", "rules": { "base": "math" } },
         { "desc": "slash and equals", "input": "x / y = z", "expected": "x \u2215 y = z", "lang": "en", "rules": { "base": "math" } },
         { "desc": "after closing bracket", "input": "f(x) - 1", "expected": "f(x) \u2212 1", "lang": "en", "rules": { "base": "math" } },
-        { "desc": "unary minus before a word stays", "input": "-x", "expected": "-x", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "unary minus before a word", "input": "-x", "expected": "\u2212x", "lang": "en", "rules": { "base": "math" } },
         { "desc": "compound word keeps its hyphen", "input": "well-known", "expected": "well-known", "lang": "en", "rules": { "base": "math" } },
         { "desc": "numeric range is not formatted", "input": "10-20", "expected": "10-20", "lang": "en", "rules": { "base": "math" } },
         { "desc": "prose rules keep em dash off the operator", "input": "value - 5", "expected": "value \u2212 5", "lang": "en", "rules": { "base": "math" } },
@@ -51,6 +51,21 @@
         { "desc": "unary minus before a currency sign in a zone is glued", "input": "x = -$5", "expected": "x = \u2212\u2060$5", "lang": "en", "rules": { "base": "math" } },
         { "desc": "unary minus before a bracket in a zone is not given a joiner", "input": "x = -(a + b)", "expected": "x = \u2212(a + b)", "lang": "en", "rules": { "base": "math" } },
         { "desc": "unary minus before a number is not given a joiner", "input": "x = -5", "expected": "x = \u22125", "lang": "en", "rules": { "base": "math" } }
+      ]
+    },
+    {
+      "name": "minus-sign-zone",
+      "description": "In a zone a unary minus also precedes a word, and follows = + * / directly. A word before the sign (a compound or a call) still declines. Opening quotes are skipped as in prose",
+      "cases": [
+        { "desc": "after equals", "input": "x=-5", "expected": "x=\u22125", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "after plus", "input": "x+-5", "expected": "x+\u22125", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "after an asterisk", "input": "x*-5", "expected": "x*\u22125", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "after a slash", "input": "x/-5", "expected": "x/\u22125", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "after equals, before a currency sign and a digit", "input": "x=-$5", "expected": "x=\u2212\u2060$5", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "unary minus before a spaced equation operand", "input": "x = -y", "expected": "x = \u2212y", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "before a Greek shortcode", "input": "-\\alpha", "expected": "\u2212\u03B1", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "after a closing bracket stays", "input": "f(x)-y", "expected": "f(x)-y", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "after equals and a quote", "input": "x=\"-5\"", "expected": "x=\"\u22125\"", "lang": "en", "rules": { "base": "math" } }
       ]
     }
   ]

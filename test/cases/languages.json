@@ -29,7 +29,9 @@
         { "desc": "nbsp after short preposition", "input": "\u044F \u0432 \u0434\u043E\u043C\u0435", "expected": "\u044F \u0432\u00A0\u0434\u043E\u043C\u0435", "lang": "ru" },
         { "desc": "outer guillemet quotes", "input": "\"\u043F\u0440\u0438\u0432\u0435\u0442\"", "expected": "\u00AB\u043F\u0440\u0438\u0432\u0435\u0442\u00BB", "lang": "ru" },
         { "desc": "nested quotes use lower-9 style", "input": "\"\u0442\u0435\u043A\u0441\u0442 '\u0432\u043D\u0443\u0442\u0440\u044C'\"", "expected": "\u00AB\u0442\u0435\u043A\u0441\u0442 \u201E\u0432\u043D\u0443\u0442\u0440\u044C\u201C\u00BB", "lang": "ru" },
-        { "desc": "short conjunction followed by comma still glues to next word", "input": "и, возможно, дома", "expected": "и,\u00A0возможно, дома", "lang": "ru" }
+        { "desc": "short conjunction followed by comma still glues to next word", "input": "и, возможно, дома", "expected": "и,\u00A0возможно, дома", "lang": "ru" },
+        { "desc": "minus after an opening guillemet", "input": "\u00AB-5\u00BB", "expected": "\u00AB\u22125\u00BB", "lang": "ru" },
+        { "desc": "minus after a nested low-9 opening quote", "input": "\"\u0442\u0435\u043A\u0441\u0442 '-5'\"", "expected": "\u00AB\u0442\u0435\u043A\u0441\u0442 \u201E\u22125\u201C\u00BB", "lang": "ru" }
       ]
     },
     {
@@ -56,7 +58,8 @@
       "cases": [
         { "desc": "straight quotes are left as written", "input": "\"こんにちは\"", "expected": "\"こんにちは\"", "lang": "ja" },
         { "desc": "apostrophe is left as written", "input": "it's", "expected": "it's", "lang": "ja" },
-        { "desc": "no short-word nbsp", "input": "it is a test", "expected": "it is a test", "lang": "ja" }
+        { "desc": "no short-word nbsp", "input": "it is a test", "expected": "it is a test", "lang": "ja" },
+        { "desc": "minus after a straight quote: the quote stays, the minus is formatted", "input": "\"-5\"", "expected": "\"\u22125\"", "lang": "ja" }
       ]
     },
     {
@@ -68,7 +71,8 @@
         { "desc": "single quotes around Hangul are quotes at the outer level, so they become double (documented)", "input": "그는 '좋아'라고 말했다", "expected": "그는 \u201C좋아\u201D라고 말했다", "lang": "ko" },
         { "desc": "ko-KR is Korean", "input": "\"안녕\"", "expected": "\u201C안녕\u201D", "lang": "ko-KR" },
         { "desc": "apostrophe between Latin letters is converted", "input": "it's", "expected": "it\u2019s", "lang": "ko" },
-        { "desc": "no short-word nbsp", "input": "it is a test", "expected": "it is a test", "lang": "ko" }
+        { "desc": "no short-word nbsp", "input": "it is a test", "expected": "it is a test", "lang": "ko" },
+        { "desc": "minus after an opening quote", "input": "\"-5\"", "expected": "\u201C\u22125\u201D", "lang": "ko" }
       ]
     }
   ]

@@ -67,6 +67,26 @@
         { "desc": "double dash glued to a greater-than is not an em dash", "input": "a --> b", "expected": "a --> b", "lang": "en", "rules": { "base": "none", "placeEmdash": true } },
         { "desc": "double dash glued to a less-than is not an em dash", "input": "a <-- b", "expected": "a <-- b", "lang": "en", "rules": { "base": "none", "placeEmdash": true } }
       ]
+    },
+    {
+      "name": "minus-sign-context",
+      "description": "A minus sign may follow a run of opening quotes (straight or typographic), judged by what precedes the run: start, whitespace, ( or [. Closers and apostrophes are not in the run, so a measurement or a word before the quote still declines. Prose operators (= + * /) are not leads. A currency operand needs a digit right after the sign",
+      "cases": [
+        { "desc": "after an opening quote, en", "input": "\"-5\"", "expected": "\u2018\u22125\u2019", "lang": "en" },
+        { "desc": "after a straight quote, no language", "input": "\"-5\"", "expected": "\"\u22125\"" },
+        { "desc": "after a straight single quote, no language", "input": "'-5'", "expected": "'\u22125'" },
+        { "desc": "after two nested opening quotes", "input": "\"'-5'\"", "expected": "\u2018\u201C\u22125\u201D\u2019", "lang": "en" },
+        { "desc": "quote after an opening bracket", "input": "(\"-5\")", "expected": "(\u2018\u22125\u2019)", "lang": "en" },
+        { "desc": "quote after whitespace", "input": "x \"-5", "expected": "x \u2018\u22125", "lang": "en" },
+        { "desc": "quote after a word is a closer: declined", "input": "said\"-5", "expected": "said\"-5", "lang": "en" },
+        { "desc": "quote after a number is a measurement: declined", "input": "5\"-5", "expected": "5\"-5", "lang": "en" },
+        { "desc": "apostrophe after a word is not an opener: declined", "input": "it'-5", "expected": "it\u2019-5", "lang": "en" },
+        { "desc": "equals before a quote is not a lead in prose", "input": "x=\"-5\"", "expected": "x=\"-5\"", "lang": "en" },
+        { "desc": "after an opening square bracket", "input": "[-5]", "expected": "[\u22125]", "lang": "en" },
+        { "desc": "prose operators are not leads", "input": "x=-5 x+-5 x*-5 x/-5", "expected": "x=-5 x+-5 x*-5 x/-5", "lang": "en", "rules": { "base": "none", "placeMinusSign": true } },
+        { "desc": "currency sign followed by a word is not an operand", "input": "-$HOME", "expected": "-$HOME", "lang": "en" },
+        { "desc": "currency sign followed by a space is not an operand", "input": "-$ 5", "expected": "-$ 5", "lang": "en" }
+      ]
     }
   ]
 }

@@ -3,10 +3,10 @@ import * as core from "../src/core.js";
 const iterations = Number(Deno.args[0] ?? 5000);
 const seed = Number(Deno.args[1] ?? 1);
 const SPLIT = "\uE000";
-const alphabet = [SPLIT, SPLIT, SPLIT, SPLIT, SPLIT, "a", "b", "it", "of", "0", "1", "2", "20", "x", "X", "-", "--", "----", "+", "=", "*", "/", "%", "$", "'", '"', ",", ".", "...", "(", ")", "c", "\\copyright", "No.", "oC", "%", "->", "<-", " ", "  ", "\n", "\n\n", "\\pm", "J", "K", "\u00A0", "\u202F", "\u200A", "\u2060", "\\pi", "\\alpha", "\\Pi", "\\S", "\\dag", "\\times", "\\arre", "\u00E9", "\\crying", "\\shrug", "\\surprised", "\\nervous", "\\dying", "\\cute", "\\happy", "\\angry", "\\arrn", "[", "\u20AC", "\u00D7", ">", "<", "oF", ":", "\t", "&", "\u2014", "\u2013", "<->", "\\arrwe", "\\arrns", "-->", "<--", "->>", "<<-", "\\square", "\\blackheartsuit", "\\fisheye", "\\diamondsuit", "\\star", "\\diamond", "J. ", "I. ", "Smith", "I", "\u0410", "\u0401", "\u3067\u3059", "\uC785\uB2C8\uB2E4", "oCa", "20oC", "20oC. ", "90", "s", "n", "N", "em", "cause", "4", "5", "\u2014", "\u2013", "'n'", "5'10\"", "$5", "%5", "5 %", " % ", "5 \u20AC", "\\euro", "\\yen", "3 x 4", "-$5", "a - b", "\u2212", "\u2060$"];
+const alphabet = [SPLIT, SPLIT, SPLIT, SPLIT, SPLIT, "a", "b", "it", "of", "0", "1", "2", "20", "x", "X", "-", "--", "----", "+", "=", "*", "/", "%", "$", "'", '"', ",", ".", "...", "(", ")", "c", "\\copyright", "No.", "oC", "%", "->", "<-", " ", "  ", "\n", "\n\n", "\\pm", "J", "K", "\u00A0", "\u202F", "\u200A", "\u2060", "\\pi", "\\alpha", "\\Pi", "\\S", "\\dag", "\\times", "\\arre", "\u00E9", "\\crying", "\\shrug", "\\surprised", "\\nervous", "\\dying", "\\cute", "\\happy", "\\angry", "\\arrn", "[", "\u20AC", "\u00D7", ">", "<", "oF", ":", "\t", "&", "\u2014", "\u2013", "<->", "\\arrwe", "\\arrns", "-->", "<--", "->>", "<<-", "\\square", "\\blackheartsuit", "\\fisheye", "\\diamondsuit", "\\star", "\\diamond", "J. ", "I. ", "Smith", "I", "\u0410", "\u0401", "\u3067\u3059", "\uC785\uB2C8\uB2E4", "oCa", "20oC", "20oC. ", "90", "s", "n", "N", "em", "cause", "4", "5", "\u2014", "\u2013", "'n'", "5'10\"", "$5", "%5", "5 %", " % ", "5 \u20AC", "\\euro", "\\yen", "3 x 4", "-$5", "a - b", "\u2212", "\u2060$", "\u00AB", "\u201E", "\u201C", "\u2018"];
 const configs = [["prose", { ...core.commonRules }]];
 if (core.mathRules) configs.push(["math", { ...core.commonRules, ...core.mathRules }]);
-const focused = [SPLIT, SPLIT, SPLIT, " ", "\n", "a", "it", "x", "X", "0", "\u00D7", "5", "-", "--", "(", "[", ",", "'", '"', "->", "%", "\\alpha", "J", ".", "J.", "I.", "K.", "Smith", "I", "20oC", "20oC. ", "\u3067\u3059", "90", "s", "n", "em", "5", "\u2014", "$", "5 %", " % ", "No."];
+const focused = [SPLIT, SPLIT, SPLIT, " ", "\n", "a", "it", "x", "X", "0", "\u00D7", "5", "-", "--", "(", "[", ",", "'", '"', "->", "%", "\\alpha", "J", ".", "J.", "I.", "K.", "Smith", "I", "20oC", "20oC. ", "\u3067\u3059", "90", "s", "n", "em", "5", "\u2014", "$", "5 %", " % ", "No.", "=", "+", "*", "/", "\u2018", "\u00AB"];
 const langs = ["en", "ru", "de", "en-US", "ko", undefined];
 const quoteRules = { placeTypographicQuotes: true };
 const minusRules = { placeMinusSign: true };
@@ -42,7 +42,8 @@ const boundaries = (parts) => {
   return all.slice(1).map((_, i) => [all.slice(0, i + 1).join(""), all.slice(i + 1).join("")]);
 };
 const quoteSafe = (parts) => boundaries(parts).every(([a, b]) => !a || !b || (!/['"][\p{L}\d\s$%\u20AC\u00A5\u00A3\u20BD\u20B8]*$/u.test(a) && (/\s$/.test(a) || /^[\s'"]/.test(b))));
-const minusSafe = (parts) => boundaries(parts).every(([a]) => !a.endsWith("-"));
+const minusSafe = (parts) => boundaries(parts).every(([a]) => !a.endsWith("-") && !/['"\u2018\u201C\u00AB\u201E]$/.test(a) && !/-[$\u20AC\u00A5\u00A3\u20BD\u20B8]$/.test(a));
+const zoneSafe = (parts) => minusSafe(parts) && !/\s[-*/]\s/.test(whole(parts));
 const failsSplit = (parts, rules, lang, safe) => safe(parts) && run(segmentsOf(parts), rules, Array(9).fill(lang)).join("") !== core.formatString(whole(parts), rules, lang);
 
 function shrink(parts, check) {
@@ -85,7 +86,7 @@ for (let i = 0; i < iterations; i++) {
       report(`${name} segmented ${show(seq.slice(0, once.length))}: ${show(small.join(""))}`, once, run(once, rules, seq));
     }
   }
-  for (const [name, rules, safe, lang] of [["quotes en", quoteRules, quoteSafe, "en"], ["quotes ru", quoteRules, quoteSafe, "ru"], ["quotes en-US", quoteRules, quoteSafe, "en-US"], ["quotes ko", quoteRules, quoteSafe, "ko"], ["minus", minusRules, minusSafe, undefined]]) {
+  for (const [name, rules, safe, lang] of [["quotes en", quoteRules, quoteSafe, "en"], ["quotes ru", quoteRules, quoteSafe, "ru"], ["quotes en-US", quoteRules, quoteSafe, "en-US"], ["quotes ko", quoteRules, quoteSafe, "ko"], ["minus", minusRules, minusSafe, undefined], ["minus zone", { ...minusRules, placeArithmeticalSymbols: true }, zoneSafe, undefined]]) {
     if (!failsSplit(parts, rules, lang, safe)) continue;
     const small = shrink(parts, (p) => failsSplit(p, rules, lang, safe));
     report(`split ${name}: ${show(small.join(""))}`, run(segmentsOf(small), rules, Array(9).fill(lang)).join(""), core.formatString(whole(small), rules, lang));

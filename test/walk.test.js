@@ -248,6 +248,21 @@ const cases = [
     expected: `<div class="alaska">a <span class="alaska-skip">x</span>-5</div>`,
   },
   {
+    desc: "quote run at the start of an inline element looks past it to the previous text",
+    input: `<div class="alaska" lang="en">x <b>"-5"</b></div>`,
+    expected: `<div class="alaska" lang="en">x <b>\u2018\u22125\u2019</b></div>`,
+  },
+  {
+    desc: "limitation: a quote at the end of the previous text node hides what precedes it",
+    input: `<div class="alaska" lang="en">"<b>-5</b>"</div>`,
+    expected: `<div class="alaska" lang="en">\u2018<b>-5</b>\u2019</div>`,
+  },
+  {
+    desc: "data-math true lets a minus follow an equals sign",
+    input: `<div class="alaska" data-math="true">x=-5</div>`,
+    expected: `<div class="alaska" data-math="true">x=\u22125</div>`,
+  },
+  {
     desc: "block alaska-skip element resets the carry",
     input: `<div class="alaska" lang="en">"a<div class="alaska-skip">x</div>"b</div>`,
     expected: `<div class="alaska" lang="en">\u2018a<div class="alaska-skip">x</div>\u2018b</div>`,

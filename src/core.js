@@ -36,6 +36,8 @@ const latinOrCyrillicEnd = /[\p{Script=Latin}\p{Script=Cyrillic}]$/u;
 const latinOrCyrillicStart = /^[\p{Script=Latin}\p{Script=Cyrillic}]/u;
 const elisionWords = new Set("em til tis twas cause bout round".split(" "));
 const dashes = new Set(["--", "\u2014", "\u2013"]);
+const minusOpeners = new Set(['"', "'", "\u2018", "\u201C", "\u00AB", "\u201E"]);
+const minusZoneOps = new Set(["=", "+", "*", "/"]);
 const arithmeticOps = { "-": "\u2212", "*": "\u22C5", "/": "\u2215" };
 const mathShortcodes = { "\\pm": "\u00B1", "\\prime": "\u2032", "\\dprime": "\u2033", "\\infty": "\u221E", "\\leq": "\u2A7D", "\\geq": "\u2A7E", "\\neq": "\u2260", "\\approx": "\u2248", "\\sqrt": "\u221A", "\\prod": "\u220F", "\\sum": "\u2211", "\\int": "\u222B", "\\partial": "\u2202", "\\therefore": "\u2234", "\\because": "\u2235", "\\forall": "\u2200", "\\exists": "\u2203", "\\in": "\u2208", "\\notin": "\u2209", "\\emptyset": "\u2205", "\\cup": "\u222A", "\\cap": "\u2229", "\\angle": "\u2220", "\\perp": "\u22A5", "\\parallel": "\u2225", "\\degree": "\u00B0", "\\times": "\u00D7" };
 const greekShortcodes = { "\\alpha": "\u03B1", "\\beta": "\u03B2", "\\gamma": "\u03B3", "\\delta": "\u03B4", "\\epsilon": "\u03F5", "\\varepsilon": "\u03B5", "\\zeta": "\u03B6", "\\eta": "\u03B7", "\\theta": "\u03B8", "\\vartheta": "\u03D1", "\\iota": "\u03B9", "\\kappa": "\u03BA", "\\varkappa": "\u03F0", "\\lambda": "\u03BB", "\\mu": "\u03BC", "\\nu": "\u03BD", "\\xi": "\u03BE", "\\pi": "\u03C0", "\\varpi": "\u03D6", "\\rho": "\u03C1", "\\varrho": "\u03F1", "\\sigma": "\u03C3", "\\varsigma": "\u03C2", "\\tau": "\u03C4", "\\upsilon": "\u03C5", "\\phi": "\u03D5", "\\varphi": "\u03C6", "\\chi": "\u03C7", "\\psi": "\u03C8", "\\omega": "\u03C9", "\\digamma": "\u03DD", "\\Gamma": "\u0393", "\\Delta": "\u0394", "\\Theta": "\u0398", "\\Lambda": "\u039B", "\\Xi": "\u039E", "\\Pi": "\u03A0", "\\Sigma": "\u03A3", "\\Upsilon": "\u03A5", "\\Phi": "\u03A6", "\\Psi": "\u03A8", "\\Omega": "\u03A9" };
@@ -89,6 +91,17 @@ function numberAhead(tokens, i) {
 function isUnitSign(tokens, i) {
   const after = tokens[i + 1];
   return !after || after.type === "punct" || (after.type === "ws" && !numberAhead(tokens, i + 1));
+}
+
+function minusOperand(next, next2, zone) {
+  return next?.type === "num" || (next?.type === "curr" && next2?.type === "num") || (zone && (next?.type === "word" || next?.value === "("));
+}
+
+function minusStart(tokens, i, carried, zone) {
+  let j = i - 1;
+  while (j >= 0 && minusOpeners.has(tokens[j].value)) j--;
+  const lead = j >= 0 ? tokens[j] : carried;
+  return !lead || lead.type === "ws" || lead.value === "(" || lead.value === "[" || (zone && minusZoneOps.has(lead.value));
 }
 
 function applyArithmeticOp(tokens, before, opMap) {
@@ -254,7 +267,7 @@ function formatString(text, rules, lang, carry) {
         replaceRange(tokens, i, i + 1, "\u2192");
       } else if (rules.placeNumericRange && t.value === "-" && prev?.type === "num" && (next?.type === "num" || !next || next.type === "ws")) {
         t.value = "\u2060\u2013\u2060";
-      } else if (rules.placeMinusSign && t.value === "-" && (!before || before.type === "ws" || before.value === "(" || before.value === "[") && (next?.type === "num" || next?.type === "curr" || (rules.placeArithmeticalSymbols && next?.value === "("))) {
+      } else if (rules.placeMinusSign && t.value === "-" && minusOperand(next, next2, rules.placeArithmeticalSymbols) && minusStart(tokens, i, carried, rules.placeArithmeticalSymbols)) {
         t.value = next.type === "curr" ? "\u2212\u2060" : "\u2212";
         t.type = "other";
       } else if (rules.placeThreeStops && (t.value === "..." || t.value === "…")) {
