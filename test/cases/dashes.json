@@ -45,10 +45,44 @@
     },
     {
       "name": "hyphen",
-      "description": "Wraps hyphens in compound words with word joiners to prevent line breaks",
+      "description": "A tight hyphen between two Latin or Cyrillic words, when the shorter has at most 3 letters, gets a word joiner after it, so a line never breaks after it (UAX #14 already forbids a break before it). Longer pairs, other scripts and identifiers are left alone (see hyphen-guards and guards.json)",
       "cases": [
-        { "desc": "two-part compound", "input": "well-known", "expected": "well\u2060-\u2060known", "lang": "en" },
-        { "desc": "three-part compound", "input": "editor-in-chief", "expected": "editor\u2060-\u2060in\u2060-\u2060chief", "lang": "en" }
+        { "desc": "one-letter fragment", "input": "e-mail", "expected": "e-\u2060mail", "lang": "en" },
+        { "desc": "two-letter fragment", "input": "Wi-Fi", "expected": "Wi-\u2060Fi", "lang": "en" },
+        { "desc": "capital letter fragment", "input": "X-ray", "expected": "X-\u2060ray", "lang": "en" },
+        { "desc": "three letters on the short side is the limit", "input": "non-stop", "expected": "non-\u2060stop", "lang": "en" },
+        { "desc": "four letters on both sides is over the limit", "input": "self-made", "expected": "self-made", "lang": "en" },
+        { "desc": "two long words", "input": "well-known", "expected": "well-known", "lang": "en" },
+        { "desc": "three-part compound with short middle", "input": "editor-in-chief", "expected": "editor-\u2060in-\u2060chief", "lang": "en" },
+        { "desc": "three-part compound with long parts", "input": "long-term-care", "expected": "long-term-care", "lang": "en" },
+        { "desc": "each hyphen is decided on its own pair", "input": "well-known-e-mail", "expected": "well-known-\u2060e-\u2060mail", "lang": "en" },
+        { "desc": "sentence-final period and brackets do not block", "input": "(see e-mail.)", "expected": "(see e-\u2060mail.)", "lang": "en" },
+        { "desc": "typographic quotes do not block", "input": "\"e-mail\"", "expected": "\u2018e-\u2060mail\u2019", "lang": "en" },
+        { "desc": "text after the second word in the same script run is irrelevant", "input": "Wi-Fi\u3067\u3059", "expected": "Wi-\u2060Fi\u3067\u3059", "lang": "en" },
+        { "desc": "already formatted text with a joiner on each side is unchanged", "input": "e\u2060-\u2060mail", "expected": "e\u2060-\u2060mail", "lang": "en" }
+      ]
+    },
+    {
+      "name": "hyphen-guards",
+      "description": "The hyphen rule needs a Latin or Cyrillic letter on both sides and declines in an unspaced run that looks like an identifier: one containing /, @, _ or a period followed by a letter or digit. It reads the whole run, not the neighbors of one hyphen, so every hyphen in a run gets the same decision. Everything else is a missed edit by design",
+      "cases": [
+        { "desc": "hostname and path", "input": "my-site.example.com/some-path", "expected": "my-site.example.com/some-path", "lang": "en" },
+        { "desc": "email address", "input": "john-smith@example.com", "expected": "john-smith@example.com", "lang": "en" },
+        { "desc": "file name with an underscore", "input": "my_file-name.txt", "expected": "my_file-name.txt", "lang": "en" },
+        { "desc": "several hyphens in one hostname", "input": "my-long-site.example.com", "expected": "my-long-site.example.com", "lang": "en" },
+        { "desc": "several hyphens in one email address", "input": "mary-jane-smith@x.com", "expected": "mary-jane-smith@x.com", "lang": "en" },
+        { "desc": "digits before the dot", "input": "my-site2.example.com", "expected": "my-site2.example.com", "lang": "en" },
+        { "desc": "digits before the at sign", "input": "john-smith99@example.com", "expected": "john-smith99@example.com", "lang": "en" },
+        { "desc": "leading dot", "input": ".my-class", "expected": ".my-class", "lang": "en" },
+        { "desc": "slash after the compound", "input": "e-mail/phone", "expected": "e-mail/phone", "lang": "en" },
+        { "desc": "a compound in the same sentence as an address is still formatted", "input": "use e-mail or john-smith@example.com.", "expected": "use e-\u2060mail or\u00A0john-smith@example.com.", "lang": "en" },
+        { "desc": "ru: hyphen in a hostname", "input": "\u043C\u043E\u0439-\u0441\u0430\u0439\u0442.example.com", "expected": "\u043C\u043E\u0439-\u0441\u0430\u0439\u0442.example.com", "lang": "ru" },
+        { "desc": "ru: short particle", "input": "\u043A\u0442\u043E-\u0442\u043E", "expected": "\u043A\u0442\u043E-\u2060\u0442\u043E", "lang": "ru" },
+        { "desc": "ru: two long words", "input": "\u0436\u0438\u043B\u0438-\u0431\u044B\u043B\u0438", "expected": "\u0436\u0438\u043B\u0438-\u0431\u044B\u043B\u0438", "lang": "ru" },
+        { "desc": "a Han or Kana side is not glued", "input": "T-\u30B7\u30E3\u30C4 \u6771\u4EAC-\u5927\u962A", "expected": "T-\u30B7\u30E3\u30C4 \u6771\u4EAC-\u5927\u962A", "lang": "ja" },
+        { "desc": "a Hangul side is not glued", "input": "K-\uB4DC\uB77C\uB9C8 \uC11C\uC6B8-\uBD80\uC0B0", "expected": "K-\uB4DC\uB77C\uB9C8 \uC11C\uC6B8-\uBD80\uC0B0", "lang": "ko" },
+        { "desc": "a Greek side is not glued (missed edit)", "input": "\u03B2-carotene", "expected": "\u03B2-carotene", "lang": "en" },
+        { "desc": "a hyphen at a piece start or end has no word on one side", "segments": ["e-", "mail"], "expected": ["e-", "mail"], "lang": "en", "rules": { "base": "none", "placeHyphen": true } }
       ]
     },
     {
@@ -77,7 +111,7 @@
         { "desc": "minus after opening bracket", "input": "(-5)", "expected": "(\u22125)", "lang": "en" },
         { "desc": "minus before bracket stays in prose", "input": "-(5)", "expected": "-(5)", "lang": "en" },
         { "desc": "hyphen between word and number stays", "input": "a-5", "expected": "a-5", "lang": "en" },
-        { "desc": "hyphen after merged temperature", "input": "20oC-warm", "expected": "20\u202F\u00B0C\u2060-\u2060warm", "lang": "en" },
+        { "desc": "hyphen after merged temperature sees the final tokens", "input": "20oC-warm", "expected": "20\u202F\u00B0C-\u2060warm", "lang": "en" },
         { "desc": "double dash glued to a greater-than is not an em dash", "input": "a --> b", "expected": "a --> b", "lang": "en", "rules": { "base": "none", "placeEmdash": true } },
         { "desc": "double dash glued to a less-than is not an em dash", "input": "a <-- b", "expected": "a <-- b", "lang": "en", "rules": { "base": "none", "placeEmdash": true } }
       ]

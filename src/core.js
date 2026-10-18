@@ -36,6 +36,8 @@ const quoteStyle = (lang) => {
 const latinOrCyrillicEnd = /[\p{Script=Latin}\p{Script=Cyrillic}]$/u;
 const latinOrCyrillicStart = /^[\p{Script=Latin}\p{Script=Cyrillic}]/u;
 const elisionWords = new Set("em til tis twas cause bout round".split(" "));
+const hyphenGlueMax = 3;
+const identifierShape = /[/@_]|\.[\p{L}\p{N}]/u;
 const dashes = new Set(["--", "\u2014", "\u2013"]);
 const minusOpeners = new Set(['"', "'", "\u2018", "\u201C", "\u00AB", "\u201E"]);
 const minusZoneOps = new Set(["=", "+", "*", "/"]);
@@ -113,6 +115,31 @@ function isRangeHyphen(tokens, i, carried) {
   if (before?.type === "word" || (before?.type === "punct" && before.value === "-")) return false;
   const after = tokens[i + 2];
   return !(after?.type === "punct" && after.value === "-" && tokens[i + 3]?.type === "num");
+}
+
+function isGluedHyphen(tokens, i) {
+  const prev = tokens[i - 1];
+  const next = tokens[i + 1];
+  return prev?.type === "word" && next?.type === "word" && (prev.value.length <= hyphenGlueMax || next.value.length <= hyphenGlueMax) && latinOrCyrillicEnd.test(prev.value) && latinOrCyrillicStart.test(next.value);
+}
+
+function glueHyphens(tokens) {
+  const found = [];
+  let from = 0;
+  for (let i = 0; i <= tokens.length; i++) {
+    const t = tokens[i];
+    if (t && t.type !== "ws") {
+      if (t.type === "punct" && t.value === "-" && isGluedHyphen(tokens, i)) found.push(t);
+      continue;
+    }
+    if (found.length) {
+      let run = "";
+      for (let j = from; j < i; j++) run += tokens[j].value;
+      if (!identifierShape.test(run)) { for (const h of found) h.value = "-\u2060"; }
+      found.length = 0;
+    }
+    from = i + 1;
+  }
 }
 
 function applyArithmeticOp(tokens, before, opMap) {
@@ -293,8 +320,6 @@ function formatString(text, rules, lang, carry) {
         prev.value = "\u00A0";
         t.value = "\u2014";
         next.value = "\u0020";
-      } else if (rules.placeHyphen && t.value === "-" && prev?.type === "word" && next?.type === "word") {
-        t.value = "\u2060-\u2060";
       } else if (quotes && (t.value === '"' || t.value === "'")) {
         const info = t.quoteInfo;
         if (!info) continue;
@@ -360,6 +385,8 @@ function formatString(text, rules, lang, carry) {
       }
     }
   }
+
+  if (rules.placeHyphen) glueHyphens(tokens);
 
   if (carry) {
     for (let j = tokens.length - 1; j >= 0; j--) {

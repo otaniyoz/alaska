@@ -6,7 +6,7 @@ Deno. No dependencies. No network.
 
 Alaska is not smart. It does not guess, repair or interpret text. It does a small set of simple things and does them well. When an input is ambiguous or an edge case has no clear answer, do less: leave the text as written. A missed edit is acceptable; a wrong edit is not. This applies to new rules, to tightening existing ones, and to language handling: an unsupported or missing `lang` means no language-dependent rule fires.
 
-`en` and `ru` are supported, `ko` has typographic quotes only (no short-word list, no numeric range, no other language-dependent rule), and `ja` is planned (it stays unchanged for quotes until its convention, corner brackets, is decided). When planning or revising any behavior, think in terms of all four. Language-free rules (`placeNumberNbspWord`, `placeEmdash` and the rest) currently apply to every language, `ja` and `ko` included, and `test/rule-table.json` pins that. Before adding `ja` or `ko`, decide per language-free rule whether it stays on for them. Known hazard, pinned in `test/cases/limitations.json`: a temperature gets `{U+202F}` between the number and `{U+00B0}C`, where convention is no space.
+`en` and `ru` are supported, `ko` has typographic quotes only (no short-word list, no numeric range, no other language-dependent rule), and `ja` is planned (it stays unchanged for quotes until its convention, corner brackets, is decided). When planning or revising any behavior, think in terms of all four. Language-free rules (`placeNumberNbspWord`, `placeEmdash` and the rest) currently apply to every language, `ja` and `ko` included, and `test/rule-table.json` pins that. Before adding `ja` or `ko`, decide per language-free rule whether it stays on for them. Known hazard, pinned in `test/cases/limitations.json`: a temperature gets `{U+202F}` between the number and `{U+00B0}C`, where convention is no space. `placeHyphen` is language-free but script-gated (Latin or Cyrillic on both sides), so it already leaves `ja` and `ko` compounds alone.
 
 Alaska should be reasonably fast. Recent versions of Alaska have been clocking around 400ms on our bench; we want to make sure it doesn't go up over %5 without good reason. `bench.txt` is Gutenberg's plain-text version of Ulysses.
 
@@ -54,11 +54,12 @@ agents.md           this file
 
 ### `src/core.js`
 
-`formatString(text, rules, lang)` runs three phases:
+`formatString(text, rules, lang)` runs four phases:
 
 1. **Tokenize** (`tokenize(text)`) into `ws`, `num`, `curr`, `short` (backslash and ASCII letters of either case), `punct`, `sym`, `word`, `other`. Digits and `. ,` form one `num` token; `--` and `...` are single `punct` tokens; `word` is a run of `\p{L}`.
 2. **Pre-pass**: backslash shortcodes are expanded and re-tokenized, and a `word` produced by an expansion is merged with an adjacent `word`, as tokenizing the output would, so every later rule sees the final shape of the text; quotes are paired with a stack and annotated in `token.quoteInfo` (opening or closing, depth, apostrophe).
-3. **Main pass**: one left-to-right loop that branches on token type and mutates tokens in place. The result is `tokens.map((t) => t.value).join("")`.
+3. **Main pass**: one left-to-right loop that branches on token type and mutates tokens in place.
+4. **Hyphen pass** (`glueHyphens`, only when `placeHyphen` is on): one scan over the final tokens, before the carry snapshot. It is a separate pass because its identifier guard reads the whole whitespace-delimited run, including tokens to the right that later rules rewrite (`--` and a temperature insert whitespace); on final tokens the decision is the same on pass 2. It reads one run at a time and joins a string only for a run with a candidate, so it stays linear. It does not read the carry: a run split by an inline element is judged piece by piece (`bugs.md`). The result is `tokens.map((t) => t.value).join("")`.
 
 Rules:
 

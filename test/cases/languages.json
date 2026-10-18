@@ -33,6 +33,7 @@
         { "desc": "nested quotes use lower-9 style", "input": "\"\u0442\u0435\u043A\u0441\u0442 '\u0432\u043D\u0443\u0442\u0440\u044C'\"", "expected": "\u00AB\u0442\u0435\u043A\u0441\u0442 \u201E\u0432\u043D\u0443\u0442\u0440\u044C\u201C\u00BB", "lang": "ru" },
         { "desc": "short conjunction followed by comma still glues to next word", "input": "и, возможно, дома", "expected": "и,\u00A0возможно, дома", "lang": "ru" },
         { "desc": "numeric range after a short word (only this rule: with every rule on the short-word rule glues the preposition)", "input": "\u0432 12-14 \u043B\u0435\u0442", "expected": "\u0432 12\u2060\u2013\u206014 \u043B\u0435\u0442", "lang": "ru", "rules": { "base": "none", "placeNumericRange": true } },
+        { "desc": "hyphen: short particle is glued", "input": "\u043A\u0442\u043E-\u0442\u043E \u043F\u043E-\u0440\u0443\u0441\u0441\u043A\u0438", "expected": "\u043A\u0442\u043E-\u2060\u0442\u043E \u043F\u043E-\u2060\u0440\u0443\u0441\u0441\u043A\u0438", "lang": "ru", "rules": { "base": "none", "placeHyphen": true } },
         { "desc": "minus after an opening guillemet", "input": "\u00AB-5\u00BB", "expected": "\u00AB\u22125\u00BB", "lang": "ru" },
         { "desc": "minus after a nested low-9 opening quote", "input": "\"\u0442\u0435\u043A\u0441\u0442 '-5'\"", "expected": "\u00AB\u0442\u0435\u043A\u0441\u0442 \u201E\u22125\u201C\u00BB", "lang": "ru" }
       ]
@@ -64,6 +65,8 @@
         { "desc": "no short-word nbsp", "input": "it is a test", "expected": "it is a test", "lang": "ja" },
         { "desc": "numeric range is left as written", "input": "10-20", "expected": "10-20", "lang": "ja" },
         { "desc": "hyphenated phone number is left as written", "input": "03-1234-5678", "expected": "03-1234-5678", "lang": "ja" },
+        { "desc": "hyphen: Latin fragments are glued", "input": "Wi-Fi\u3092\u4F7F\u3046", "expected": "Wi-\u2060Fi\u3092\u4F7F\u3046", "lang": "ja" },
+        { "desc": "hyphen: a hyphen next to Han or Kana is left as written", "input": "\u6771\u4EAC-\u5927\u962A\u9593 T-\u30B7\u30E3\u30C4", "expected": "\u6771\u4EAC-\u5927\u962A\u9593 T-\u30B7\u30E3\u30C4", "lang": "ja" },
         { "desc": "minus after a straight quote: the quote stays, the minus is formatted", "input": "\"-5\"", "expected": "\"\u22125\"", "lang": "ja" }
       ]
     },
@@ -79,6 +82,8 @@
         { "desc": "no short-word nbsp", "input": "it is a test", "expected": "it is a test", "lang": "ko" },
         { "desc": "numeric range is left as written", "input": "10-20", "expected": "10-20", "lang": "ko" },
         { "desc": "hyphenated phone number is left as written", "input": "02-123-4567", "expected": "02-123-4567", "lang": "ko" },
+        { "desc": "hyphen: Latin fragments are glued", "input": "K-pop\uC744 \uB4E3\uB2E4", "expected": "K-\u2060pop\uC744 \uB4E3\uB2E4", "lang": "ko" },
+        { "desc": "hyphen: a hyphen next to Hangul is left as written", "input": "\uC11C\uC6B8-\uBD80\uC0B0 K-\uB4DC\uB77C\uB9C8", "expected": "\uC11C\uC6B8-\uBD80\uC0B0 K-\uB4DC\uB77C\uB9C8", "lang": "ko" },
         { "desc": "minus after an opening quote", "input": "\"-5\"", "expected": "\u201C\u22125\u201D", "lang": "ko" }
       ]
     }
