@@ -7,7 +7,6 @@
         { "desc": "date with hyphens gets en dashes", "input": "2024-01-15", "expected": "2024\u2060\u2013\u206001\u2060\u2013\u206015", "lang": "en" },
         { "desc": "phone number gets an en dash", "input": "555-1234", "expected": "555\u2060\u2013\u20601234", "lang": "en" },
         { "desc": "letter and digit before the unit are read as a number and a temperature", "input": "A1oC", "expected": "A1\u202F\u00B0C", "lang": "en" },
-        { "desc": "no. followed by a number is read as a numero sign", "input": "no. 5 people", "expected": "\u2116\u202F5\u00A0people", "lang": "en" },
         { "desc": "capital letter before a capitalized word is read as an initial", "input": "Plan B. Then", "expected": "Plan B.\u00A0Then", "lang": "en" },
         { "desc": "initial rule also joins across a line break", "input": "Plan B.\nThen", "expected": "Plan B.\u00A0Then", "lang": "en" },
         { "desc": "backslash plus a shortcode name in a Windows path is expanded", "input": "C:\\pi", "expected": "C:π", "lang": "en" },

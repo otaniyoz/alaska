@@ -163,14 +163,6 @@
       ]
     },
     {
-      "name": "numero",
-      "description": "Replaces No. with the \u2116 sign",
-      "cases": [
-        { "desc": "No. with space before number", "input": "No. 1", "expected": "\u2116\u202F1", "lang": "en" },
-        { "desc": "No. without space", "input": "No.1", "expected": "\u2116\u202F\u20601", "lang": "en" }
-      ]
-    },
-    {
       "name": "arrows",
       "description": "ASCII arrow substitution and compass-direction shortcodes",
       "cases": [

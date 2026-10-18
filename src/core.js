@@ -1,6 +1,6 @@
 const MAX_INPUT_LENGTH = 2_000_000;
 
-const commonRules = Object.fromEntries("placeNumberNbspWord placeThreeStops placeArithmeticalSymbols placeMinusSign placeEmdash placeNumericRange placeNumeroSign placeMathematicalSymbols placeGreekSymbols placeTypographyOrnamentation placeEmoticons placeCurrencySymbols placeNbsp placeHyphen placeTemperatureSign placeMultiplicationSign formatInitials placeTypographicQuotes placeArrows placeShapes".split(" ").map((k) => [k, k !== "placeArithmeticalSymbols"]));
+const commonRules = Object.fromEntries("placeNumberNbspWord placeThreeStops placeArithmeticalSymbols placeMinusSign placeEmdash placeNumericRange placeMathematicalSymbols placeGreekSymbols placeTypographyOrnamentation placeEmoticons placeCurrencySymbols placeNbsp placeHyphen placeTemperatureSign placeMultiplicationSign formatInitials placeTypographicQuotes placeArrows placeShapes".split(" ").map((k) => [k, k !== "placeArithmeticalSymbols"]));
 const mathRules = { placeArithmeticalSymbols: true, placeEmdash: false, placeNumericRange: false, placeHyphen: false, placeNbsp: false };
 
 const temperatureUnit = /^o[CF](?=$|[\p{scx=Han}\p{scx=Hiragana}\p{scx=Katakana}\p{scx=Hangul}])/u;
@@ -158,7 +158,7 @@ function tokenize(text) {
         pos++;
       }
       tokens.push({ type: "punct", value, start, end: pos });
-    } else if (/[%#@&*+=<>~\u2116]/.test(char)) {
+    } else if (/[%#@&*+=<>~]/.test(char)) {
       tokens.push({ type: "sym", value: char, start, end: pos + 1 });
       pos++;
     } else if (/[\p{L}]/u.test(char)) {
@@ -259,7 +259,6 @@ function formatString(text, rules, lang, carry) {
     const prev = tokens[i - 1];
     const next = tokens[i + 1];
     const next2 = tokens[i + 2];
-    const next3 = tokens[i + 3];
     const before = prev ?? carried;
 
     if (t.type === "punct") {
@@ -332,11 +331,6 @@ function formatString(text, rules, lang, carry) {
       if (rules.placeTemperatureSign && prev?.type === "num" && /\d$/.test(prev.value) && temperatureUnit.test(t.value)) {
         replaceTokens(tokens, i - 1, i, prev.value + "\u202F\u00B0" + t.value.slice(1));
         i++;
-      } else if (rules.placeNumeroSign && /^no$/i.test(t.value)) {
-        if (next?.type === "punct" && next.value === ".") {
-          if (next2?.type === "num") replaceRange(tokens, i, i + 1, "№\u202F\u2060");
-          else if (next2?.type === "ws" && next3?.type === "num") replaceRange(tokens, i, i + 2, "№\u202F");
-        }
       } else if (rules.formatInitials && isInitial(t, next) && prev?.value !== "\u00B0") {
         const sp = tokens[i + 2];
         const after = tokens[i + 3];

@@ -56,7 +56,6 @@
         { "desc": "percent: a tight number after the % declines", "input": "5 %5", "expected": "5 %5", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
         { "desc": "percent: a tight word after the % declines (format specifier)", "input": "5 %d", "expected": "5 %d", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
         { "desc": "percent: a number behind a currency sign after the % declines", "input": "5 % $3", "expected": "5 % $3", "lang": "en" },
-        { "desc": "percent: a tight word that another rule rewrites declines on both passes", "input": "5 %No. 4", "expected": "5 %\u2116\u202f4", "lang": "en" },
         { "desc": "currency: a spaced sign after a number gets a narrow no-break space", "input": "100 \u20AC", "expected": "100\u202F\u20AC", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
         { "desc": "currency: language independent (ru)", "input": "100 \u20BD", "expected": "100\u202F\u20BD", "lang": "ru", "rules": { "base": "none", "placeNumberNbspWord": true } },
         { "desc": "currency: before punctuation", "input": "(100 $), 5 \u00A3.", "expected": "(100\u202F$), 5\u202F\u00A3.", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
