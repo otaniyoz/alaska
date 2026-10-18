@@ -10,6 +10,7 @@ const focused = [SPLIT, SPLIT, SPLIT, " ", "\n", "a", "it", "x", "X", "0", "\u00
 const langs = ["en", "ru", "de", "en-US", "ko", undefined];
 const quoteRules = { placeTypographicQuotes: true };
 const minusRules = { placeMinusSign: true };
+const rangeRules = { placeNumericRange: true };
 
 function mulberry32(a) {
   return () => {
@@ -43,6 +44,7 @@ const boundaries = (parts) => {
 };
 const quoteSafe = (parts) => boundaries(parts).every(([a, b]) => !a || !b || (!/['"][\p{L}\d\s$%\u20AC\u00A5\u00A3\u20BD\u20B8]*$/u.test(a) && (/\s$/.test(a) || /^[\s'"]/.test(b))));
 const minusSafe = (parts) => boundaries(parts).every(([a]) => !a.endsWith("-") && !/['"\u2018\u201C\u00AB\u201E]$/.test(a) && !/-[$\u20AC\u00A5\u00A3\u20BD\u20B8]$/.test(a));
+const rangeSafe = (parts) => boundaries(parts).every(([a, b]) => !a.endsWith("-") && !b.startsWith("-") && !(/[\d.,]$/.test(a) && /^[\d.,]/.test(b)));
 const zoneSafe = (parts) => minusSafe(parts) && !/\s[-*/]\s/.test(whole(parts));
 const failsSplit = (parts, rules, lang, safe) => safe(parts) && run(segmentsOf(parts), rules, Array(9).fill(lang)).join("") !== core.formatString(whole(parts), rules, lang);
 
@@ -86,7 +88,7 @@ for (let i = 0; i < iterations; i++) {
       report(`${name} segmented ${show(seq.slice(0, once.length))}: ${show(small.join(""))}`, once, run(once, rules, seq));
     }
   }
-  for (const [name, rules, safe, lang] of [["quotes en", quoteRules, quoteSafe, "en"], ["quotes ru", quoteRules, quoteSafe, "ru"], ["quotes en-US", quoteRules, quoteSafe, "en-US"], ["quotes ko", quoteRules, quoteSafe, "ko"], ["minus", minusRules, minusSafe, undefined], ["minus zone", { ...minusRules, placeArithmeticalSymbols: true }, zoneSafe, undefined]]) {
+  for (const [name, rules, safe, lang] of [["quotes en", quoteRules, quoteSafe, "en"], ["quotes ru", quoteRules, quoteSafe, "ru"], ["quotes en-US", quoteRules, quoteSafe, "en-US"], ["quotes ko", quoteRules, quoteSafe, "ko"], ["range en", rangeRules, rangeSafe, "en"], ["range ru", rangeRules, rangeSafe, "ru"], ["minus", minusRules, minusSafe, undefined], ["minus zone", { ...minusRules, placeArithmeticalSymbols: true }, zoneSafe, undefined]]) {
     if (!failsSplit(parts, rules, lang, safe)) continue;
     const small = shrink(parts, (p) => failsSplit(p, rules, lang, safe));
     report(`split ${name}: ${show(small.join(""))}`, run(segmentsOf(small), rules, Array(9).fill(lang)).join(""), core.formatString(whole(small), rules, lang));

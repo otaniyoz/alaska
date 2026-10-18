@@ -83,6 +83,26 @@ const cases = [
     expected: `<div class="alaska" lang="en">\u2018hi\u2019</div>`,
   },
   {
+    desc: "lang en gets a numeric range",
+    input: `<div class="alaska" lang="en">10-20</div>`,
+    expected: `<div class="alaska" lang="en">10\u2060\u2013\u206020</div>`,
+  },
+  {
+    desc: "lang ja leaves a numeric range as written",
+    input: `<div class="alaska" lang="ja">10-20</div>`,
+    expected: `<div class="alaska" lang="ja">10-20</div>`,
+  },
+  {
+    desc: "missing lang leaves a numeric range as written",
+    input: `<div class="alaska">10-20</div>`,
+    expected: `<div class="alaska">10-20</div>`,
+  },
+  {
+    desc: "a hyphen at the end of a text run before an element is not a range",
+    input: `<div class="alaska" lang="en">5-<b>star</b></div>`,
+    expected: `<div class="alaska" lang="en">5-<b>star</b></div>`,
+  },
+  {
     desc: "lang attribute drives Russian guillemet quote style",
     input: `<div class="alaska" lang="ru">"привет"</div>`,
     expected: `<div class="alaska" lang="ru">\u00ABпривет\u00BB</div>`,

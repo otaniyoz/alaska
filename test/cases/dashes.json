@@ -18,15 +18,29 @@
     },
     {
       "name": "numeric-range",
-      "description": "Replaces hyphen between two numbers with an en-dash",
+      "description": "Replaces a single tight hyphen between two numbers with an en-dash; en and ru only (see languages.json). An open-ended or suspended hyphen is left alone",
       "cases": [
         { "desc": "simple range", "input": "10-20", "expected": "10\u2060\u2013\u206020", "lang": "en" },
-        { "desc": "open-ended range", "input": "2024-", "expected": "2024\u2060\u2013\u2060", "lang": "en" },
+        { "desc": "open-ended range is left alone", "input": "2024-", "expected": "2024-", "lang": "en" },
         { "desc": "larger range", "input": "200-800", "expected": "200\u2060\u2013\u2060800", "lang": "en" },
-        { "desc": "open-ended range before a space (mid-sentence)", "input": "from 2024- on", "expected": "from 2024\u2060\u2013\u2060 on", "lang": "en" },
-        { "desc": "number, hyphen, space, number is also read as open-ended (ambiguous, pinned as is)", "input": "5- 3", "expected": "5\u2060\u2013\u2060 3", "lang": "en" },
+        { "desc": "suspended hyphen is left alone (only this rule: with every rule on the short-word rule glues the conjunction)", "input": "3- or 4-day", "expected": "3- or 4-day", "lang": "en", "rules": { "base": "none", "placeNumericRange": true } },
         { "desc": "number, hyphen, word is not a range", "input": "5-star", "expected": "5-star", "lang": "en" },
         { "desc": "number, hyphen, capital letter is not a range", "input": "3-D", "expected": "3-D", "lang": "en" }
+      ]
+    },
+    {
+      "name": "numeric-range-guards",
+      "description": "A hyphen is not a range when the left number is preceded directly by a word or a hyphen, when the hyphen is followed by another hyphenated number (a date, a phone number, a part number), or when the left number ends in a period. A range followed by a hyphenated word still converts",
+      "cases": [
+        { "desc": "date", "input": "2024-01-15", "expected": "2024-01-15", "lang": "en" },
+        { "desc": "chain of three numbers", "input": "1-2-3", "expected": "1-2-3", "lang": "en" },
+        { "desc": "phone number", "input": "555-123-4567", "expected": "555-123-4567", "lang": "en" },
+        { "desc": "word, number, number: the second hyphen follows a hyphen", "input": "ISO-8859-1", "expected": "ISO-8859-1", "lang": "en" },
+        { "desc": "number glued to a word before it", "input": "x86-64", "expected": "x86-64", "lang": "en" },
+        { "desc": "left number ends in a period", "input": "5.-3", "expected": "5.-3", "lang": "en" },
+        { "desc": "range followed by a hyphenated word", "input": "10-20-year", "expected": "10\u2060\u2013\u206020-year", "lang": "en" },
+        { "desc": "ru: suspended hyphen (only this rule: with every rule on the short-word rule glues the conjunction)", "input": "2- \u0438 3-\u043A\u043E\u043C\u043D\u0430\u0442\u043D\u0430\u044F", "expected": "2- \u0438 3-\u043A\u043E\u043C\u043D\u0430\u0442\u043D\u0430\u044F", "lang": "ru", "rules": { "base": "none", "placeNumericRange": true } },
+        { "desc": "ru: chained phone number", "input": "8-800-555-35-35", "expected": "8-800-555-35-35", "lang": "ru" }
       ]
     },
     {

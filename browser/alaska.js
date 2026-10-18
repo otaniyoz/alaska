@@ -12,6 +12,7 @@ const shortWords = {
   ru: new Set("а в во и к не на о об от по с со у из за до для или но же то бы ли".split(" ")),
 };
 const supportedLangs = new Set(["en", "ru"]);
+const rangeLangs = new Set(["en", "ru"]);
 const blockTags = new Set("address article aside audio body button canvas caption center col colgroup dd details dialog dir div dl dt fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr iframe legend li main math menu nav noscript object ol optgroup option p pre search section select summary svg table tbody td template textarea tfoot th thead tr ul video".split(" "));
 const normalizeLang = (lang) => {
   const code = typeof lang === "string" ? lang.split("-", 1)[0].toLowerCase() : "";
@@ -107,6 +108,16 @@ function minusStart(tokens, i, carried, zone) {
   return !lead || lead.type === "ws" || lead.value === "(" || lead.value === "[" || (zone && minusZoneOps.has(lead.value));
 }
 
+function isRangeHyphen(tokens, i, carried) {
+  const left = tokens[i - 1];
+  const right = tokens[i + 1];
+  if (left?.type !== "num" || right?.type !== "num" || !/\d$/.test(left.value)) return false;
+  const before = tokens[i - 2] ?? carried;
+  if (before?.type === "word" || (before?.type === "punct" && before.value === "-")) return false;
+  const after = tokens[i + 2];
+  return !(after?.type === "punct" && after.value === "-" && tokens[i + 3]?.type === "num");
+}
+
 function applyArithmeticOp(tokens, before, opMap) {
   const ws1 = tokens[before + 1];
   const op = tokens[before + 2];
@@ -188,6 +199,7 @@ function formatString(text, rules, lang, carry) {
   const style = quoteStyle(lang);
   lang = normalizeLang(lang);
   const quotes = rules.placeTypographicQuotes && style !== undefined;
+  const ranges = rules.placeNumericRange && rangeLangs.has(lang);
   const tokens = tokenize(text);
   const carried = carry?.prev;
   const stack = carry ? (carry.stack ??= []) : [];
@@ -267,7 +279,7 @@ function formatString(text, rules, lang, carry) {
     if (t.type === "punct") {
       if (rules.placeArrows && t.value === "-" && next?.type === "sym" && next.value === ">" && !(next2?.type === "sym" && next2.value === ">")) {
         replaceRange(tokens, i, i + 1, "\u2192");
-      } else if (rules.placeNumericRange && t.value === "-" && prev?.type === "num" && (next?.type === "num" || !next || next.type === "ws")) {
+      } else if (ranges && t.value === "-" && isRangeHyphen(tokens, i, carried)) {
         t.value = "\u2060\u2013\u2060";
       } else if (rules.placeMinusSign && t.value === "-" && minusOperand(next, next2, rules.placeArithmeticalSymbols) && minusStart(tokens, i, carried, rules.placeArithmeticalSymbols)) {
         t.value = next.type === "curr" ? "\u2212\u2060" : "\u2212";
