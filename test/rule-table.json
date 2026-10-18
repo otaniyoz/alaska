@@ -4,7 +4,6 @@
     { "rule": "placeNumberNbspWord", "input": "5 meters", "expected": "5\u00A0meters" },
     { "rule": "placeNumberNbspWord", "input": "5 %", "expected": "5\u202F%" },
     { "rule": "placeNumberNbspWord", "input": "100 \u20AC", "expected": "100\u202F\u20AC" },
-    { "rule": "placeThreeStops", "input": "wait...", "expected": "wait\u2060.\u2060.\u2060.\u2060" },
     { "rule": "placeArithmeticalSymbols", "input": "3 - 4", "expected": "3 \u2212 4", "negationBase": "math" },
     { "rule": "placeMinusSign", "input": "-5", "expected": "\u22125" },
     { "rule": "placeMinusSign", "input": "\"-5\"", "expected": "\"\u22125\"", "off": "\u2018-5\u2019" },

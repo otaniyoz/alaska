@@ -1,14 +1,6 @@
 {
   "groups": [
     {
-      "name": "ellipsis",
-      "description": "Replaces ... and \u2026 with word-joiner-separated dots",
-      "cases": [
-        { "desc": "three dots", "input": "wait...", "expected": "wait\u2060.\u2060.\u2060.\u2060", "lang": "en" },
-        { "desc": "unicode ellipsis", "input": "wait\u2026", "expected": "wait\u2060.\u2060.\u2060.\u2060", "lang": "en" }
-      ]
-    },
-    {
       "name": "nbsp",
       "description": "Inserts non-breaking spaces after short words and between numbers and words (initials: see the initials group)",
       "cases": [

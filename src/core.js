@@ -1,6 +1,6 @@
 const MAX_INPUT_LENGTH = 2_000_000;
 
-const commonRules = Object.fromEntries("placeNumberNbspWord placeThreeStops placeArithmeticalSymbols placeMinusSign placeEmdash placeNumericRange placeMathematicalSymbols placeGreekSymbols placeTypographyOrnamentation placeEmoticons placeCurrencySymbols placeNbsp placeHyphen placeTemperatureSign placeMultiplicationSign formatInitials placeTypographicQuotes placeArrows placeShapes".split(" ").map((k) => [k, k !== "placeArithmeticalSymbols"]));
+const commonRules = Object.fromEntries("placeNumberNbspWord placeArithmeticalSymbols placeMinusSign placeEmdash placeNumericRange placeMathematicalSymbols placeGreekSymbols placeTypographyOrnamentation placeEmoticons placeCurrencySymbols placeNbsp placeHyphen placeTemperatureSign placeMultiplicationSign formatInitials placeTypographicQuotes placeArrows placeShapes".split(" ").map((k) => [k, k !== "placeArithmeticalSymbols"]));
 const mathRules = { placeArithmeticalSymbols: true, placeEmdash: false, placeNumericRange: false, placeHyphen: false, placeNbsp: false };
 
 const temperatureUnit = /^o[CF](?=$|[\p{scx=Han}\p{scx=Hiragana}\p{scx=Katakana}\p{scx=Hangul}])/u;
@@ -281,8 +281,6 @@ function formatString(text, rules, lang, carry) {
       } else if (rules.placeMinusSign && t.value === "-" && minusOperand(next, next2, rules.placeArithmeticalSymbols) && minusStart(tokens, i, carried, rules.placeArithmeticalSymbols)) {
         t.value = next.type === "curr" ? "\u2212\u2060" : "\u2212";
         t.type = "other";
-      } else if (rules.placeThreeStops && (t.value === "..." || t.value === "…")) {
-        t.value = "\u2060.\u2060.\u2060.\u2060";
       } else if (rules.placeEmdash && t.value === "--" && !(prev?.type === "sym" && prev.value === "<") && !(next?.type === "sym" && next.value === ">") && !isDash(tokens, i - 1, rules) && !isDash(tokens, i + 1, rules)) {
         const from = prev?.type === "ws" ? i - 1 : i;
         replaceTokens(tokens, from, next?.type === "ws" ? i + 1 : i, "\u00A0\u2014\u0020");

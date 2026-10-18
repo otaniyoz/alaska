@@ -18,7 +18,6 @@
         { "desc": "a path whose name is not a shortcode is left alone", "input": "C:\\temp", "expected": "C:\\temp", "lang": "en" },
         { "desc": "a path whose name is an emoticon shortcode is expanded", "input": "C:\\cute", "expected": "C:(\u2060^\u2060.\u2060^\u2060)", "lang": "en" },
         { "desc": "a LaTeX command with an argument keeps its braces", "input": "\\sqrt{2}", "expected": "\u221A{2}", "lang": "en" },
-        { "desc": "ja: doubled ellipsis character becomes two dot runs", "input": "\u2026\u2026", "expected": "\u2060.\u2060.\u2060.\u2060\u2060.\u2060.\u2060.\u2060", "lang": "ja" },
         { "desc": "ja: temperature gets a narrow no-break space, convention is none", "input": "気温は20oC", "expected": "気温は20\u202F\u00B0C", "lang": "ja" },
         { "desc": "ko: temperature gets a narrow no-break space, convention is none", "input": "오늘은 20oC", "expected": "오늘은 20\u202F\u00B0C", "lang": "ko" },
         { "desc": "apostrophe at the end of a piece is read as a closing quote while a single quote is pending", "segments": ["'it'", "s'"], "expected": ["\u2018it\u2019", "s\u2019"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
