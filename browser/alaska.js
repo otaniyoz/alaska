@@ -13,6 +13,7 @@ const shortWords = {
 };
 const supportedLangs = new Set(["en", "ru"]);
 const rangeLangs = new Set(["en", "ru"]);
+const emdashLangs = new Set(["en", "ru"]);
 const blockTags = new Set("address article aside audio body button canvas caption center col colgroup dd details dialog dir div dl dt fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr iframe legend li main math menu nav noscript object ol optgroup option p pre search section select summary svg table tbody td template textarea tfoot th thead tr ul video".split(" "));
 const normalizeLang = (lang) => {
   const code = typeof lang === "string" ? lang.split("-", 1)[0].toLowerCase() : "";
@@ -42,6 +43,8 @@ const elisionWords = new Set("em til tis twas cause bout round".split(" "));
 const hyphenGlueMax = 3;
 const identifierShape = /[/@_]|\.[\p{L}\p{N}]/u;
 const dashes = new Set(["--", "\u2014", "\u2013"]);
+const sentencePunct = new Set([",", ".", ";", ":", "!", "?", "...", "\u2026"]);
+const leadPunct = new Set([",", "!", "?"]);
 const minusOpeners = new Set(['"', "'", "\u2018", "\u201C", "\u00AB", "\u201E"]);
 const minusZoneOps = new Set(["=", "+", "*", "/"]);
 const arithmeticOps = { "-": "\u2212", "*": "\u22C5", "/": "\u2215" };
@@ -55,7 +58,6 @@ const currencyShortcodes = { "\\pounds": "\u00A3", "\\yen": "\u00A5", "\\euro": 
 const shapeMathShortcodes = { "\\star": "\u22C6", "\\diamond": "\u22C4" };
 
 const isWhitespace = (char) => /[\s\u00A0\t]/.test(char);
-const isDash = (tokens, i, rules) => tokens[i]?.type === "punct" && /^(-|--|\u2013|\u2014)$/.test(tokens[i].value) && !(rules.placeArrows && tokens[i].value === "-" && tokens[i + 1]?.type === "sym" && tokens[i + 1].value === ">");
 const isInitial = (word, dot) => word?.type === "word" && word.value.length === 1 && /\p{Lu}/u.test(word.value) && dot?.type === "punct" && dot.value === ".";
 
 function resetCarry(carry) {
@@ -65,13 +67,6 @@ function resetCarry(carry) {
 
 function nextOf(tokens, i) {
   for (let j = i + 1; j < tokens.length; j++) {
-    if (tokens[j].type !== "ws") return { token: tokens[j], index: j };
-  }
-  return null;
-}
-
-function prevOf(tokens, i) {
-  for (let j = i - 1; j >= 0; j--) {
     if (tokens[j].type !== "ws") return { token: tokens[j], index: j };
   }
   return null;
@@ -118,6 +113,39 @@ function isRangeHyphen(tokens, i, carried) {
   if (before?.type === "word" || (before?.type === "punct" && before.value === "-")) return false;
   const after = tokens[i + 2];
   return !(after?.type === "punct" && after.value === "-" && tokens[i + 3]?.type === "num");
+}
+
+const hasBreak = (t) => /[\r\n]/.test(t.value);
+const dashLeft = (t) => t?.type === "word" || t?.type === "num" || (t?.type === "punct" && (sentencePunct.has(t.value) || t.value === ")" || (t.quoteInfo !== undefined && !t.quoteInfo.isOpening)));
+const dashRight = (t) => t?.type === "word" || t?.type === "num" || t?.type === "curr" || (t?.type === "punct" && (t.value === "(" || t.value === ")" || (t.quoteInfo !== undefined && !t.quoteInfo.isApostrophe)));
+
+function placeDash(tokens, i, before) {
+  const t = tokens[i];
+  const prev = tokens[i - 1];
+  const next = tokens[i + 1];
+  const left = tokens[i - 2];
+  const right = tokens[i + 2];
+  if (t.value === "\u2014") {
+    if (prev?.type !== "ws" || prev.value !== "\u0020" || next?.type !== "ws" || !dashLeft(left)) return false;
+    prev.value = "\u00A0";
+    return true;
+  }
+  if ((!before || (before.type === "ws" && hasBreak(before))) && next?.type === "ws" && !hasBreak(next) && right?.type === "word") {
+    t.value = "\u2014";
+    return true;
+  }
+  if (prev?.type === "ws" && next?.type === "ws") {
+    if (hasBreak(prev)) return false;
+    if (t.value === "--") {
+      if (!dashLeft(left) || !right || (right.type === "punct" && sentencePunct.has(right.value)) || (left.type === "num" && right.type === "num")) return false;
+    } else if (!((left?.type === "word" && (right?.type === "word" || right?.type === "num" || right?.type === "curr")) || (left?.type === "punct" && leadPunct.has(left.value) && right?.type === "word"))) return false;
+    if (prev.value === "\u0020") prev.value = "\u00A0";
+    t.value = "\u2014";
+    return true;
+  }
+  if (t.value !== "--" || !dashLeft(prev) || !dashRight(next) || (prev.type === "num" && next.type === "num")) return false;
+  t.value = "\u2014";
+  return true;
 }
 
 function isGluedHyphen(tokens, i) {
@@ -227,6 +255,7 @@ function formatString(text, rules, lang, carry) {
   lang = normalizeLang(lang);
   const quotes = rules.placeTypographicQuotes && style !== undefined;
   const ranges = rules.placeNumericRange && rangeLangs.has(lang);
+  const emdash = rules.placeEmdash && emdashLangs.has(lang);
   const tokens = tokenize(text);
   const carried = carry?.prev;
   const stack = carry ? (carry.stack ??= []) : [];
@@ -292,7 +321,6 @@ function formatString(text, rules, lang, carry) {
     } else {
       const opened = stack.pop();
       if (opened && !opened.kept) t.quoteInfo = { isOpening: false, depth: opened.depth, style: opened.style };
-      else if (prev?.value === "--" && prev.type === "punct") t.quoteInfo = { isOpening: false, depth: 0, style };
     }
   }
 
@@ -311,18 +339,8 @@ function formatString(text, rules, lang, carry) {
       } else if (rules.placeMinusSign && t.value === "-" && minusOperand(next, next2, rules.placeArithmeticalSymbols) && minusStart(tokens, i, carried, rules.placeArithmeticalSymbols)) {
         t.value = next.type === "curr" ? "\u2212\u2060" : "\u2212";
         t.type = "other";
-      } else if (rules.placeEmdash && t.value === "--" && !(prev?.type === "sym" && prev.value === "<") && !(next?.type === "sym" && next.value === ">") && !isDash(tokens, i - 1, rules) && !isDash(tokens, i + 1, rules)) {
-        const from = prev?.type === "ws" ? i - 1 : i;
-        replaceTokens(tokens, from, next?.type === "ws" ? i + 1 : i, "\u00A0\u2014\u0020");
-        i = from + 2;
-      } else if (rules.placeEmdash && t.value === "-" && (!before || (before.type === "ws" && before.value.includes("\n"))) && next?.type === "ws") {
-        if (prev?.type === "ws") prev.value = prev.value.slice(0, prev.value.lastIndexOf("\n") + 1);
-        t.value = "\u2014";
-        next.value = "\u0020";
-      } else if (rules.placeEmdash && t.value === "-" && prev?.type === "ws" && next?.type === "ws" && prevOf(tokens, i)?.token.type === "word" && ["word", "num", "curr"].includes(nextOf(tokens, i)?.token.type)) {
-        prev.value = "\u00A0";
-        t.value = "\u2014";
-        next.value = "\u0020";
+      } else if (emdash && (t.value === "-" || t.value === "--" || t.value === "\u2014") && placeDash(tokens, i, before)) {
+        continue;
       } else if (quotes && (t.value === '"' || t.value === "'")) {
         const info = t.quoteInfo;
         if (!info) continue;

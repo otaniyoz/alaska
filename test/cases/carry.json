@@ -20,7 +20,7 @@
         { "desc": "numeric range: a word at the end of the previous segment declines", "segments": ["x", "86-64"], "expected": ["x", "86-64"], "lang": "en", "rules": { "base": "none", "placeNumericRange": true } },
         { "desc": "numeric range: a hyphen at the end of the previous segment declines", "segments": ["1-", "2-3"], "expected": ["1-", "2-3"], "lang": "en", "rules": { "base": "none", "placeNumericRange": true } },
         { "desc": "numeric range: whitespace at the end of the previous segment allows", "segments": ["pp. ", "10-20"], "expected": ["pp. ", "10\u2060\u2013\u206020"], "lang": "en", "rules": { "base": "none", "placeNumericRange": true } },
-        { "desc": "carry snapshot is taken after the main pass", "segments": ["a --", "-5"], "expected": ["a\u00A0\u2014 ", "\u22125"], "lang": "en", "rules": { "base": "none", "placeEmdash": true, "placeMinusSign": true } }
+        { "desc": "a double hyphen at the end of a piece is left alone, so the minus in the next piece has no lead", "segments": ["a --", "-5"], "expected": ["a --", "-5"], "lang": "en", "rules": { "base": "none", "placeEmdash": true, "placeMinusSign": true } }
       ]
     }
   ]

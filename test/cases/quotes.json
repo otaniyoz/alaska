@@ -77,7 +77,7 @@
     },
     {
       "name": "quotes-dashes",
-      "description": "After a dash (em dash, en dash or double hyphen) a quote opens when a word follows and closes otherwise. A single hyphen is not a dash here. After a double hyphen a closer is never left alone, because the em dash rule would put a space before it and the next pass would read it as an opener",
+      "description": "After a dash (em dash, en dash or double hyphen) a quote opens when a word follows and closes otherwise. A single hyphen is not a dash here. A closer with nothing open is left alone after a double hyphen too",
       "cases": [
         { "desc": "em dash then opener", "input": "He paused\u2014\"No,\" he said", "expected": "He paused\u2014\u2018No,\u2019 he said", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
         { "desc": "em dash then closer", "input": "\"I\u2014\" he said", "expected": "\u2018I\u2014\u2019 he said", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
@@ -87,8 +87,8 @@
         { "desc": "single hyphen is not a dash", "input": "He paused-\"No\"", "expected": "He paused-\"No\"", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
         { "desc": "same character nests after a dash", "input": "\"She said\u2014\"hello\" and left\"", "expected": "\u2018She said\u2014\u201Chello\u201D and left\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
         { "desc": "ru: em dash then opener", "input": "Он сказал\u2014\"нет\"", "expected": "Он сказал\u2014\u00ABнет\u00BB", "lang": "ru", "rules": { "base": "none", "placeTypographicQuotes": true } },
-        { "desc": "double hyphen then a closer with nothing open still converts", "input": "x--\" y", "expected": "x--\u2019 y", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
-        { "desc": "double hyphen then a closer with nothing open, every rule on", "input": "x--\"", "expected": "x\u00A0\u2014 \u2019", "lang": "en" }
+        { "desc": "double hyphen then a closer with nothing open is left alone", "input": "x--\" y", "expected": "x--\" y", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "double hyphen then a closer with nothing open is left alone, every rule on", "input": "x--\"", "expected": "x--\"", "lang": "en" }
       ]
     },
     {

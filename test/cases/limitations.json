@@ -45,7 +45,14 @@
         { "desc": "capitalised elision is read as an opener", "input": "'Twas the night", "expected": "\u2018Twas the night", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
         { "desc": "elision-like year inside a single quote leaves that quote unclosed", "input": "'He said '99 was a year'", "expected": "\u2018He said '99 was a year'", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
         { "desc": "quote with whitespace on one side only at the end of the text opens", "input": "x \"", "expected": "x \u2018", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
-        { "desc": "quote with whitespace on one side only at the start of the text opens", "input": "\" y", "expected": "\u2018 y", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } }
+        { "desc": "quote with whitespace on one side only at the start of the text opens", "input": "\" y", "expected": "\u2018 y", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "em dash: a spaced dash at the end of a piece has no right neighbor (missed edit)", "segments": ["wait --", " there"], "expected": ["wait --", " there"], "lang": "en", "rules": { "base": "none", "placeEmdash": true } },
+        { "desc": "em dash: a spaced dash before a closing quote has no right neighbor (missed edit)", "input": "\"wait --\"", "expected": "\u2018wait --\u2019", "lang": "en", "rules": { "base": "none", "placeEmdash": true, "placeTypographicQuotes": true } },
+        { "desc": "em dash: an indented dash at the start of the text is not a line start (missed edit)", "input": "  - Hi", "expected": "  - Hi", "lang": "en", "rules": { "base": "none", "placeEmdash": true } },
+        { "desc": "em dash: a closing guillemet is not a left neighbor of a spaced hyphen (missed edit)", "input": "\u00AB\u041F\u0440\u0438\u0432\u0435\u0442!\u00BB - \u0441\u043A\u0430\u0437\u0430\u043B", "expected": "\u00AB\u041F\u0440\u0438\u0432\u0435\u0442!\u00BB - \u0441\u043A\u0430\u0437\u0430\u043B", "lang": "ru", "rules": { "base": "none", "placeEmdash": true } },
+        { "desc": "em dash: a typed closing curly quote is not a classified left neighbor, a straight one is (missed edit)", "input": "\u2018hi\u2019 -- x", "expected": "\u2018hi\u2019 -- x", "lang": "en", "rules": { "base": "none", "placeEmdash": true, "placeTypographicQuotes": true } },
+        { "desc": "em dash: a spaced en dash is left as written (missed edit)", "input": "dog \u2013 cat", "expected": "dog \u2013 cat", "lang": "en", "rules": { "base": "none", "placeEmdash": true } },
+        { "desc": "em dash: a plain-text bullet at the start of the text becomes an em dash (restyle)", "input": "- item", "expected": "\u2014 item", "lang": "en", "rules": { "base": "none", "placeEmdash": true } }
       ]
     }
   ]

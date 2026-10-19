@@ -154,8 +154,8 @@ const cases = [
   },
   {
     desc: "data-math false under a true ancestor restores prose",
-    input: `<div class="alaska" data-math="true"><p data-math="false">x - 5</p></div>`,
-    expected: `<div class="alaska" data-math="true"><p data-math="false">x\u00A0\u2014 5</p></div>`,
+    input: `<div class="alaska" lang="en" data-math="true"><p data-math="false">x - 5</p></div>`,
+    expected: `<div class="alaska" lang="en" data-math="true"><p data-math="false">x\u00A0\u2014 5</p></div>`,
   },
   {
     desc: "data-math true turns the short-word no-break space off and false restores it",
@@ -179,13 +179,13 @@ const cases = [
   },
   {
     desc: "data-math with any other value is ignored",
-    input: `<div class="alaska" data-math="yes">x - 5</div>`,
-    expected: `<div class="alaska" data-math="yes">x\u00A0\u2014 5</div>`,
+    input: `<div class="alaska" lang="en" data-math="yes">x - 5</div>`,
+    expected: `<div class="alaska" lang="en" data-math="yes">x\u00A0\u2014 5</div>`,
   },
   {
     desc: "bare data-math is ignored",
-    input: `<div class="alaska" data-math>x - 5</div>`,
-    expected: `<div class="alaska" data-math>x\u00A0\u2014 5</div>`,
+    input: `<div class="alaska" lang="en" data-math>x - 5</div>`,
+    expected: `<div class="alaska" lang="en" data-math>x\u00A0\u2014 5</div>`,
   },
   {
     desc: "greek shortcode is formatted by default",
@@ -214,8 +214,8 @@ const cases = [
   },
   {
     desc: "data-math above the root is ignored",
-    input: `<div data-math="true"><p class="alaska">x - 5</p></div>`,
-    expected: `<div data-math="true"><p class="alaska">x\u00A0\u2014 5</p></div>`,
+    input: `<div data-math="true"><p class="alaska" lang="en">x - 5</p></div>`,
+    expected: `<div data-math="true"><p class="alaska" lang="en">x\u00A0\u2014 5</p></div>`,
   },
   {
     desc: "closing quote after an inline element",
@@ -244,13 +244,13 @@ const cases = [
   },
   {
     desc: "br counts as a line break for the line-start dash",
-    input: `<div class="alaska">a<br>- x</div>`,
-    expected: `<div class="alaska">a<br>\u2014 x</div>`,
+    input: `<div class="alaska" lang="en">a<br>- x</div>`,
+    expected: `<div class="alaska" lang="en">a<br>\u2014 x</div>`,
   },
   {
     desc: "dash after text without a line break stays",
-    input: `<div class="alaska">a<b>- x</b></div>`,
-    expected: `<div class="alaska">a<b>- x</b></div>`,
+    input: `<div class="alaska" lang="en">a<b>- x</b></div>`,
+    expected: `<div class="alaska" lang="en">a<b>- x</b></div>`,
   },
   {
     desc: "minus after whitespace in a previous text node",
@@ -438,6 +438,11 @@ const cases = [
     expected: `<div class="alaska">a \u2192 b</div>`,
   },
   {
+    desc: "missing lang leaves dashes as written",
+    input: `<div class="alaska">x - y</div>`,
+    expected: `<div class="alaska">x - y</div>`,
+  },
+  {
     desc: "limitation: arrow written with a character reference is not formed",
     input: `<div class="alaska">a -&gt; b</div>`,
     expected: `<div class="alaska">a -&gt; b</div>`,
@@ -453,19 +458,19 @@ const cases = [
     expected: `<div class="alaska">a <- b</div>`,
   },
   {
-    desc: "limitation: double dash before a character reference for > still gets an em dash",
-    input: `<div class="alaska">a --&gt; b</div>`,
-    expected: `<div class="alaska">a\u00A0\u2014 &gt; b</div>`,
+    desc: "limitation: double dash before a character reference for > is left as written",
+    input: `<div class="alaska" lang="en">x --&gt; b</div>`,
+    expected: `<div class="alaska" lang="en">x --&gt; b</div>`,
   },
   {
-    desc: "limitation: double dash after a character reference for < still gets an em dash",
-    input: `<div class="alaska">a &lt;-- b</div>`,
-    expected: `<div class="alaska">a &lt;\u00A0\u2014 b</div>`,
+    desc: "limitation: double dash after a character reference for < is left as written",
+    input: `<div class="alaska" lang="en">x &lt;-- b</div>`,
+    expected: `<div class="alaska" lang="en">x &lt;-- b</div>`,
   },
   {
     desc: "limitation: literal <- at the start of a line gets the line-start dash",
-    input: `<div class="alaska">a\n<- b</div>`,
-    expected: `<div class="alaska">a\n<\u2014 b</div>`,
+    input: `<div class="alaska" lang="en">x\n<- b</div>`,
+    expected: `<div class="alaska" lang="en">x\n<\u2014 b</div>`,
   },
 ];
 
