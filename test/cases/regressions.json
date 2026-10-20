@@ -10,7 +10,7 @@
         { "desc": "line-start dash before minus", "input": "-\n-20", "expected": "-\n\u221220", "lang": "en" },
         { "desc": "dash before math shortcode that expands to a letter", "input": "x - \\pi", "expected": "x\u00A0\u2014 \u03C0", "lang": "en" },
         { "desc": "dash before an emoticon", "input": "x - \\crying", "expected": "x - (\u2060\u22A4\u2060_\u2060\u22A4\u2060)", "lang": "en" },
-        { "desc": "temperature then minus in a math zone", "input": "20oC - 3", "expected": "20\u202F\u00B0C \u2212 3", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "temperature then minus in a math zone", "input": "20oC - 3", "expected": "20\u00B0C \u2212 3", "lang": "en", "rules": { "base": "math" } },
         { "desc": "greek shortcode merges into the preceding capital", "input": "J\\alpha. Smith", "expected": "J\u03B1. Smith", "lang": "en" },
         { "desc": "greek shortcode and a letter merge into the preceding capital", "input": "J\\pi\u00E9. Smith", "expected": "J\u03C0\u00E9. Smith", "lang": "en" },
         { "desc": "declined quote before an elision word whose closer becomes an apostrophe", "input": "-'em'", "expected": "-'em\u2019", "lang": "en" },

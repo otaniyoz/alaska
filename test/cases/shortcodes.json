@@ -194,7 +194,22 @@
         { "desc": "->> and <<- are left alone", "input": "a ->> b <<- c", "expected": "a ->> b <<- c", "lang": "en", "rules": { "base": "none", "placeArrows": true, "placeEmdash": true } },
         { "desc": "ja: <- before a number next to CJK is not an arrow", "input": "値<-5 です", "expected": "値<-5 です", "lang": "ja", "rules": { "base": "none", "placeArrows": true } },
         { "desc": "ko: <- before a number next to Hangul is not an arrow", "input": "값<-5 입니다", "expected": "값<-5 입니다", "lang": "ko", "rules": { "base": "none", "placeArrows": true } },
-        { "desc": "ja: arrow between Latin letters", "input": "A->B です", "expected": "A\u2192B です", "lang": "ja", "rules": { "base": "none", "placeArrows": true } }
+        { "desc": "ja: arrow between Latin letters", "input": "A->B です", "expected": "A\u2192B です", "lang": "ja", "rules": { "base": "none", "placeArrows": true } },
+        { "desc": "tight <- between a letter and a word is read as an arrow", "input": "x<-y", "expected": "x\u2190y", "lang": "en", "rules": { "base": "none", "placeArrows": true } },
+        { "desc": "spaced <- is read as an arrow even when it means less-than-minus", "input": "x <- 5", "expected": "x \u2190 5", "lang": "en", "rules": { "base": "none", "placeArrows": true } }
+      ]
+    },
+    {
+      "name": "shortcodes-in-prose",
+      "description": "Shortcodes expand wherever the name appears, so code and paths belong in code or alaska-skip (readme Scope). A name directly followed by an opening brace is a LaTeX command with an argument and is left alone",
+      "cases": [
+        { "desc": "backslash plus a shortcode name in a Windows path is expanded", "input": "C:\\pi", "expected": "C:π", "lang": "en" },
+        { "desc": "a path whose name is not a shortcode is left alone", "input": "C:\\temp", "expected": "C:\\temp", "lang": "en" },
+        { "desc": "a path whose name is an emoticon shortcode is expanded", "input": "C:\\cute", "expected": "C:(\u2060^\u2060.\u2060^\u2060)", "lang": "en" },
+        { "desc": "a name directly followed by an opening brace is a LaTeX command with an argument and is left alone", "input": "\\sqrt{2}", "expected": "\\sqrt{2}", "lang": "en" },
+        { "desc": "a brace after a space does not make an argument", "input": "\\pi {x}", "expected": "π {x}", "lang": "en" },
+        { "desc": "the brace rule holds for every category", "input": "\\alpha{x} \\pm{y} \\euro{z} \\arre{w} \\star{v} \\dag{u} \\shrug{t}", "expected": "\\alpha{x} \\pm{y} \\euro{z} \\arre{w} \\star{v} \\dag{u} \\shrug{t}", "lang": "en" },
+        { "desc": "the brace rule is language independent", "input": "\\sqrt{2}です", "expected": "\\sqrt{2}です", "lang": "ja" }
       ]
     }
   ]

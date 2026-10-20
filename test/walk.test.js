@@ -273,7 +273,7 @@ const cases = [
     expected: `<div class="alaska" lang="en">x <b>\u2018\u22125\u2019</b></div>`,
   },
   {
-    desc: "limitation: a quote at the end of the previous text node hides what precedes it",
+    desc: "a quote at the end of the previous text node hides what precedes it",
     input: `<div class="alaska" lang="en">"<b>-5</b>"</div>`,
     expected: `<div class="alaska" lang="en">\u2018<b>-5</b>\u2019</div>`,
   },
@@ -443,32 +443,32 @@ const cases = [
     expected: `<div class="alaska">x - y</div>`,
   },
   {
-    desc: "limitation: arrow written with a character reference is not formed",
+    desc: "arrow written with a character reference is not formed",
     input: `<div class="alaska">a -&gt; b</div>`,
     expected: `<div class="alaska">a -&gt; b</div>`,
   },
   {
-    desc: "limitation: left arrow written with a character reference is not formed",
+    desc: "left arrow written with a character reference is not formed",
     input: `<div class="alaska">a &lt;- b</div>`,
     expected: `<div class="alaska">a &lt;- b</div>`,
   },
   {
-    desc: "limitation: literal <- is not formed as an arrow",
+    desc: "literal <- is not formed as an arrow",
     input: `<div class="alaska">a <- b</div>`,
     expected: `<div class="alaska">a <- b</div>`,
   },
   {
-    desc: "limitation: double dash before a character reference for > is left as written",
+    desc: "double dash before a character reference for > is left as written",
     input: `<div class="alaska" lang="en">x --&gt; b</div>`,
     expected: `<div class="alaska" lang="en">x --&gt; b</div>`,
   },
   {
-    desc: "limitation: double dash after a character reference for < is left as written",
+    desc: "double dash after a character reference for < is left as written",
     input: `<div class="alaska" lang="en">x &lt;-- b</div>`,
     expected: `<div class="alaska" lang="en">x &lt;-- b</div>`,
   },
   {
-    desc: "limitation: literal <- at the start of a line gets the line-start dash",
+    desc: "literal <- at the start of a line gets the line-start dash",
     input: `<div class="alaska" lang="en">x\n<- b</div>`,
     expected: `<div class="alaska" lang="en">x\n<\u2014 b</div>`,
   },
@@ -478,7 +478,7 @@ const cases = [
     expected: `<div class="alaska" lang="en">Tom &\u00A0Jerry</div>`,
   },
   {
-    desc: "limitation: an ampersand written as a character reference is not bound",
+    desc: "an ampersand written as a character reference is not bound",
     input: `<div class="alaska" lang="en">Tom &amp; Jerry</div>`,
     expected: `<div class="alaska" lang="en">Tom &amp; Jerry</div>`,
   },

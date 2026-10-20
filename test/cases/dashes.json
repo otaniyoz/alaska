@@ -140,7 +140,17 @@
         { "desc": "a tab before a spaced hyphen is kept", "input": "a\t- b", "expected": "a\t\u2014 b", "lang": "en", "rules": { "base": "none", "placeEmdash": true } },
         { "desc": "ru: dialogue with a dash after a comma", "input": "- \u041F\u0440\u0438\u0432\u0435\u0442, - \u0441\u043A\u0430\u0437\u0430\u043B \u043E\u043D", "expected": "\u2014 \u041F\u0440\u0438\u0432\u0435\u0442,\u00A0\u2014 \u0441\u043A\u0430\u0437\u0430\u043B \u043E\u043D", "lang": "ru", "rules": { "base": "none", "placeEmdash": true } },
         { "desc": "piece start: a double hyphen with no left neighbor in its piece is left alone", "segments": ["a ", "-- b"], "expected": ["a ", "-- b"], "lang": "en", "rules": { "base": "none", "placeEmdash": true } },
-        { "desc": "piece start after a newline and indentation in the previous piece is a line start", "segments": ["a\n  ", "- b"], "expected": ["a\n  ", "\u2014 b"], "lang": "en", "rules": { "base": "none", "placeEmdash": true } }
+        { "desc": "piece start after a newline and indentation in the previous piece is a line start", "segments": ["a\n  ", "- b"], "expected": ["a\n  ", "\u2014 b"], "lang": "en", "rules": { "base": "none", "placeEmdash": true } },
+        { "desc": "ru: a typed closing guillemet before a spaced hyphen and a word", "input": "\u00ABПривет!\u00BB - сказал", "expected": "\u00ABПривет!\u00BB\u00A0\u2014 сказал", "lang": "ru", "rules": { "base": "none", "placeEmdash": true } },
+        { "desc": "ru: a straight quote that closes before a spaced hyphen and a word", "input": "\"Привет!\" - сказал", "expected": "\u00ABПривет!\u00BB\u00A0\u2014 сказал", "lang": "ru", "rules": { "base": "none", "placeEmdash": true, "placeTypographicQuotes": true } },
+        { "desc": "ru: a typed closing guillemet before a typed em dash gets a no-break space", "input": "\u00ABПривет!\u00BB \u2014 сказал", "expected": "\u00ABПривет!\u00BB\u00A0\u2014 сказал", "lang": "ru", "rules": { "base": "none", "placeEmdash": true } },
+        { "desc": "a typed closing curly double quote before a spaced hyphen and a word", "input": "\u201Chi\u201D - he said", "expected": "\u201Chi\u201D\u00A0\u2014 he said", "lang": "en", "rules": { "base": "none", "placeEmdash": true } },
+        { "desc": "a straight quote that closes before a spaced hyphen and a word", "input": "\"hi\" - he said", "expected": "\u2018hi\u2019\u00A0\u2014 he said", "lang": "en", "rules": { "base": "none", "placeEmdash": true, "placeTypographicQuotes": true } },
+        { "desc": "a closing quote before a spaced hyphen and a number is left alone", "input": "\"hi\" - 5", "expected": "\u2018hi\u2019 - 5", "lang": "en", "rules": { "base": "none", "placeEmdash": true, "placeTypographicQuotes": true } },
+        { "desc": "an opening quote is not a left neighbor of a spaced hyphen", "input": "x \u201C - y", "expected": "x \u201C - y", "lang": "en", "rules": { "base": "none", "placeEmdash": true } },
+        { "desc": "a typed closing guillemet before a tight double hyphen", "input": "\u00ABa\u00BB--b", "expected": "\u00ABa\u00BB\u2014b", "lang": "ru", "rules": { "base": "none", "placeEmdash": true } },
+        { "desc": "ja: a closing quote before a spaced hyphen is left as written", "input": "\u201Chi\u201D - x", "expected": "\u201Chi\u201D - x", "lang": "ja", "rules": { "base": "none", "placeEmdash": true } },
+        { "desc": "ko: a closing quote before a spaced hyphen is left as written", "input": "\u201Chi\u201D - x", "expected": "\u201Chi\u201D - x", "lang": "ko", "rules": { "base": "none", "placeEmdash": true } }
       ]
     },
     {
@@ -169,7 +179,7 @@
         { "desc": "minus after opening bracket", "input": "(-5)", "expected": "(\u22125)", "lang": "en" },
         { "desc": "minus before bracket stays in prose", "input": "-(5)", "expected": "-(5)", "lang": "en" },
         { "desc": "hyphen between word and number stays", "input": "a-5", "expected": "a-5", "lang": "en" },
-        { "desc": "hyphen after merged temperature sees the final tokens", "input": "20oC-warm", "expected": "20\u202F\u00B0C-\u2060warm", "lang": "en" },
+        { "desc": "hyphen after merged temperature sees the final tokens", "input": "20oC-warm", "expected": "20\u00B0C-\u2060warm", "lang": "en" },
         { "desc": "double dash glued to a greater-than is not an em dash", "input": "a --> b", "expected": "a --> b", "lang": "en", "rules": { "base": "none", "placeEmdash": true } },
         { "desc": "double dash glued to a less-than is not an em dash", "input": "a <-- b", "expected": "a <-- b", "lang": "en", "rules": { "base": "none", "placeEmdash": true } }
       ]
@@ -191,7 +201,33 @@
         { "desc": "after an opening square bracket", "input": "[-5]", "expected": "[\u22125]", "lang": "en" },
         { "desc": "prose operators are not leads", "input": "x=-5 x+-5 x*-5 x/-5", "expected": "x=-5 x+-5 x*-5 x/-5", "lang": "en", "rules": { "base": "none", "placeMinusSign": true } },
         { "desc": "currency sign followed by a word is not an operand", "input": "-$HOME", "expected": "-$HOME", "lang": "en" },
-        { "desc": "currency sign followed by a space is not an operand", "input": "-$ 5", "expected": "-$ 5", "lang": "en" }
+        { "desc": "currency sign followed by a space is not an operand", "input": "-$ 5", "expected": "-$ 5", "lang": "en" },
+        { "desc": "a number starts with a digit, so a point before it is not an operand", "input": "-.5", "expected": "-.5", "lang": "en", "rules": { "base": "none", "placeMinusSign": true } },
+        { "desc": "currency sign before a point is not an operand", "input": "-$.5", "expected": "-$.5", "lang": "en" },
+        { "desc": "a bare currency shortcode is not an operand", "input": "-\\euro", "expected": "-\u20AC", "lang": "en" },
+        { "desc": "a < before the minus is not a lead", "input": "x<-5", "expected": "x<-5", "lang": "en", "rules": { "base": "none", "placeMinusSign": true } }
+      ]
+    },
+    {
+      "name": "numeric-range-shapes",
+      "description": "A tight number-hyphen-number is a range. Shapes the rule cannot tell from a range convert too (readme Scope)",
+      "cases": [
+        { "desc": "two-part date gets an en dash", "input": "2024-01", "expected": "2024\u2060\u2013\u206001", "lang": "en" },
+        { "desc": "phone number gets an en dash", "input": "555-1234", "expected": "555\u2060\u2013\u20601234", "lang": "en" },
+        { "desc": "version string with a revision gets an en dash", "input": "1.2-3", "expected": "1.2\u2060\u2013\u20603", "lang": "en" },
+        { "desc": "tight subtraction gets an en dash", "input": "10-5", "expected": "10\u2060\u2013\u20605", "lang": "en" },
+        { "desc": "a hyphenated number in a URL gets an en dash", "input": "example.com/2024-05", "expected": "example.com/2024\u2060\u2013\u206005", "lang": "en" }
+      ]
+    },
+    {
+      "name": "em-dash-misses",
+      "description": "Em dash misses and restyles pinned as documented in the readme: a dash with a missing or unclassified neighbor is left as written, and a plain-text bullet becomes a dash",
+      "cases": [
+        { "desc": "em dash: a spaced dash before a closing quote has no right neighbor (missed edit)", "input": "\"wait --\"", "expected": "\u2018wait --\u2019", "lang": "en", "rules": { "base": "none", "placeEmdash": true, "placeTypographicQuotes": true } },
+        { "desc": "em dash: an indented dash at the start of the text is not a line start (missed edit)", "input": "  - Hi", "expected": "  - Hi", "lang": "en", "rules": { "base": "none", "placeEmdash": true } },
+        { "desc": "em dash: a typed closing curly quote is not a classified left neighbor, a straight one is (missed edit)", "input": "\u2018hi\u2019 -- x", "expected": "\u2018hi\u2019 -- x", "lang": "en", "rules": { "base": "none", "placeEmdash": true, "placeTypographicQuotes": true } },
+        { "desc": "em dash: a spaced en dash is left as written (missed edit)", "input": "dog \u2013 cat", "expected": "dog \u2013 cat", "lang": "en", "rules": { "base": "none", "placeEmdash": true } },
+        { "desc": "em dash: a plain-text bullet at the start of the text becomes an em dash (restyle)", "input": "- item", "expected": "\u2014 item", "lang": "en", "rules": { "base": "none", "placeEmdash": true } }
       ]
     }
   ]

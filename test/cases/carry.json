@@ -22,6 +22,25 @@
         { "desc": "numeric range: whitespace at the end of the previous segment allows", "segments": ["pp. ", "10-20"], "expected": ["pp. ", "10\u2060\u2013\u206020"], "lang": "en", "rules": { "base": "none", "placeNumericRange": true } },
         { "desc": "a double hyphen at the end of a piece is left alone, so the minus in the next piece has no lead", "segments": ["a --", "-5"], "expected": ["a --", "-5"], "lang": "en", "rules": { "base": "none", "placeEmdash": true, "placeMinusSign": true } }
       ]
+    },
+    {
+      "name": "carry-boundaries",
+      "description": "Lookahead rules decide within one piece, so wrong and missed edits at an inline boundary are accepted as one carve-out (readme Scope). Each case pins today's output",
+      "cases": [
+        { "desc": "numeric range: a hyphen at the end of a piece is not seen as a range (missed edit)", "segments": ["10-", "20"], "expected": ["10-", "20"], "lang": "en", "rules": { "base": "none", "placeNumericRange": true } },
+        { "desc": "numeric range: a hyphen at the start of a piece is not seen as a range (missed edit)", "segments": ["10", "-20"], "expected": ["10", "-20"], "lang": "en", "rules": { "base": "none", "placeNumericRange": true } },
+        { "desc": "numeric range: the chain guard cannot see the next piece, so the first pair converts (wrong edit)", "segments": ["1-2", "-3"], "expected": ["1\u2060\u2013\u20602", "-3"], "lang": "en", "rules": { "base": "none", "placeNumericRange": true } },
+        { "desc": "apostrophe at the end of a piece is read as a closing quote while a single quote is pending", "segments": ["'it'", "s'"], "expected": ["\u2018it\u2019", "s\u2019"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "isolated quote in a piece of its own is read as an opener", "segments": ["x ", "\"", " y"], "expected": ["x ", "\u2018", " y"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "a single quote before a number is opened when the number is in the next piece", "segments": ["'", "1984'"], "expected": ["\u2018", "1984\u2019"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "short-word nbsp: a short word at the end of a piece does not see the space at the start of the next piece (missed edit)", "segments": ["of", " x"], "expected": ["of", " x"], "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
+        { "desc": "short-word nbsp: an ampersand at the start of a piece has no space before it in the piece (missed edit)", "segments": ["Tom ", "& Jerry"], "expected": ["Tom ", "& Jerry"], "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
+        { "desc": "math zone: an operator in a piece that starts with it has no left operand", "segments": ["x", " - ", "y"], "expected": ["x", " - ", "y"], "lang": "en", "rules": { "base": "math" } },
+        { "desc": "a quote at the end of the previous piece hides what precedes it, so the minus declines", "segments": ["\"", "-5"], "expected": ["\u2018", "-5"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true, "placeMinusSign": true } },
+        { "desc": "hyphen: the identifier guard sees only its own piece, so a hostname split by an element is glued (wrong edit)", "segments": ["my-site", ".example.com"], "expected": ["my-\u2060site", ".example.com"], "lang": "en", "rules": { "base": "none", "placeHyphen": true } },
+        { "desc": "operator in its own inline piece is not seen", "segments": ["3 ", "x", " 4"], "expected": ["3 ", "x", " 4"], "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "em dash: a spaced dash at the end of a piece has no right neighbor (missed edit)", "segments": ["wait --", " there"], "expected": ["wait --", " there"], "lang": "en", "rules": { "base": "none", "placeEmdash": true } }
+      ]
     }
   ]
 }

@@ -103,6 +103,17 @@
         { "desc": "dash in the previous piece", "segments": ["He paused\u2014", "\"No,\" he said"], "expected": ["He paused\u2014", "\u2018No,\u2019 he said"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
         { "desc": "apostrophe at the end of a piece with no single quote pending", "segments": ["it'", "s"], "expected": ["it\u2019", "s"], "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } }
       ]
+    },
+    {
+      "name": "quotes-ambiguities",
+      "description": "Quotes are classified by shape, not by meaning, so these known ambiguities give the output pinned here (readme Scope)",
+      "cases": [
+        { "desc": "possessive plural inside a single quote closes it early (same glyphs, depth off)", "input": "'The dogs' owners left'", "expected": "\u2018The dogs\u2019 owners left\u2019", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "inch mark inside an open double quote is read as a closer", "input": "\"She is 5'10\" tall\"", "expected": "\u2018She is 5'10\u2019 tall\"", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "lowercase quote starting with an elision word is read as an elision, and its closer then opens", "input": "'round the world,' he said", "expected": "\u2019round the world,\u2018 he said", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "capitalised elision is read as an opener", "input": "'Twas the night", "expected": "\u2018Twas the night", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } },
+        { "desc": "elision-like year inside a single quote leaves that quote unclosed", "input": "'He said '99 was a year'", "expected": "\u2018He said '99 was a year'", "lang": "en", "rules": { "base": "none", "placeTypographicQuotes": true } }
+      ]
     }
   ]
 }

@@ -78,7 +78,9 @@
         { "desc": "hyphen: Latin fragments are glued", "input": "Wi-Fi\u3092\u4F7F\u3046", "expected": "Wi-\u2060Fi\u3092\u4F7F\u3046", "lang": "ja" },
         { "desc": "hyphen: a hyphen next to Han or Kana is left as written", "input": "\u6771\u4EAC-\u5927\u962A\u9593 T-\u30B7\u30E3\u30C4", "expected": "\u6771\u4EAC-\u5927\u962A\u9593 T-\u30B7\u30E3\u30C4", "lang": "ja" },
         { "desc": "minus after a straight quote: the quote stays, the minus is formatted", "input": "\"-5\"", "expected": "\"\u22125\"", "lang": "ja" },
-        { "desc": "no ampersand nbsp", "input": "Tom & Jerry", "expected": "Tom & Jerry", "lang": "ja" }
+        { "desc": "no ampersand nbsp", "input": "Tom & Jerry", "expected": "Tom & Jerry", "lang": "ja" },
+        { "desc": "temperature: the sign is formatted and no space is inserted", "input": "気温は20oC", "expected": "気温は20\u00B0C", "lang": "ja" },
+        { "desc": "ja: corner brackets are not opening quotes for the minus", "input": "\u300C-5\u300D", "expected": "\u300C-5\u300D", "lang": "ja" }
       ]
     },
     {
@@ -97,7 +99,8 @@
         { "desc": "hyphen: Latin fragments are glued", "input": "K-pop\uC744 \uB4E3\uB2E4", "expected": "K-\u2060pop\uC744 \uB4E3\uB2E4", "lang": "ko" },
         { "desc": "hyphen: a hyphen next to Hangul is left as written", "input": "\uC11C\uC6B8-\uBD80\uC0B0 K-\uB4DC\uB77C\uB9C8", "expected": "\uC11C\uC6B8-\uBD80\uC0B0 K-\uB4DC\uB77C\uB9C8", "lang": "ko" },
         { "desc": "minus after an opening quote", "input": "\"-5\"", "expected": "\u201C\u22125\u201D", "lang": "ko" },
-        { "desc": "no ampersand nbsp", "input": "Tom & Jerry", "expected": "Tom & Jerry", "lang": "ko" }
+        { "desc": "no ampersand nbsp", "input": "Tom & Jerry", "expected": "Tom & Jerry", "lang": "ko" },
+        { "desc": "temperature: the sign is formatted and no space is inserted", "input": "오늘은 20oC", "expected": "오늘은 20\u00B0C", "lang": "ko" }
       ]
     }
   ]

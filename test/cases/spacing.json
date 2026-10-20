@@ -30,7 +30,9 @@
         { "desc": "repeated spaces after the ampersand are left alone", "input": "Tom &  Jerry", "expected": "Tom &  Jerry", "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
         { "desc": "an ampersand inside a word or doubled is left alone", "input": "AT&T x && y", "expected": "AT&T x && y", "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
         { "desc": "an ampersand at the end of the text is left alone", "input": "x &", "expected": "x &", "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
-        { "desc": "an ampersand at the end of a piece binds its trailing space", "segments": ["Tom & ", "Jerry"], "expected": ["Tom &\u00A0", "Jerry"], "lang": "en", "rules": { "base": "none", "placeNbsp": true } }
+        { "desc": "an ampersand at the end of a piece binds its trailing space", "segments": ["Tom & ", "Jerry"], "expected": ["Tom &\u00A0", "Jerry"], "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
+        { "desc": "short-word nbsp: matching is by spelling, so a letter in a list is bound as an article", "input": "Vitamin A and C", "expected": "Vitamin A\u00A0and\u00A0C", "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
+        { "desc": "short-word nbsp: the end of an acronym that spells a short word is bound", "input": "Q&A session", "expected": "Q&A\u00A0session", "lang": "en", "rules": { "base": "none", "placeNbsp": true } }
       ]
     },
     {
@@ -83,12 +85,13 @@
         { "desc": "currency: the number after a sign is glued to a word", "input": "$5 million", "expected": "$5\u00A0million", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } },
         { "desc": "currency: every rule on", "input": "100 \u20AC of costs", "expected": "100\u202F\u20AC of\u00A0costs", "lang": "en" },
         { "desc": "percent: every rule on", "input": "50 % of respondents", "expected": "50\u202f% of\u00a0respondents", "lang": "en" },
-        { "desc": "percent: math zone keeps the author's spaces around operators", "input": "x = 50 %", "expected": "x = 50\u202f%", "lang": "en", "rules": { "base": "math" } }
+        { "desc": "percent: math zone keeps the author's spaces around operators", "input": "x = 50 %", "expected": "x = 50\u202f%", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "spaced % before a word is read as a percent sign even when it is modulo", "input": "10 % y", "expected": "10\u202F% y", "lang": "en", "rules": { "base": "none", "placeNumberNbspWord": true } }
       ]
     },
     {
       "name": "initials",
-      "description": "An initial is one capital letter plus a period. Whitespace between initials becomes U+202F; whitespace before a following capitalized word becomes U+00A0. Whole words (Mr., Yes., AI.) are not initials, a lone I is skipped unless chained, and no spaces are ever inserted",
+      "description": "An initial is one capital letter plus a period. A single regular space between initials becomes U+202F; a single regular space before a following capitalized word becomes U+00A0. Other whitespace is left alone. Whole words (Mr., Yes., AI.) are not initials, a lone I is skipped unless chained, and no spaces are ever inserted",
       "cases": [
         { "desc": "initial and surname", "input": "J. Smith", "expected": "J.\u00A0Smith", "lang": "en" },
         { "desc": "two initials", "input": "J. K. Smith", "expected": "J.\u202FK.\u00A0Smith", "lang": "en" },
@@ -102,7 +105,7 @@
         { "desc": "short-word initials chain", "input": "A. A. Milne", "expected": "A.\u202FA.\u00A0Milne", "lang": "en" },
         { "desc": "accented capital", "input": "\u00C9. Zola", "expected": "\u00C9.\u00A0Zola", "lang": "en" },
         { "desc": "after an opening bracket", "input": "(J. Smith)", "expected": "(J.\u00A0Smith)", "lang": "en" },
-        { "desc": "newline between initial and surname becomes no-break space", "input": "J.\nSmith", "expected": "J.\u00A0Smith", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "a newline between initial and surname is left alone", "input": "J.\nSmith", "expected": "J.\nSmith", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
         { "desc": "shortcode that expands to a capital letter", "input": "\\Pi. Smith", "expected": "\u03A0.\u00A0Smith", "lang": "en" },
         { "desc": "shortcode merged into a longer word is not an initial", "input": "J\\alpha. Smith", "expected": "J\u03B1. Smith", "lang": "en", "rules": { "base": "none", "placeGreekSymbols": true, "formatInitials": true } },
         { "desc": "two-letter abbreviation (only this rule)", "input": "Ph.D. students", "expected": "Ph.D. students", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
@@ -129,7 +132,12 @@
         { "desc": "Korean: sentence-final AI (only this rule)", "input": "저는 AI. 다음은", "expected": "저는 AI. 다음은", "lang": "ko", "rules": { "base": "none", "formatInitials": true } },
         { "desc": "Korean: Latin initials, hangul is not capitalized", "input": "J. K. 롤링", "expected": "J.\u202FK. 롤링", "lang": "ko" },
         { "desc": "no language: language-free rule still applies", "input": "J. K. Smith", "expected": "J.\u202FK.\u00A0Smith" },
-        { "desc": "piece boundary after the initial's space declines", "segments": ["J. ", "Smith"], "expected": ["J. ", "Smith"], "lang": "en", "rules": { "base": "none", "formatInitials": true } }
+        { "desc": "piece boundary after the initial's space declines", "segments": ["J. ", "Smith"], "expected": ["J. ", "Smith"], "lang": "en", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "capital letter before a capitalized word is read as an initial", "input": "Plan B. Then", "expected": "Plan B.\u00A0Then", "lang": "en" },
+        { "desc": "repeated spaces between initials are left alone", "input": "J.  K. Smith", "expected": "J.  K.\u00A0Smith", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "a newline between initials is left alone", "input": "J. K.\nSmith", "expected": "J.\u202FK.\nSmith", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "a tab between initial and surname is left alone", "input": "J.\tSmith", "expected": "J.\tSmith", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
+        { "desc": "a no-break space typed by the author is left alone", "input": "J.\u00A0K. Smith", "expected": "J.\u00A0K.\u00A0Smith", "lang": "en", "rules": { "base": "none", "formatInitials": true } }
       ]
     }
   ]

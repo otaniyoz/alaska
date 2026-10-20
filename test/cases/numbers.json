@@ -37,29 +37,44 @@
         { "desc": "with every rule on, number-nbsp-word does not win", "input": "3 x 4", "expected": "3\u202F\u00D7\u202F4", "lang": "en" },
         { "desc": "math zone keeps no-break and repeated spaces, and number-nbsp-word does not glue before the operator", "input": "3\u00A0x\u00A04 5  x 6 7 x8", "expected": "3\u00A0\u00D7\u00A04 5  \u00D7 6 7 \u00D78", "lang": "en", "rules": { "base": "math" } },
         { "desc": "number-nbsp-word still glues a number to a word that is not an operand", "input": "3 x y", "expected": "3\u00A0x y", "lang": "en", "rules": { "base": "math" } },
-        { "desc": "a number after a currency sign is a number", "input": "$5 x 3", "expected": "$5\u202F\u00D7\u202F3", "lang": "en" }
+        { "desc": "a number after a currency sign is a number", "input": "$5 x 3", "expected": "$5\u202F\u00D7\u202F3", "lang": "en" },
+        { "desc": "a tight operator after a number glued to a Latin letter is declined", "input": "A1x2", "expected": "A1x2", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "a tight operator after a number glued to a Cyrillic letter is declined", "input": "Я1x2", "expected": "Я1x2", "lang": "ru", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "a tight typed sign after a number glued to a letter is left alone", "input": "A1\u00D72", "expected": "A1\u00D72", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "a spaced operator after a number glued to a letter is multiplied", "input": "RTX4090 x 2", "expected": "RTX4090\u202F\u00D7\u202F2", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "a number after a space is not glued", "input": "Room 5x6", "expected": "Room 5\u00D76", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "a chain of tight operators still converts", "input": "5x5x5", "expected": "5\u00D75\u00D75", "lang": "en", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "ja: a number after Han and Kana is a number", "input": "解像度は1920x1080です", "expected": "解像度は1920\u00D71080です", "lang": "ja", "rules": { "base": "none", "placeMultiplicationSign": true } },
+        { "desc": "ko: a number after Hangul is a number", "input": "해상도는 1920x1080", "expected": "해상도는 1920\u00D71080", "lang": "ko", "rules": { "base": "none", "placeMultiplicationSign": true } }
       ]
     },
     {
       "name": "temperature",
-      "description": "Formats temperature values with a narrow no-break space and degree sign",
+      "description": "Replaces o before C or F directly after a number with a degree sign. No space is inserted: the sign touches the number, as the author typed it",
       "cases": [
-        { "desc": "Celsius", "input": "100oC", "expected": "100\u202F\u00B0C", "lang": "en" },
-        { "desc": "Fahrenheit", "input": "72oF", "expected": "72\u202F\u00B0F", "lang": "en" },
-        { "desc": "negative", "input": "-18oC", "expected": "\u221218\u202F\u00B0C", "lang": "en" }
+        { "desc": "Celsius", "input": "100oC", "expected": "100\u00B0C", "lang": "en" },
+        { "desc": "Fahrenheit", "input": "72oF", "expected": "72\u00B0F", "lang": "en" },
+        { "desc": "negative", "input": "-18oC", "expected": "\u221218\u00B0C", "lang": "en" }
       ]
     },
     {
       "name": "temperature-guards",
       "description": "The unit must follow a number ending in a digit and may be followed directly only by a Han, Kana or Hangul letter; a capital after the degree sign is not an initial",
       "cases": [
-        { "desc": "sentence-final temperature is not read as an initial", "input": "It was 20oC. Then we left.", "expected": "It was 20\u202F\u00B0C. Then we left.", "lang": "en" },
+        { "desc": "sentence-final temperature is not read as an initial", "input": "It was 20oC. Then we left.", "expected": "It was 20\u00B0C. Then we left.", "lang": "en" },
         { "desc": "a capital after a degree sign is not an initial (only this rule)", "input": "20\u202F\u00B0C. Then", "expected": "20\u202F\u00B0C. Then", "lang": "en", "rules": { "base": "none", "formatInitials": true } },
         { "desc": "number ending in a period is not a temperature", "input": "5.oC", "expected": "5.oC", "lang": "en" },
         { "desc": "Latin letter after the unit is not a temperature", "input": "20oCa", "expected": "20oCa", "lang": "en" },
         { "desc": "Cyrillic letter after the unit is not a temperature", "input": "20oC\u0432", "expected": "20oC\u0432", "lang": "ru" },
-        { "desc": "Han letters after the unit", "input": "20oC以下", "expected": "20\u202F\u00B0C以下", "lang": "ja" },
-        { "desc": "prolonged sound mark counts as Kana (needs script extensions)", "input": "20oC\u30FC", "expected": "20\u202F\u00B0C\u30FC", "lang": "ja" }
+        { "desc": "Han letters after the unit", "input": "20oC以下", "expected": "20\u00B0C以下", "lang": "ja" },
+        { "desc": "prolonged sound mark counts as Kana (needs script extensions)", "input": "20oC\u30FC", "expected": "20\u00B0C\u30FC", "lang": "ja" },
+        { "desc": "a number glued to a preceding Latin letter is not a temperature", "input": "A1oC", "expected": "A1oC", "lang": "en" },
+        { "desc": "ru: a number glued to a preceding Cyrillic letter is not a temperature", "input": "Я1oC", "expected": "Я1oC", "lang": "ru", "rules": { "base": "none", "placeTemperatureSign": true } },
+        { "desc": "ja: a number after Han and Kana is a number, so the sign is formatted", "input": "気温は20oCです", "expected": "気温は20\u00B0Cです", "lang": "ja", "rules": { "base": "none", "placeTemperatureSign": true } },
+        { "desc": "ko: a number after Hangul is a number, so the sign is formatted", "input": "오늘은 20oC", "expected": "오늘은 20\u00B0C", "lang": "ko", "rules": { "base": "none", "placeTemperatureSign": true } },
+        { "desc": "the unit must touch the number: a space is left alone and nothing is inserted", "input": "20 oC", "expected": "20 oC", "lang": "en", "rules": { "base": "none", "placeTemperatureSign": true } },
+        { "desc": "a degree sign typed by the author is left as written", "input": "20 \u00B0C and 20\u202F\u00B0C", "expected": "20 \u00B0C and 20\u202F\u00B0C", "lang": "en", "rules": { "base": "none", "placeTemperatureSign": true } },
+        { "desc": "a capital after a tight degree sign is not an initial (only this rule)", "input": "20\u00B0C. Then", "expected": "20\u00B0C. Then", "lang": "en", "rules": { "base": "none", "formatInitials": true } }
       ]
     },
     {

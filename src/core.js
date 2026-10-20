@@ -43,7 +43,7 @@ const dashes = new Set(["--", "\u2014", "\u2013"]);
 const sentencePunct = new Set([",", ".", ";", ":", "!", "?", "...", "\u2026"]);
 const leadPunct = new Set([",", "!", "?"]);
 const minusOpeners = new Set(['"', "'", "\u2018", "\u201C", "\u00AB", "\u201E"]);
-const minusZoneOps = new Set(["=", "+", "*", "/"]);
+const minusZoneOps = new Set(["=", "+", "*", "/", "<", ">"]);
 const arithmeticOps = { "-": "\u2212", "*": "\u22C5", "/": "\u2215" };
 const mathShortcodes = { "\\pm": "\u00B1", "\\prime": "\u2032", "\\dprime": "\u2033", "\\infty": "\u221E", "\\leq": "\u2A7D", "\\geq": "\u2A7E", "\\neq": "\u2260", "\\approx": "\u2248", "\\sqrt": "\u221A", "\\prod": "\u220F", "\\sum": "\u2211", "\\int": "\u222B", "\\partial": "\u2202", "\\therefore": "\u2234", "\\because": "\u2235", "\\forall": "\u2200", "\\exists": "\u2203", "\\in": "\u2208", "\\notin": "\u2209", "\\emptyset": "\u2205", "\\cup": "\u222A", "\\cap": "\u2229", "\\angle": "\u2220", "\\perp": "\u22A5", "\\parallel": "\u2225", "\\degree": "\u00B0", "\\times": "\u00D7" };
 const greekShortcodes = { "\\alpha": "\u03B1", "\\beta": "\u03B2", "\\gamma": "\u03B3", "\\delta": "\u03B4", "\\epsilon": "\u03F5", "\\varepsilon": "\u03B5", "\\zeta": "\u03B6", "\\eta": "\u03B7", "\\theta": "\u03B8", "\\vartheta": "\u03D1", "\\iota": "\u03B9", "\\kappa": "\u03BA", "\\varkappa": "\u03F0", "\\lambda": "\u03BB", "\\mu": "\u03BC", "\\nu": "\u03BD", "\\xi": "\u03BE", "\\pi": "\u03C0", "\\varpi": "\u03D6", "\\rho": "\u03C1", "\\varrho": "\u03F1", "\\sigma": "\u03C3", "\\varsigma": "\u03C2", "\\tau": "\u03C4", "\\upsilon": "\u03C5", "\\phi": "\u03D5", "\\varphi": "\u03C6", "\\chi": "\u03C7", "\\psi": "\u03C8", "\\omega": "\u03C9", "\\digamma": "\u03DD", "\\Gamma": "\u0393", "\\Delta": "\u0394", "\\Theta": "\u0398", "\\Lambda": "\u039B", "\\Xi": "\u039E", "\\Pi": "\u03A0", "\\Sigma": "\u03A3", "\\Upsilon": "\u03A5", "\\Phi": "\u03A6", "\\Psi": "\u03A8", "\\Omega": "\u03A9" };
@@ -54,7 +54,9 @@ const shapeShortcodes = { "\\square": "\u25A1", "\\blacksquare": "\u25A0", "\\ci
 const currencyShortcodes = { "\\pounds": "\u00A3", "\\yen": "\u00A5", "\\euro": "\u20AC", "\\ruble": "\u20BD", "\\tenge": "\u20B8" };
 const shapeMathShortcodes = { "\\star": "\u22C6", "\\diamond": "\u22C4" };
 
+const typedClosers = new Set(["\u00BB", "\u201D"]);
 const isWhitespace = (char) => /[\s\u00A0\t]/.test(char);
+const gluedToWord = (t) => t?.type === "word" && latinOrCyrillicEnd.test(t.value);
 const isInitial = (word, dot) => word?.type === "word" && word.value.length === 1 && /\p{Lu}/u.test(word.value) && dot?.type === "punct" && dot.value === ".";
 
 function resetCarry(carry) {
@@ -113,7 +115,8 @@ function isRangeHyphen(tokens, i, carried) {
 }
 
 const hasBreak = (t) => /[\r\n]/.test(t.value);
-const dashLeft = (t) => t?.type === "word" || t?.type === "num" || (t?.type === "punct" && (sentencePunct.has(t.value) || t.value === ")" || (t.quoteInfo !== undefined && !t.quoteInfo.isOpening)));
+const dashLeft = (t) => t?.type === "word" || t?.type === "num" || (t?.type === "punct" && (sentencePunct.has(t.value) || t.value === ")" || (t.quoteInfo !== undefined && !t.quoteInfo.isOpening))) || (t?.type === "other" && typedClosers.has(t.value));
+const dashCloser = (t) => (t?.type === "punct" && t.quoteInfo?.isOpening === false) || (t?.type === "other" && typedClosers.has(t.value));
 const dashRight = (t) => t?.type === "word" || t?.type === "num" || t?.type === "curr" || (t?.type === "punct" && (t.value === "(" || t.value === ")" || (t.quoteInfo !== undefined && !t.quoteInfo.isApostrophe)));
 
 function placeDash(tokens, i, before) {
@@ -135,7 +138,7 @@ function placeDash(tokens, i, before) {
     if (hasBreak(prev)) return false;
     if (t.value === "--") {
       if (!dashLeft(left) || !right || (right.type === "punct" && sentencePunct.has(right.value)) || (left.type === "num" && right.type === "num")) return false;
-    } else if (!((left?.type === "word" && (right?.type === "word" || right?.type === "num" || right?.type === "curr")) || (left?.type === "punct" && leadPunct.has(left.value) && right?.type === "word"))) return false;
+    } else if (!((left?.type === "word" && (right?.type === "word" || right?.type === "num" || right?.type === "curr")) || (((left?.type === "punct" && leadPunct.has(left.value)) || dashCloser(left)) && right?.type === "word"))) return false;
     if (prev.value === "\u0020") prev.value = "\u00A0";
     t.value = "\u2014";
     return true;
@@ -175,7 +178,7 @@ function applyArithmeticOp(tokens, before, opMap) {
   const op = tokens[before + 2];
   const ws2 = tokens[before + 3];
   const rhs = tokens[before + 4];
-  if (ws1?.type !== "ws" || (op?.type !== "punct" && op?.type !== "sym") || ws2?.type !== "ws" || !(rhs?.type === "num" || rhs?.type === "word" || rhs?.value === "(")) return;
+  if (ws1?.type !== "ws" || (op?.type !== "punct" && op?.type !== "sym") || ws2?.type !== "ws" || !(rhs?.type === "num" || rhs?.type === "word" || rhs?.value === "(" || (rhs?.type === "curr" && tokens[before + 5]?.type === "num"))) return;
   const replacement = opMap[op.value];
   if (!replacement) return;
   op.type = "other";
@@ -258,6 +261,7 @@ function formatString(text, rules, lang, carry) {
   const stack = carry ? (carry.stack ??= []) : [];
   for (let i = 0; i < tokens.length; i++) {
     if (tokens[i].type !== "short") continue;
+    if (tokens[i + 1]?.value === "{") continue;
     const key = tokens[i].value;
     const replacement = (rules.placeMathematicalSymbols && mathShortcodes[key]) || (rules.placeGreekSymbols && greekShortcodes[key]) || (rules.placeTypographyOrnamentation && ornamentShortcodes[key]) || (rules.placeEmoticons && emoticonShortcodes[key]) || (rules.placeArrows && arrowShortcodes[key]) || (rules.placeCurrencySymbols && currencyShortcodes[key]) || (rules.placeShapes && ((rules.placeArithmeticalSymbols && shapeMathShortcodes[key]) || shapeShortcodes[key]));
     if (!replacement) continue;
@@ -356,7 +360,7 @@ function formatString(text, rules, lang, carry) {
         const op = nextOf(tokens, i);
         const letter = op?.token.type === "word" && op.token.value.toLowerCase() === "x";
         const rhs = letter || (op?.token.type === "other" && op.token.value === "\u00D7") ? nextOf(tokens, op.index) : null;
-        if (rhs?.token.type === "num" && !(letter && t.value === "0" && op.index === i + 1)) mul = { op, rhs };
+        if (rhs?.token.type === "num" && !(letter && t.value === "0" && op.index === i + 1) && !(op.index === i + 1 && gluedToWord(prev))) mul = { op, rhs };
       }
 
       if (rules.placeNumberNbspWord && next?.type === "ws" && next.value === "\u0020" && /\d$/.test(t.value)) {
@@ -381,13 +385,12 @@ function formatString(text, rules, lang, carry) {
     } else if (t.type === "word") {
       if (rules.placeArithmeticalSymbols) applyArithmeticOp(tokens, i, arithmeticOps);
 
-      if (rules.placeTemperatureSign && prev?.type === "num" && /\d$/.test(prev.value) && temperatureUnit.test(t.value)) {
-        replaceTokens(tokens, i - 1, i, prev.value + "\u202F\u00B0" + t.value.slice(1));
-        i++;
+      if (rules.placeTemperatureSign && prev?.type === "num" && /\d$/.test(prev.value) && !gluedToWord(tokens[i - 2]) && temperatureUnit.test(t.value)) {
+        replaceTokens(tokens, i - 1, i, prev.value + "\u00B0" + t.value.slice(1));
       } else if (rules.formatInitials && isInitial(t, next) && prev?.value !== "\u00B0") {
         const sp = tokens[i + 2];
         const after = tokens[i + 3];
-        if (sp?.type === "ws" && after?.type === "word") {
+        if (sp?.type === "ws" && sp.value === "\u0020" && after?.type === "word") {
           if (isInitial(after, tokens[i + 4])) sp.value = "\u202F";
           else if (/^\p{Lu}/u.test(after.value) && (t.value !== "I" || (tokens[i - 1]?.type === "ws" && isInitial(tokens[i - 3], tokens[i - 2])))) sp.value = "\u00A0";
         }

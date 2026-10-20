@@ -31,7 +31,15 @@
         { "desc": "prose rules keep em dash off the operator", "input": "value - 5", "expected": "value \u2212 5", "lang": "en", "rules": { "base": "math" } },
         { "desc": "prose binary minus stays untouched", "input": "3 - 4", "expected": "3 - 4", "lang": "en" },
         { "desc": "prose plus stays untouched", "input": "3 + 4", "expected": "3 + 4", "lang": "en" },
-        { "desc": "operator missing from arithmeticOps is left alone", "input": "x < y", "expected": "x < y", "lang": "en", "rules": { "base": "math" } }
+        { "desc": "operator missing from arithmeticOps is left alone", "input": "x < y", "expected": "x < y", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "a currency sign followed by a digit is a right operand", "input": "$5 - $3", "expected": "$5 \u2212 $3", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "math zone: a spaced hyphen between words is read as an operator, whatever the language", "input": "Therefore - note", "expected": "Therefore \u2212 note", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "a currency sign before a word is not a right operand", "input": "5 - $HOME", "expected": "5 - $HOME", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "a euro sign and a digit is a right operand of a product", "input": "x * \u20AC2", "expected": "x \u22C5 \u20AC2", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "a less-than sign is a lead for a unary minus", "input": "x<-5", "expected": "x<\u22125", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "a greater-than sign is a lead for a unary minus", "input": "x>-5", "expected": "x>\u22125", "lang": "en", "rules": { "base": "math" } },
+        { "desc": "a less-than sign is not a lead in prose", "input": "x>-5", "expected": "x>-5", "lang": "en", "rules": { "base": "none", "placeMinusSign": true } },
+        { "desc": "number-unit glue stays on in a zone", "input": "x = 3 m, 50 %", "expected": "x = 3\u00A0m, 50\u202F%", "lang": "en", "rules": { "base": "math" } }
       ]
     },
     {
