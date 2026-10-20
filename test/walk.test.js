@@ -472,6 +472,16 @@ const cases = [
     input: `<div class="alaska" lang="en">x\n<- b</div>`,
     expected: `<div class="alaska" lang="en">x\n<\u2014 b</div>`,
   },
+  {
+    desc: "ampersand between spaces binds the space after it",
+    input: `<div class="alaska" lang="en">Tom & Jerry</div>`,
+    expected: `<div class="alaska" lang="en">Tom &\u00A0Jerry</div>`,
+  },
+  {
+    desc: "limitation: an ampersand written as a character reference is not bound",
+    input: `<div class="alaska" lang="en">Tom &amp; Jerry</div>`,
+    expected: `<div class="alaska" lang="en">Tom &amp; Jerry</div>`,
+  },
 ];
 
 let pass = 0;

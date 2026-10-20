@@ -10,6 +10,30 @@
       ]
     },
     {
+      "name": "short-word-nbsp",
+      "description": "placeNbsp binds only a single regular space after a short word, or after the comma that follows it. A newline, repeated spaces, a tab and other space characters are left alone, as in placeNumberNbspWord, so the rule never erases a line break or collapses spacing. Quotes and punctuation other than a comma do not bind. Word lists exist for en and ru",
+      "cases": [
+        { "desc": "a newline after a short word is left alone", "input": "went to\nschool", "expected": "went to\nschool", "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
+        { "desc": "a paragraph break after a short word is left alone", "input": "to\n\nschool", "expected": "to\n\nschool", "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
+        { "desc": "repeated spaces after a short word are not collapsed", "input": "in  school", "expected": "in  school", "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
+        { "desc": "a tab after a short word is left alone", "input": "in\tschool", "expected": "in\tschool", "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
+        { "desc": "a narrow no-break space after a short word is left alone", "input": "in\u202Fschool", "expected": "in\u202Fschool", "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
+        { "desc": "a newline after the comma is left alone", "input": "for,\nthen", "expected": "for,\nthen", "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
+        { "desc": "a declined gap does not stop the next short word from binding", "input": "went to\nthe store", "expected": "went to\nthe\u00A0store", "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
+        { "desc": "quotes and punctuation other than a comma do not bind", "input": "x \"in\" y so. y for? y to) y or: y at; y of! y", "expected": "x \"in\" y so. y for? y to) y or: y at; y of! y", "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
+        { "desc": "the match is case-insensitive", "input": "The end", "expected": "The\u00A0end", "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
+        { "desc": "consecutive short words chain", "input": "in the end", "expected": "in\u00A0the\u00A0end", "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
+        { "desc": "every rule on: a newline after a short word stays, so the dash rule still sees a dash alone on a line", "input": "a\n--\nb", "expected": "a\n--\nb", "lang": "en" },
+        { "desc": "a short word at the end of a piece binds its trailing space", "segments": ["of ", "x"], "expected": ["of\u00A0", "x"], "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
+        { "desc": "an ampersand between spaces binds the space after it", "input": "Tom & Jerry", "expected": "Tom &\u00A0Jerry", "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
+        { "desc": "a newline after the ampersand is left alone", "input": "Tom &\nJerry", "expected": "Tom &\nJerry", "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
+        { "desc": "repeated spaces after the ampersand are left alone", "input": "Tom &  Jerry", "expected": "Tom &  Jerry", "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
+        { "desc": "an ampersand inside a word or doubled is left alone", "input": "AT&T x && y", "expected": "AT&T x && y", "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
+        { "desc": "an ampersand at the end of the text is left alone", "input": "x &", "expected": "x &", "lang": "en", "rules": { "base": "none", "placeNbsp": true } },
+        { "desc": "an ampersand at the end of a piece binds its trailing space", "segments": ["Tom & ", "Jerry"], "expected": ["Tom &\u00A0", "Jerry"], "lang": "en", "rules": { "base": "none", "placeNbsp": true } }
+      ]
+    },
+    {
       "name": "number-nbsp-word",
       "description": "placeNumberNbspWord glues only a single regular space after a number that ends in a digit: to U+00A0 before a word, to U+202F before a % or a currency sign that is a unit (the sign stays where the author put it). Newlines, repeated spaces, other space characters and numbers with trailing punctuation are left alone, and so is a % or currency sign followed by a number or glued to a word (modulo, format specifiers)",
       "cases": [

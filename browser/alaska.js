@@ -9,7 +9,7 @@ const mathRules = { placeArithmeticalSymbols: true, placeEmdash: false, placeNum
 const temperatureUnit = /^o[CF](?=$|[\p{scx=Han}\p{scx=Hiragana}\p{scx=Katakana}\p{scx=Hangul}])/u;
 const shortWords = {
   en: new Set("a an at by for in of on or the to and but nor yet so as if".split(" ")),
-  ru: new Set("а в во и к не на о об от по с со у из за до для или но же то бы ли".split(" ")),
+  ru: new Set("а в во и к не на о об от по с со у из за до для или но то ни ко".split(" ")),
 };
 const supportedLangs = new Set(["en", "ru"]);
 const rangeLangs = new Set(["en", "ru"]);
@@ -395,14 +395,16 @@ function formatString(text, rules, lang, carry) {
           else if (/^\p{Lu}/u.test(after.value) && (t.value !== "I" || (tokens[i - 1]?.type === "ws" && isInitial(tokens[i - 3], tokens[i - 2])))) sp.value = "\u00A0";
         }
       } else if (rules.placeNbsp && shortWords[lang]?.has(t.value.toLowerCase())) {
-        if (next?.type === "ws") next.value = "\u00A0";
-        else if (next?.type === "punct" && next.value === "," && next2?.type === "ws") next2.value = "\u00A0";
+        const gap = next?.type === "ws" ? next : next?.type === "punct" && next.value === "," && next2?.type === "ws" ? next2 : null;
+        if (gap?.value === "\u0020") gap.value = "\u00A0";
       }
     } else if (t.type === "sym") {
       if (rules.placeArrows && t.value === "<" && next?.type === "punct" && next.value === "-" && next2?.type === "sym" && next2.value === ">") {
         replaceRange(tokens, i, i + 2, "\u2194");
       } else if (rules.placeArrows && t.value === "<" && next?.type === "punct" && next.value === "-" && !(prev?.type === "sym" && prev.value === "<") && !(next2?.type === "num" || next2?.type === "curr" || (next2?.type === "sym" && next2.value === "%"))) {
         replaceRange(tokens, i, i + 1, "\u2190");
+      } else if (rules.placeNbsp && t.value === "&" && shortWords[lang] && prev?.type === "ws" && next?.type === "ws" && next.value === "\u0020") {
+        next.value = "\u00A0";
       }
     }
   }

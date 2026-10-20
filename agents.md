@@ -8,6 +8,8 @@ Alaska is not smart. It does not guess, repair or interpret text. It does a smal
 
 `en` and `ru` are supported, `ko` has typographic quotes only (no short-word list, no numeric range, no other language-dependent rule), and `ja` is planned (it stays unchanged for quotes until its convention, corner brackets, is decided). When planning or revising any behavior, think in terms of all four. Language-free rules (`placeNumberNbspWord`, `placeMinusSign` and the rest) currently apply to every language, `ja` and `ko` included, and `test/rule-table.json` pins that. `placeEmdash` is language-dependent (`en` and `ru`): `ja` and `ko` keep dashes as written until their conventions are decided. Before adding `ja` or `ko`, decide per language-free rule whether it stays on for them. Known hazard, pinned in `test/cases/limitations.json`: a temperature gets `{U+202F}` between the number and `{U+00B0}C`, where convention is no space. `placeHyphen` is language-free but script-gated (Latin or Cyrillic on both sides), so it already leaves `ja` and `ko` compounds alone.
 
+`placeNbsp` has no `ja` or `ko` list by design: Japanese uses no word spaces and Korean attaches particles to the preceding word, and no short-word convention is known in either. Its `&` branch follows the same gate (`shortWords[lang]`), so `Tom & Jerry` is unchanged in `ja`, `ko` and no language. `ru` particles that follow a word (`бы`, `ли`, `же`) stay out of the list: they bind to the word before them, which is deferred as new behavior.
+
 Alaska should be reasonably fast. Recent versions of Alaska have been clocking around 400ms on our bench; we want to make sure it doesn't go up over %5 without good reason. `bench.txt` is Gutenberg's plain-text version of Ulysses.
 
 ## Commands
