@@ -245,6 +245,20 @@ function tokenize(text) {
   return tokens;
 }
 
+const ruleKeys = new Set(Object.keys(commonRules));
+const mathOff = Object.fromEntries(Object.keys(mathRules).map((k) => [k, commonRules[k]]));
+
+function resolveRules(inherited, data) {
+  const overlay = data.math === "true" ? mathRules : data.math === "false" ? mathOff : undefined;
+  let explicit;
+  for (const key of Object.keys(data)) {
+    if (!ruleKeys.has(key)) continue;
+    explicit ??= {};
+    explicit[key] = data[key] === "true" ? true : data[key] === "false" ? false : data[key];
+  }
+  return overlay || explicit ? { ...inherited, ...overlay, ...explicit } : inherited;
+}
+
 function formatString(text, rules, lang, carry) {
   if (text.length > MAX_INPUT_LENGTH) {
     if (carry) resetCarry(carry);
@@ -422,4 +436,4 @@ function formatString(text, rules, lang, carry) {
   return tokens.map((t) => t.value).join("");
 }
 
-export { blockTags, commonRules, formatString, mathRules, resetCarry };
+export { blockTags, commonRules, formatString, mathRules, resetCarry, resolveRules };

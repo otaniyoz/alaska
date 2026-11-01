@@ -45,17 +45,17 @@ Undecided. Settle each per language, then pin the result in `languages.json`.
 
 Run from the repo root.
 
-- `deno task build`: lint, fmt, `test/test.js`, `test/carry.api.test.js`, `test/walk.test.js`, `test/fuzz.js 3000 1`, then `build.js`. Stops at the first failure.
+- `deno task build`: lint, fmt, `test/test.js`, `test/carry.api.test.js`, `test/rules.api.test.js`, `test/walk.test.js`, `test/fuzz.js 3000 1`, then `build.js`. Stops at the first failure.
 - `deno task fuzz [iterations] [seed]`: seeded idempotence fuzz (defaults 5000, 1). After any change to `src/core.js`, run 100000+ iterations over several seeds.
 - `deno task bench`: 1000 runs of `formatString` (`commonRules`, `en`) on `bench/bench.txt`; appends `<ISO time> bench.js <ms>ms` to `bench/history` on every run.
-- Single tests: `deno run -R test/test.js`, `test/carry.api.test.js`, `test/walk.test.js`.
+- Single tests: `deno run -R test/test.js`, `test/carry.api.test.js`, `test/rules.api.test.js`, `test/walk.test.js`.
 
 Failures print one `x ...` block each (input, expected, actual) and exit 1; passing is silent. `deno fmt` also rewrites md and json at `lineWidth` 1440: check `git diff` after a build, especially lines with non-ASCII characters.
 
 ## Layout
 
 ```
-src/core.js           tokenizer + rules; exports { blockTags, commonRules, formatString, mathRules, resetCarry }
+src/core.js           tokenizer + rules; exports { blockTags, commonRules, formatString, mathRules, resetCarry, resolveRules }
 src/dom.js            live DOM entry: init pass + MutationObserver
 cli/walk.js           streaming HTML rewriter; exports { formatHtml }
 cli/cli.js            file/glob CLI over formatHtml
@@ -64,7 +64,7 @@ test/test.js          runner for the fixtures, via harness.js
 test/harness.js       fixture loading, validation, case and rule-table checks
 test/cases/*.json     core cases, one file per topic
 test/rule-table.json  one row per rule: isolation, negation, language matrix
-test/carry.api.test.js, test/walk.test.js
+test/carry.api.test.js, test/rules.api.test.js, test/walk.test.js
 test/fuzz.js          seeded idempotence fuzz with shrinking; split runs skip boundaries the one-token carry cannot see (quoteSafe, rangeSafe, dashSafe, minusSafe, zoneSafe)
 bench/                bench.js, bench.txt, history
 ```
@@ -101,15 +101,17 @@ Carry (`carry.stack`, `carry.prev`):
 
 ## dom.js, walk.js and build.js
 
-dom.js and walk.js implement the same behavior twice, so any change to one must be made in the other: skip elements, `lang` inheritance, `data-*` parsing and the `data-math` overlay (`getRules` / `computeRules`; order: inherited, overlay, explicit `data-place-*`), nested `.alaska` (walk.js gets this from the sticky `active` flag), and the carry protocol:
+Rule resolution is shared: both call `resolveRules(inherited, data)` from core.js (order: inherited, `data-math` overlay, explicit `data-place-*`; unknown or prototype names are ignored). dom.js passes `node.dataset`; walk.js builds the same camelCase object from the attributes, with names lowercased and the first duplicate winning, as in a browser. It returns `inherited` itself when nothing applies.
+
+dom.js and walk.js implement the rest of the behavior twice, so any change to one must be made in the other: skip elements, `lang` inheritance, nested `.alaska` (walk.js gets this from the sticky `active` flag), and the carry protocol:
 
 - one carry per root; `resetCarry` at the start and end of every `blockTags` element, at a new root and at a block skip element;
 - `formatString` is fed and its output discarded for `<br>` (`"\n"`), an inline skip element (`"x"`, once, only when its parent is active and not skipped) and, in walk.js only, a character reference (its decoded character if whitespace, else `"x"`);
 - `script`, `style`, comments and other void elements are transparent.
 
-Rule names are whitelisted from `commonRules` in both, so a new rule needs no change there. `alaska-observe` exists only in dom.js: each mutation record starts with a fresh carry; unless the target is a block and `previousSibling` is null, the carry is seeded with `"x"` and quotes are off for added non-block nodes. `init` skips an `.alaska` with an `.alaska` ancestor, and the observer resolves an added node's rules through `outermostRoot` and `getContext`. Read `lang` with `getAttribute("lang")`, not the `.lang` property. dom.js has no automated tests: keep it in step with walk.js by reading both.
+Rule names are whitelisted from `commonRules` in `resolveRules`, so a new rule needs no change in dom.js or walk.js. `alaska-observe` exists only in dom.js: each mutation record starts with a fresh carry; unless the target is a block and `previousSibling` is null, the carry is seeded with `"x"` and quotes are off for added non-block nodes. `init` skips an `.alaska` with an `.alaska` ancestor, and the observer resolves an added node's rules through `outermostRoot` and `getContext`. Read `lang` with `getAttribute("lang")`, not the `.lang` property. dom.js has no automated tests: keep it in step with walk.js by reading both.
 
-Known divergences, not to be unified: walk.js ends the text run at a character reference, so the core sees `&amp;` as a word there and the decoded `&` in dom.js (decoding and re-encoding would rewrite the author's references); `lang=""` inherits in dom.js and resets in walk.js.
+Known divergences, not to be unified: walk.js ends the text run at a character reference, so the core sees `&amp;` as a word there and the decoded `&` in dom.js (decoding and re-encoding would rewrite the author's references); `lang=""` inherits in dom.js and resets in walk.js; walk.js matches `class` and `lang` case-sensitively and does not apply first-duplicate-wins to them (`data-*` follows the browser).
 
 `build.js` strips the first `export {...};` of core.js and the first `import {...} from "...";` of dom.js by regex and wraps both in one block. So core.js keeps exactly one `export` statement, dom.js exactly one import (from `./core.js`), and top-level names must not collide between them. dom.js must import what it uses.
 
@@ -130,7 +132,7 @@ Known divergences, not to be unified: walk.js ends the text run at a character r
 - Keep a case only if it pins behavior documented in the readme, a distinct branch, a fuzz regression, or a carry or walk contract. Do not restate a rule-table row or repeat an input across groups.
 - Language-dependent behavior gets one group per language in `languages.json`. `de` and `ja` pin "unsupported, unchanged" and `ko` pins "quotes only"; those cases change on purpose when support lands.
 - Behavior listed in the readme "does not do" section is pinned by ordinary cases. Fixing one means changing its test on purpose.
-- Coverage gate: with `test/test.js` and `test/carry.api.test.js`, only the `if (!tokens[j].value) continue;` guard in the carry snapshot may stay unreached; with `test/walk.test.js` alone nothing in `cli/walk.js` may. Merge per-process V8 coverage by source offset, not line percentage. Do not delete defensive guards to raise a percentage: they make a bug skip an edit instead of throwing at render time.
+- Coverage gate: with `test/test.js`, `test/carry.api.test.js` and `test/rules.api.test.js`, only the `if (!tokens[j].value) continue;` guard in the carry snapshot may stay unreached; with `test/walk.test.js` alone nothing in `cli/walk.js` may. Merge per-process V8 coverage by source offset, not line percentage. Do not delete defensive guards to raise a percentage: they make a bug skip an edit instead of throwing at render time.
 - HTML structure and `data-math` cases belong in `test/walk.test.js`, not `test/cases`.
 
 ## Unicode policy

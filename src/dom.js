@@ -1,4 +1,4 @@
-import { blockTags, commonRules, formatString, mathRules, resetCarry } from "./core.js";
+import { blockTags, commonRules, formatString, resetCarry, resolveRules } from "./core.js";
 
 const SKIP_SELECTOR = "code, pre, samp, kbd, script, style, .alaska-skip";
 const SKIP_TAGS = new Set(["code", "pre", "samp", "kbd"]);
@@ -10,7 +10,7 @@ function init() {
     if (node.parentElement?.closest(".alaska")) continue;
     if (node.closest(SKIP_SELECTOR)) continue;
     const lang = resolveLang(node);
-    formatNode(node, getRules(node, lang), lang, {});
+    formatNode(node, getRules(node), lang, {});
   }
 
   const observer = new MutationObserver((mutations) => {
@@ -62,7 +62,7 @@ function formatNode(node, inheritedRules, inheritedLang, carry) {
         const children = node.childNodes;
         for (let j = children.length - 1; j >= 0; j--) {
           const childNode = children[j];
-          stack.push({ node: childNode, inheritedRules: getRules(childNode, lang, inheritedRules), inheritedLang: lang });
+          stack.push({ node: childNode, inheritedRules: getRules(childNode, inheritedRules), inheritedLang: lang });
         }
       }
     }
@@ -92,34 +92,14 @@ function getContext(el, root) {
   for (let cur = el; cur && cur !== root; cur = cur.parentElement) path.unshift(cur);
 
   const lang = resolveLang(el);
-  let rules = getRules(root, lang);
-  for (const node of path) rules = getRules(node, lang, rules);
+  let rules = getRules(root);
+  for (const node of path) rules = getRules(node, rules);
 
   return { lang, rules };
 }
 
-function getRules(node, _lang, rules) {
-  const dataset = node.dataset;
-  if (rules && !node.lang) {
-    if (dataset === undefined) return rules;
-    if (!Object.keys(dataset).length) return rules;
-  }
-
-  const datasetRules = {};
-  if (dataset) {
-    const validRuleKeys = new Set(Object.keys(commonRules));
-    for (const key of Object.keys(dataset)) {
-      if (!validRuleKeys.has(key)) continue;
-      const val = dataset[key];
-      if (val === "true") datasetRules[key] = true;
-      else if (val === "false") datasetRules[key] = false;
-      else datasetRules[key] = val;
-    }
-  }
-  let mathOverlay = {};
-  if (dataset?.math === "true") mathOverlay = mathRules;
-  else if (dataset?.math === "false") mathOverlay = Object.fromEntries(Object.keys(mathRules).map((k) => [k, commonRules[k]]));
-  return { ...commonRules, ...(rules || {}), ...mathOverlay, ...datasetRules };
+function getRules(node, rules = commonRules) {
+  return node.dataset ? resolveRules(rules, node.dataset) : rules;
 }
 
 if (typeof document !== "undefined") {

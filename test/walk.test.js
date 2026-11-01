@@ -482,6 +482,46 @@ const cases = [
     input: `<div class="alaska" lang="en">Tom &amp; Jerry</div>`,
     expected: `<div class="alaska" lang="en">Tom &amp; Jerry</div>`,
   },
+  {
+    desc: "data-* names with a trailing or doubled hyphen are ignored",
+    input: `<div class="alaska" data-foo- data-a--b="x">50 m</div>`,
+    expected: `<div class="alaska" data-foo- data-a--b="x">50\u00A0m</div>`,
+  },
+  {
+    desc: "data-* names with a trailing or doubled hyphen outside .alaska do not throw",
+    input: `<span data-foo-="x" data-a--b>60 m</span><div class="alaska">50 m</div>`,
+    expected: `<span data-foo-="x" data-a--b>60 m</span><div class="alaska">50\u00A0m</div>`,
+  },
+  {
+    desc: "data-* names that are object properties are not rules",
+    input: `<div class="alaska" data-constructor="false" data-to-string="false">50 m</div>`,
+    expected: `<div class="alaska" data-constructor="false" data-to-string="false">50\u00A0m</div>`,
+  },
+  {
+    desc: "data-* names are case-insensitive, as in a browser",
+    input: `<div class="alaska" lang="en" DATA-PLACE-EMDASH="false" data-place-Number-nbsp-word="false">x - y 50 m</div>`,
+    expected: `<div class="alaska" lang="en" DATA-PLACE-EMDASH="false" data-place-Number-nbsp-word="false">x - y 50 m</div>`,
+  },
+  {
+    desc: "data-math name is case-insensitive",
+    input: `<div class="alaska" DATA-MATH="true">x - 5</div>`,
+    expected: `<div class="alaska" DATA-MATH="true">x \u2212 5</div>`,
+  },
+  {
+    desc: "a duplicated data-* attribute keeps the first value, as in a browser (false first)",
+    input: `<div class="alaska" data-place-number-nbsp-word="false" data-place-number-nbsp-word="true">50 m</div>`,
+    expected: `<div class="alaska" data-place-number-nbsp-word="false" data-place-number-nbsp-word="true">50 m</div>`,
+  },
+  {
+    desc: "a duplicated data-* attribute keeps the first value, as in a browser (true first)",
+    input: `<div class="alaska" data-place-number-nbsp-word="true" data-place-number-nbsp-word="false">50 m</div>`,
+    expected: `<div class="alaska" data-place-number-nbsp-word="true" data-place-number-nbsp-word="false">50\u00A0m</div>`,
+  },
+  {
+    desc: "a duplicated data-math keeps the first value even when a later one is invalid",
+    input: `<div class="alaska" data-math="true" data-math="">x - 5</div>`,
+    expected: `<div class="alaska" data-math="true" data-math="">x \u2212 5</div>`,
+  },
 ];
 
 let pass = 0;

@@ -1,4 +1,4 @@
-import { blockTags, commonRules, formatString, mathRules, resetCarry } from "../src/core.js";
+import { blockTags, commonRules, formatString, resetCarry, resolveRules } from "../src/core.js";
 
 const VOID = new Set("area base br col embed hr img input link meta param source track wbr".split(" "));
 const SKIP_TAGS = new Set("code pre samp kbd".split(" "));
@@ -22,27 +22,18 @@ function closesForNewTag(topTag, newTag) {
   return topDepth !== undefined ? topDepth >= d : OPTIONAL_END.has(topTag);
 }
 
-function kebabToCamel(s) {
-  const parts = s.split("-");
-  return parts[0] + parts.slice(1).map((p) => p[0].toUpperCase() + p.slice(1)).join("");
-}
+const kebabToCamel = (s) => s.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
 
 function computeRules(attrs, inherited) {
-  const data = {};
-  let math;
+  let data;
   for (const [name, val] of attrs) {
-    if (!name.startsWith("data-")) continue;
-    const key = kebabToCamel(name.slice(5));
-    if (key === "math") {
-      if (val === "true" || val === "false") math = val;
-      continue;
-    }
-    if (!(key in commonRules)) continue;
-    data[key] = val === "true" ? true : val === "false" ? false : val;
+    const lower = name.toLowerCase();
+    if (!lower.startsWith("data-")) continue;
+    const key = kebabToCamel(lower.slice(5));
+    data ??= Object.create(null);
+    if (!(key in data)) data[key] = val;
   }
-  if (math === undefined && !Object.keys(data).length) return inherited;
-  const mathOverlay = math === undefined ? {} : math === "true" ? mathRules : Object.fromEntries(Object.keys(mathRules).map((k) => [k, commonRules[k]]));
-  return { ...inherited, ...mathOverlay, ...data };
+  return data ? resolveRules(inherited, data) : inherited;
 }
 
 function computeFrame(parent, tag, attrs, foreign) {
