@@ -1,5 +1,3 @@
-![Alaska](logo.webp)
-
 # Alaska is a text formatter for web prose
 
 It applies proper quotes, no-break spaces, dashes, arrows, symbols, and more; tries to leave ambiguous text as written and keep formatting idempotent.
