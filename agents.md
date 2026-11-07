@@ -2,44 +2,20 @@
 
 Deno. No dependencies. No network.
 
-## Principles
-
-Alaska is not smart. It does not guess, repair or interpret text. When an input is ambiguous or an edge case has no clear answer, do less: leave the text as written. A missed edit is acceptable; a wrong edit is not. This applies to new rules, to tightening existing ones, and to language handling: an unsupported or missing `lang` means no language-dependent rule fires.
-
-`en` and `ru` are supported, `ko` has typographic quotes only, `ja` is planned. When planning or revising any behavior, think in terms of all four.
-
-- Language-free rules (`placeNumberNbspWord`, `placeMinusSign` and the rest) currently apply to `ja` and `ko` too; `test/rule-table.json` pins that. Before adding either language, decide per language-free rule whether it stays on.
-- Language-free rules must not insert spacing, because conventions differ (a temperature takes no space in `ja` and `ko`).
-- `placeEmdash` and `placeNumericRange` are `en`/`ru` only until the `ja`/`ko` conventions are decided. `placeHyphen` is script-gated (Latin or Cyrillic both sides), so it already leaves `ja`/`ko` compounds alone.
-- `placeNbsp` has no `ja`/`ko` list by design: Japanese uses no word spaces, Korean attaches particles to the preceding word. Its `&` branch follows the same gate (`shortWords[lang]`). `ru` particles that follow a word (`бы`, `ли`, `же`) stay out of the list; binding them to the previous word is deferred.
-- User docs treat `ja` and `ko` as unsupported and do not document live `ko` quotes. The exact current behavior is pinned in `languages.json`.
-
-Performance: bench is about 300ms; do not let it rise over 5% without good reason. `bench/bench.txt` is Gutenberg's plain text of Ulysses.
-
 ## Triage
+
+When input is ambiguous or an edge case has no clear answer, do less and leave the text as written: a missed edit is acceptable, a wrong edit is not. This applies to new rules, to tightening existing ones, and to language handling (a missing or unsupported `lang` fires no language-dependent rule).
 
 Every finding is exactly one of:
 
 1. **Fix**: a wrong edit on realistic prose, or an inconsistency between rules.
-2. **Readme "does not do" line**: a missed or ambiguous edit a reader would plausibly expect handled.
+2. **Readme limit**: a missed or ambiguous edit a reader would plausibly expect handled. Document it in the rule's row or in the limits paragraph after the rules table.
 3. **Regression test only**: shapes the fuzz found that nobody would write.
 4. **Nothing.**
 
 ## Spacing
 
-Alaska never inserts whitespace into the author's text. A rule converts only a single regular space (`placeNumberNbspWord`, `placeNbsp`, `formatInitials`, the dash rules). The one exception is `placeMultiplicationSign`, which also converts a single no-break space to `{U+202F}`. Newlines, repeated spaces, tabs and other space characters are left as written, so hard-wrapped source keeps its line breaks. A word joiner (`{U+2060}`) is not whitespace.
-
-## ja and ko checklist
-
-Undecided. Settle each per language, then pin the result in `languages.json`.
-
-- [ ] **ko quotes**: `'좋아'` becomes `"좋아"`, changing the author's quote type. Leaning towards mapping by character rather than depth (low confidence).
-- [ ] **Line-start dash**: `- item` becomes `{U+2014} item` in `en`, turning plain-text bullets into dashes; in `ru` it is a dialogue convention. Decide per language. When touching it, allow an indented dash at the start of a text: `carry.prev` is undefined only at a true block start.
-- [ ] **Currency tokens**: add `{U+20A9}` and `{U+FFE5}` to `curr`, then re-run the minus, em dash, quote and unit-glue fuzz with them in the alphabet.
-- [ ] **Corner brackets**: `{U+300C}-5{U+300D}` is a `ja` quote and minus item; `ja` quotes stay unchanged until decided.
-- [ ] **Numeric range**: `ja`/`ko` write ranges with `{U+301C}` or `~`, so `rangeLangs` stays `en`, `ru`.
-- [ ] **Em dash**: Japanese commonly uses a doubled horizontal bar `{U+2015}{U+2015}`, which `placeEmdash` does not apply, so `emdashLangs` stays `en`, `ru`.
-- [ ] **User docs**: when support lands, update the readme Language section and table.
+Alaska never inserts whitespace into the author's text; for language-free rules this is required, since conventions differ (a temperature takes no space in `ja` and `ko`). A rule converts only a single regular space (`placeNumberNbspWord`, `placeNbsp`, `formatInitials`, the dash rules); the one exception is `placeMultiplicationSign`, which also converts a single no-break space to `{U+202F}`. Newlines, repeated spaces, tabs and other space characters are left as written, so hard-wrapped source keeps its line breaks. A word joiner (`{U+2060}`) is not whitespace.
 
 ## Commands
 
@@ -47,7 +23,7 @@ Run from the repo root.
 
 - `deno task build`: lint, fmt, `test/test.js`, `test/carry.api.test.js`, `test/rules.api.test.js`, `test/walk.test.js`, `test/fuzz.js 3000 1`, then `build.js`. Stops at the first failure.
 - `deno task fuzz [iterations] [seed]`: seeded idempotence fuzz (defaults 5000, 1). After any change to `src/core.js`, run 100000+ iterations over several seeds.
-- `deno task bench`: 1000 runs of `formatString` (`commonRules`, `en`) on `bench/bench.txt`; appends `<ISO time> bench.js <ms>ms` to `bench/history` on every run.
+- `deno task bench`: 1000 runs of `formatString` (`commonRules`, `en`) on `bench/bench.txt` (Gutenberg's plain text of Ulysses); appends `<ISO time> bench.js <ms>ms` to `bench/history`. The baseline is about 300ms; do not let it rise over 5% without good reason.
 - Single tests: `deno run -R test/test.js`, `test/carry.api.test.js`, `test/rules.api.test.js`, `test/walk.test.js`.
 
 Failures print one `x ...` block each (input, expected, actual) and exit 1; passing is silent. `deno fmt` also rewrites md and json at `lineWidth` 1440: check `git diff` after a build, especially lines with non-ASCII characters.
@@ -75,8 +51,8 @@ bench/                bench.js, bench.txt, history
 
 Invariants:
 
-- **Idempotence.** `formatString(formatString(x))` must equal `formatString(x)`. This is what the fuzz checks and what most bugs break.
-- **Stable neighbors.** A decision that reads a neighbor must read something no later rule changes. When a rule declines, pass 2 must decline too; a rule that fires is safe, because its output no longer matches. Every fuzz failure so far was a guard reading a token that later became an arrow, minus or other rule output. `numberAhead` serves both the quote marker and `isUnitSign`: change one, re-check the other.
+- **Idempotence.** `formatString(formatString(x))` must equal `formatString(x)`. The fuzz checks this, and most bugs break it.
+- **Stable neighbors.** A decision that reads a neighbor must read something no later rule changes. When a rule declines, pass 2 must decline too; a rule that fires is safe, because its output no longer matches. The usual fuzz failure is a guard reading a token that later became an arrow, minus or other rule output. `numberAhead` serves both the quote marker and `isUnitSign`: change one, re-check the other.
 - **Precedence** is the `else if` order within a token-type branch (the arrow branch precedes numeric range, so `10->20` is an arrow).
 - **Stale references.** `next`, `next2` and `prev` are captured at the top of each iteration and are stale after a splice: `continue` or adjust `i`.
 - **Re-tokenizing.** Use `replaceTokens` (splices `tokenize(value)`) when a rule emits text a later rule or pass could read as number, word or space (temperature, shortcode output). Use `replaceRange` (one opaque `other` token) only for output nothing reads (arrows). `token.start` and `token.end` are not maintained after mutation.
@@ -91,6 +67,8 @@ Language gating:
 
 - `quoteStyle(rawLang)` returns `"single"`, `"double"`, `"ru"` or `undefined`; `normalizeLang` then keeps the primary subtag only if it is in `supportedLangs`, and guards against `constructor` and `__proto__`.
 - `rangeLangs` and `emdashLangs` are separate sets and must stay subsets of `supportedLangs`. Adding a short-word language edits `supportedLangs` and `shortWords`; a range or dash language edits its own set; a quote language edits `quoteStyle` and, for a new style, `quoteGlyphs`.
+- `en` and `ru` are supported, `ko` gets typographic quotes only, and `ja`, `de` and the rest are unsupported. `languages.json` pins this, and its `ja`, `ko` and `de` cases change on purpose when support lands. The readme documents `ja` and `ko` as unsupported and does not mention `ko` quotes.
+- `placeNbsp` has no `ja`/`ko` list by design: Japanese uses no word spaces, Korean attaches particles to the preceding word. Its `&` branch follows the same gate (`shortWords[lang]`). `ru` particles that follow a word (`бы`, `ли`, `же`) stay out of the `ru` list.
 
 Carry (`carry.stack`, `carry.prev`):
 
@@ -101,7 +79,7 @@ Carry (`carry.stack`, `carry.prev`):
 
 ## dom.js, walk.js and build.js
 
-Rule resolution is shared: both call `resolveRules(inherited, data)` from core.js (order: inherited, `data-math` overlay, explicit `data-place-*`; unknown or prototype names are ignored). dom.js passes `node.dataset`; walk.js builds the same camelCase object from the attributes, with names lowercased and the first duplicate winning, as in a browser. It returns `inherited` itself when nothing applies.
+Rule resolution is shared: both call `resolveRules(inherited, data)` from core.js (order: inherited, `data-math` overlay, explicit `data-place-*`; unknown or prototype names are ignored). dom.js passes `node.dataset`; walk.js builds the same camelCase object from the attributes, with names lowercased and the first duplicate winning, as in a browser. `resolveRules` returns `inherited` itself when nothing applies.
 
 dom.js and walk.js implement the rest of the behavior twice, so any change to one must be made in the other: skip elements, `lang` inheritance, nested `.alaska` (walk.js gets this from the sticky `active` flag), and the carry protocol:
 
@@ -117,7 +95,7 @@ Known divergences, not to be unified: walk.js ends the text run at a character r
 
 ## Adding a rule
 
-1. Add the name to the string list in `commonRules`. This makes it default-on (unless math-only) and whitelists its `data-*` attribute. Decide what it does for `en`, `ru`, `ja` and `ko`; if `ja`/`ko` behavior is not obvious, gate it by language and add a checklist item.
+1. Add the name to the string list in `commonRules`. This makes it default-on (unless math-only) and whitelists its `data-*` attribute. Decide what it does for `en`, `ru`, `ja` and `ko` (also when changing an existing rule); if the `ja`/`ko` behavior is not obvious, gate it by language.
 2. Implement it in the main-pass branch for the token type it starts from. Mind precedence and stale references.
 3. Tests:
    - A row in `test/rule-table.json` (the harness fails if a rule has no row). It runs the rule alone, everything else on with the rule off (`off` must differ from `expected`), and, unless `langDependent`, the isolation run for `en`, `ru`, `ja`, `ko` and no language, which must agree. Math-only rules set `"negationBase": "math"`.
@@ -130,8 +108,8 @@ Known divergences, not to be unified: walk.js ends the text run at a character r
 
 - Case shapes are validated by `harness.js` (unknown keys, bad `rules`, duplicates, missing `expected` and so on); read it for the schema. Every case, and every `walk.test.js` case, is also run a second time and must be idempotent.
 - Keep a case only if it pins behavior documented in the readme, a distinct branch, a fuzz regression, or a carry or walk contract. Do not restate a rule-table row or repeat an input across groups.
-- Language-dependent behavior gets one group per language in `languages.json`. `de` and `ja` pin "unsupported, unchanged" and `ko` pins "quotes only"; those cases change on purpose when support lands.
-- Behavior listed in the readme "does not do" section is pinned by ordinary cases. Fixing one means changing its test on purpose.
+- Language-dependent behavior gets one group per language in `languages.json`.
+- A missed or wrong edit the readme documents as a limit is pinned by ordinary cases. Fixing one means changing its test on purpose.
 - Coverage gate: with `test/test.js`, `test/carry.api.test.js` and `test/rules.api.test.js`, only the `if (!tokens[j].value) continue;` guard in the carry snapshot may stay unreached; with `test/walk.test.js` alone nothing in `cli/walk.js` may. Merge per-process V8 coverage by source offset, not line percentage. Do not delete defensive guards to raise a percentage: they make a bug skip an edit instead of throwing at render time.
 - HTML structure and `data-math` cases belong in `test/walk.test.js`, not `test/cases`.
 
@@ -149,6 +127,6 @@ Symbols, punctuation, spacing characters and glyphs are written as `\uXXXX` esca
 
 ## Docs
 
-- `readme.md`: user quickstart. What Alaska is, setup, rules, and what it does not do. No internals.
+- `readme.md`: user quickstart. What Alaska is, setup, rules, and limits. No internals.
 - `agents.md`: this file. No restating of the readme.
 - When behavior changes, update the readme in the same change. The rules table must list every key of `commonRules` and match actual output (verify by running the input through `formatString` and printing codepoints). When files move or tasks change, update Layout and Commands here.
