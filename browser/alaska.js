@@ -208,7 +208,7 @@ function tokenize(text) {
         value += text[pos++];
       }
       tokens.push({ type: "num", value, start, end: pos });
-    } else if (/[$€¥£₽₸]/.test(char)) {
+    } else if (/[$\u20AC\u00A5\u00A3\u20BD\u20B8]/.test(char)) {
       tokens.push({ type: "curr", value: char, start, end: pos + 1 });
       pos++;
     } else if (char === "\\" && /[a-zA-Z]/.test(text[pos + 1])) {
@@ -218,7 +218,7 @@ function tokenize(text) {
         value += text[pos++];
       }
       tokens.push({ type: "short", value, start, end: pos });
-    } else if (/[.,!?:;'"\-–—()…\/]/.test(char)) {
+    } else if (/[.,!?:;'"\-\u2013\u2014()\u2026\/]/.test(char)) {
       let value = char;
       if (char === "-" && text[pos + 1] === "-") {
         value = "--";
